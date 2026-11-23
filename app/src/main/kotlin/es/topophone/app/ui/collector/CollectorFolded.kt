@@ -23,8 +23,10 @@ import es.topophone.app.ui.field.ShortListDialog
 import es.topophone.app.ui.field.TimeEntryDialog
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.labelRes
+import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.format.DurationText
+import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.survey.PoleHeight
@@ -50,13 +52,21 @@ fun CollectorFolded(
     modifier: Modifier = Modifier,
     stats: AverageStatsUi? = null,
     autoLive: AutoLive? = null,
+    /** Falso cuando la línea de estado ya va en la cabecera de la hoja (S060/RF-8). */
+    showStatus: Boolean = true,
 ) {
     var dialog by remember { mutableStateOf<PillDialog?>(null) }
     val symbol = unitSymbol(unit)
     val mode = CollectionModes.current(state)
     val idle = !state.measuring && !state.auto.running
     val pills = listOf(
-        SettingPillData(stringResource(R.string.field_pill_pole), "${state.poleHeightText} $symbol", COLLECTOR_POLE_PILL_TAG, idle) {
+        // S017/RF-32: con el automático en marcha el jalón sigue siendo editable; solo la medida en curso lo bloquea.
+        SettingPillData(
+            stringResource(R.string.field_pill_pole),
+            "${state.poleHeightText} $symbol",
+            COLLECTOR_POLE_PILL_TAG,
+            !state.measuring,
+        ) {
             dialog = PillDialog.POLE
         },
         SettingPillData(
@@ -76,18 +86,15 @@ fun CollectorFolded(
             actions.onOpenTilt,
         ),
     )
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        StatusLine(state.live, unit, state.settings.precision)
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        if (showStatus) StatusLine(state.live, unit, state.settings.precision, savedName = state.savedName)
         SettingsRow(pills)
-        InfoPills(state.settings.precision, state.baseShiftName, state.localized, unit) { kind ->
-            when (kind) {
-                InfoPillKind.PRECISION -> onExpand()
-                InfoPillKind.BASE_SHIFT -> actions.onRepeatBaseShift()
-                InfoPillKind.LOCALIZATION -> actions.onOpenLocalization()
-            }
-        }
-        if (!state.measuring && !state.auto.running) {
-            MeasureReasonLine(MeasureReasons.of(state.blocker)) { action ->
+        // Una sola fila extra en la hoja plegada, para dejar el mapa libre (S060/RF-2): el motivo de bloqueo, o el aviso, o las pastillas
+        // informativas, por ese orden de prioridad. Las pastillas informativas se ven siempre al expandir (RF-14, RF-22).
+        val reason = if (idle) MeasureReasons.of(state.blocker) else null
+        val notice = CollectorNotices.current(state)?.takeUnless { it is CollectorNotice.Saved }
+        when {
+            reason != null -> MeasureReasonLine(reason) { action ->
                 when (action) {
                     ReasonAction.OPEN_RECEIVER -> actions.onOpenReceiver()
                     ReasonAction.OPEN_PROJECT_CRS -> actions.onOpenProjectCrs()
@@ -98,8 +105,15 @@ fun CollectorFolded(
                     ReasonAction.EXPAND -> onExpand()
                 }
             }
+            notice != null -> CollectorNoticeLine(notice)
+            else -> InfoPills(state.settings.precision, state.baseShiftName, state.localized, unit) { kind ->
+                when (kind) {
+                    InfoPillKind.PRECISION -> onExpand()
+                    InfoPillKind.BASE_SHIFT -> actions.onRepeatBaseShift()
+                    InfoPillKind.LOCALIZATION -> actions.onOpenLocalization()
+                }
+            }
         }
-        CollectorNoticeLine(CollectorNotices.current(state))
         when {
             state.autoEnabled || state.auto.running -> AutoControls(state, unit, autoLive, actions)
             state.measuring -> MeasuringBar(state, actions)
@@ -158,7 +172,13 @@ private fun FoldedDialogs(
                 title = stringResource(R.string.field_time_title),
                 label = stringResource(R.string.field_distance_label, symbol),
                 initial = state.autoDistanceText,
-                validate = { text -> R.string.field_distance_invalid.takeIf { CollectorSettings.parseAutoDistance(text, unit) == null } },
+                validate = { text ->
+                    R.string.collector_auto_distance_invalid.takeIf {
+                        CollectorSettings.parseAutoDistance(text, unit) ==
+                            null
+                    }
+                },
+                errorArgs = distanceRangeArgs(unit),
                 onConfirm = { CollectionModes.applyTime(mode, it, actions) },
                 onDismiss = onDismiss,
             )
@@ -199,4 +219,16 @@ internal fun NamedMeasureButton(state: CollectorUiState, actions: CollectorActio
             },
         )
     }
+}
+
+/** El rango de la distancia del modo automático en la unidad del proyecto, para decirlo junto al campo (S017/RF-17). */
+@Composable
+private fun distanceRangeArgs(unit: LinearUnit): List<Any> {
+    val locale = uiLocale()
+    val symbol = unitSymbol(unit)
+    val range = CollectorSettings.autoDistanceRangeIn(unit)
+    return listOf(
+        "${LengthFormat.inUnit(range.start, unit, locale, decimals = 1)} $symbol",
+        "${LengthFormat.inUnit(range.endInclusive, unit, locale, decimals = 1)} $symbol",
+    )
 }

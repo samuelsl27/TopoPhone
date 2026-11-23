@@ -14,6 +14,11 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.field.FIELD_ENTRY_CONFIRM_TAG
+import es.topophone.app.ui.field.FIELD_ENTRY_SECONDS_TAG
+import es.topophone.app.ui.field.FIELD_ENTRY_TAG
+import es.topophone.app.ui.field.FIELD_SHEET_HANDLE_TAG
+import es.topophone.app.ui.field.shortListOptionTag
 import es.topophone.app.ui.map.FakeMapController
 import es.topophone.app.ui.map.fakeMap
 import es.topophone.app.ui.projects.POSITION_PANEL_TAG
@@ -149,7 +154,7 @@ class CollectorPanelTest {
     fun `S010 RF-9 y RF-11 en un movil pequeno el progreso y Cancelar se ven sin desplazar el panel`() {
         show(ready.copy(settings = CollectorSettings(MeasurementMode.AVERAGED), measuring = true, progress = MeasureProgress(2.0, 5.0)))
 
-        compose.onNodeWithText("Tiempo 0:02 de 0:05").assertIsDisplayed() // S017/RF-1
+        compose.onNode(hasText("Tiempo 0:02 de 0:05", substring = true)).assertIsDisplayed() // S017/RF-1
         compose.onNodeWithTag(COLLECTOR_CANCEL_TAG).assertIsDisplayed()
     }
 
@@ -157,9 +162,13 @@ class CollectorPanelTest {
     fun `S010 RF-4 y RF-5 nombre, descripcion y jalon se ven y se cambian`() {
         show(ready)
 
+        // S060: el nombre y la descripción están en la hoja expandida y el jalón se cambia desde su pastilla.
+        compose.onNodeWithTag(FIELD_SHEET_HANDLE_TAG).performClick()
         compose.onNodeWithTag(COLLECTOR_NAME_TAG).performScrollTo().assert(hasText("P12")).performTextReplacement("P13")
         compose.onNodeWithTag(COLLECTOR_DESCRIPTION_TAG).performScrollTo().assert(hasText("arqueta")).performTextReplacement("pozo")
-        compose.onNodeWithTag(COLLECTOR_POLE_TAG).performScrollTo().assert(hasText("1,800")).performTextReplacement("2,05")
+        compose.onNodeWithTag(COLLECTOR_POLE_PILL_TAG).assert(hasText("1,800", substring = true)).performClick()
+        compose.onNodeWithTag(FIELD_ENTRY_TAG).performTextReplacement("2,05")
+        compose.onNodeWithTag(FIELD_ENTRY_CONFIRM_TAG).performClick()
 
         // El estado de esta prueba no cambia: basta con que lleguen los valores nuevos.
         calls shouldContainAll listOf("name:P13", "description:pozo", "pole:2,05")
@@ -190,7 +199,8 @@ class CollectorPanelTest {
     fun `S010 RF-8 y RF-9 se elige el modo y se mide`() {
         show(ready)
 
-        compose.onNodeWithTag(modeOptionTag(MeasurementMode.AVERAGED)).performScrollTo().performClick()
+        compose.onNodeWithTag(COLLECTOR_MODE_PILL_TAG).performClick() // S060/RF-13
+        compose.onNodeWithTag(shortListOptionTag(CollectionMode.AVERAGED)).performClick()
         compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertIsEnabled().performClick()
 
         calls shouldBe listOf("mode:AVERAGED", "measure")
@@ -200,7 +210,7 @@ class CollectorPanelTest {
     fun `S010 RF-9 y RF-11 durante el promediado se ve el progreso y se puede cancelar`() {
         show(ready.copy(settings = CollectorSettings(MeasurementMode.AVERAGED), measuring = true, progress = MeasureProgress(2.0, 5.0)))
 
-        compose.onNodeWithText("Tiempo 0:02 de 0:05").assertIsDisplayed() // S017/RF-1
+        compose.onNode(hasText("Tiempo 0:02 de 0:05", substring = true)).assertIsDisplayed() // S017/RF-1
         compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertDoesNotExist()
         compose.onNodeWithTag(COLLECTOR_CANCEL_TAG).performClick()
 
@@ -218,11 +228,15 @@ class CollectorPanelTest {
             ),
         )
 
-        compose.onNodeWithText("De 0:01 a 60:00.").performScrollTo().assertIsDisplayed()
+        // S060/RF-16: el motivo dice por qué y su acción abre el selector de tiempo, que dice el rango y aplica minutos y segundos.
+        compose.onNodeWithTag(COLLECTOR_BLOCKER_TAG).assertIsDisplayed()
         compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertIsNotEnabled()
-        compose.onNodeWithTag(COLLECTOR_SECONDS_TAG).performScrollTo().assert(hasText("")).performTextReplacement("20")
+        compose.onNodeWithTag(COLLECTOR_REASON_ACTION_TAG).performClick()
+        compose.onNodeWithText("De 0:01 a 60:00.").assertIsDisplayed()
+        compose.onNodeWithTag(FIELD_ENTRY_SECONDS_TAG).performTextReplacement("20")
+        compose.onNodeWithTag(FIELD_ENTRY_CONFIRM_TAG).performClick()
 
-        calls shouldContainAll listOf("seconds:20")
+        calls shouldContainAll listOf("seconds:0:20")
     }
 
     @Test
@@ -244,7 +258,7 @@ class CollectorPanelTest {
     fun `S010 RF-3 con el nombre repetido se dice y no se puede medir`() {
         show(ready.copy(blocker = MeasureBlocker.NAME_TAKEN))
 
-        compose.onNodeWithText("Ya hay un punto con ese nombre.").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Ya hay un punto con ese nombre.").assertIsDisplayed()
         compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertIsNotEnabled()
     }
 

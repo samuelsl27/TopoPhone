@@ -3828,7 +3828,6 @@
     <string name="field_reason_name_taken">A point with that name already exists.</string>
     <string name="field_reason_seconds">The measuring time is not valid.</string>
     <string name="field_reason_auto_interval">The automatic interval is not valid.</string>
-    <string name="field_reason_auto_short">The interval is shorter than the averaging time.</string>
     <string name="field_reason_auto_distance">The automatic distance is not valid.</string>
     <string name="field_action_receivers">See receivers</string>
     <string name="field_action_crs">See system</string>
@@ -3845,7 +3844,6 @@
     <string name="field_pole_label">Height (%1$s)</string>
     <string name="field_time_title">Time</string>
     <string name="field_distance_label">Distance (%1$s)</string>
-    <string name="field_distance_invalid">Enter a valid distance.</string>
     <string name="field_mode_title">Measuring mode</string>
     <string name="field_mode_auto_time">Auto · time</string>
     <string name="field_mode_auto_distance">Auto · distance</string>

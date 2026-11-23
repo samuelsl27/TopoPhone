@@ -25,7 +25,7 @@
 ## Recolectar: hoja expandida e integración
 - [x] T9. `CollectorExpanded`: nombre, descripción, selector de código con atributos, foto y galería (o el texto de que no hay punto), y lo de líneas y polígonos, sin filas cortadas; guía de inclinación, cambio de base y medición automática con su texto actual. (RF-20, RF-21, RF-22)
       Hecho cuando: `CollectorExpandedTest` recorre cada fila con una pantalla pequeña y letra al 130 % sin cortes, comprueba que sin punto no hay botones de foto desactivados y que el teclado no tapa el campo enfocado.
-- [ ] T10. `CollectorSheet` en `ProjectViewScreen`: sustituye a `CollectorPanel` en el recolector suelto y mueve el hueco inferior del mapa a su alto medido; se añaden `onOpenReceiver`, `onOpenProjectCrs` y `onOpenGear` a `CollectorActions`. (RF-1, RF-2, RF-16)
+- [x] T10. `CollectorSheet` en `ProjectViewScreen`: sustituye a `CollectorPanel` en el recolector suelto y mueve el hueco inferior del mapa a su alto medido; se añaden `onOpenReceiver`, `onOpenProjectCrs` y `onOpenGear` a `CollectorActions`. (RF-1, RF-2, RF-16)
       Hecho cuando: `CollectorSheetScreenTest` abre el recolector en el proyecto, comprueba el alto plegado frente a 411×891 y 360×640 (D2) y que las acciones del motivo llegan a sus rutas.
 - [ ] T11. `CollectorSheet` bajo las secciones, el perfil longitudinal y la toma por eje, y migración de los tests antiguos de `CollectorPanel`. (RF-1, RF-32)
       Hecho cuando: los tests de `CollectorPanel*` y de las secciones, migrados, pasan, y `CollectorPanel` y `FORM_MAX_HEIGHT` ya no existen.

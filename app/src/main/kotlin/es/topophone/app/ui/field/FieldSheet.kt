@@ -65,78 +65,91 @@ fun FieldSheet(
     onValueChange: (FieldSheetValue) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
+    tag: String = FIELD_SHEET_TAG,
+    closeTag: String = FIELD_SHEET_CLOSE_TAG,
+    header: @Composable ColumnScope.() -> Unit = {},
     folded: @Composable ColumnScope.() -> Unit,
     expanded: @Composable ColumnScope.() -> Unit = {},
 ) {
     val isExpanded = value == FieldSheetValue.Expanded
     val maxExpanded = (LocalConfiguration.current.screenHeightDp * EXPANDED_MAX_FRACTION).dp
     Surface(
-        modifier = modifier.fillMaxWidth().imePadding().testTag(FIELD_SHEET_TAG),
+        modifier = modifier.fillMaxWidth().imePadding().testTag(tag),
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
         tonalElevation = 3.dp,
         shadowElevation = 8.dp,
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            Handle(isExpanded, onValueChange, onClose)
+            Header(isExpanded, onValueChange, onClose, closeTag, header)
             folded()
             if (isExpanded) {
                 Column(
                     modifier = Modifier.heightIn(max = maxExpanded).verticalScroll(rememberScrollState()).testTag(FIELD_SHEET_EXPANDED_TAG),
                 ) { expanded() }
             }
-            Box(Modifier.size(8.dp))
+            Box(Modifier.size(2.dp))
         }
     }
 }
 
+/**
+ * La cabecera de la hoja: el asa fina arriba y, debajo, el contenido de [header] (la línea de estado) con «Cerrar» a su lado. Toda la
+ * cabecera se arrastra y se toca para plegar o expandir, así que el objetivo táctil es grande aunque el asa sea fina (S060/RF-4).
+ */
 @Composable
-private fun Handle(isExpanded: Boolean, onValueChange: (FieldSheetValue) -> Unit, onClose: () -> Unit) {
+private fun Header(
+    isExpanded: Boolean,
+    onValueChange: (FieldSheetValue) -> Unit,
+    onClose: () -> Unit,
+    closeTag: String,
+    header: @Composable ColumnScope.() -> Unit,
+) {
     val target = if (isExpanded) FieldSheetValue.Folded else FieldSheetValue.Expanded
     val toggleLabel = stringResource(if (isExpanded) R.string.field_sheet_fold else R.string.field_sheet_expand)
     val handleName = stringResource(R.string.field_sheet_handle)
     val stateName = stringResource(if (isExpanded) R.string.field_sheet_state_expanded else R.string.field_sheet_state_folded)
     var dragged by remember { mutableFloatStateOf(0f) }
     val thresholdPx = with(androidx.compose.ui.platform.LocalDensity.current) { DRAG_THRESHOLD.toPx() }
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .heightIn(min = MinTouchTarget)
-                .draggable(
-                    orientation = Orientation.Vertical,
-                    state = rememberDraggableState { dragged += it },
-                    onDragStarted = { dragged = 0f },
-                    onDragStopped = {
-                        // Hacia arriba (negativo) expande; hacia abajo pliega.
-                        when {
-                            dragged <= -thresholdPx -> onValueChange(FieldSheetValue.Expanded)
-                            dragged >= thresholdPx -> onValueChange(FieldSheetValue.Folded)
-                        }
-                        dragged = 0f
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .draggable(
+                orientation = Orientation.Vertical,
+                state = rememberDraggableState { dragged += it },
+                onDragStarted = { dragged = 0f },
+                onDragStopped = {
+                    // Hacia arriba (negativo) expande; hacia abajo pliega.
+                    when {
+                        dragged <= -thresholdPx -> onValueChange(FieldSheetValue.Expanded)
+                        dragged >= thresholdPx -> onValueChange(FieldSheetValue.Folded)
+                    }
+                    dragged = 0f
+                },
+            )
+            .clickable(onClickLabel = toggleLabel) { onValueChange(target) }
+            .semantics {
+                contentDescription = handleName
+                stateDescription = stateName
+                customActions = listOf(
+                    CustomAccessibilityAction(toggleLabel) {
+                        onValueChange(target)
+                        true
                     },
                 )
-                .clickable(onClickLabel = toggleLabel) { onValueChange(target) }
-                .semantics {
-                    contentDescription = handleName
-                    stateDescription = stateName
-                    customActions = listOf(
-                        CustomAccessibilityAction(toggleLabel) {
-                            onValueChange(target)
-                            true
-                        },
-                    )
-                }
-                .testTag(FIELD_SHEET_HANDLE_TAG),
-            contentAlignment = Alignment.Center,
-        ) {
-            Box(
-                Modifier
-                    .size(width = 40.dp, height = 4.dp)
-                    .background(MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)),
-            )
+            }
+            .testTag(FIELD_SHEET_HANDLE_TAG),
+    ) {
+        Box(Modifier.fillMaxWidth().heightIn(min = HANDLE_AREA), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(width = 40.dp, height = 4.dp).background(MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)))
         }
-        TextButton(onClick = onClose, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(FIELD_SHEET_CLOSE_TAG)) {
-            Text(stringResource(R.string.collector_close))
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.weight(1f)) { header() }
+            TextButton(onClick = onClose, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(closeTag)) {
+                Text(stringResource(R.string.collector_close))
+            }
         }
     }
 }
+
+/** El alto de la franja del asa. */
+private val HANDLE_AREA = 10.dp

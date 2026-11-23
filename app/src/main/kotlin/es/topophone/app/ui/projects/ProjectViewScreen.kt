@@ -97,6 +97,7 @@ import es.topophone.app.ui.collector.COLLECT_BUTTON_TAG
 import es.topophone.app.ui.collector.CollectorActions
 import es.topophone.app.ui.collector.CollectorCodeSource
 import es.topophone.app.ui.collector.CollectorPanel
+import es.topophone.app.ui.collector.CollectorSheet
 import es.topophone.app.ui.collector.CollectorUiState
 import es.topophone.app.ui.collector.CollectorViewModel
 import es.topophone.app.ui.collector.SurfaceReading
@@ -953,6 +954,10 @@ fun ProjectViewRoute(
             onDismissBaseChange = collectorViewModel::dismissBaseChange,
             onDismissLongBaseline = collectorViewModel::dismissLongBaseline,
             onOpenTilt = navigation.onOpenTilt, // S016/RF-2, RF-18
+            onOpenReceiver = navigation.onOpenReceiver, // S060/RF-16
+            onOpenProjectCrs = { navigation.onEditProject(projectId) }, // S060/RF-16
+            onOpenGear = navigation.onOpenGear, // S060/RF-16
+            onOpenLocalization = { navigation.onLocalization(projectId) }, // S060/RF-14
             onFinish = collectorViewModel::finishNow, // S017/RF-6, RF-10
             onKeepWaiting = collectorViewModel::keepWaiting, // S017/RF-10
             onAutoEnabled = collectorViewModel::setAutoEnabled, // S017/RF-15
@@ -1376,10 +1381,15 @@ fun ProjectViewScreen(
                         collectorActions = collectorActions,
                         stats = collectorStats,
                     ) // S054/RF-12
-                    collector != null && collectorOpen -> CollectorPanel(collector, project.linearUnit, collectorActions, onClose = {
-                        collectorOpen =
-                            false
-                    }, stats = collectorStats, autoLive = collectorAutoLive, surface = collectorSurface)
+                    collector != null && collectorOpen -> CollectorSheet(
+                        collector,
+                        project.linearUnit,
+                        collectorActions,
+                        onClose = { collectorOpen = false },
+                        stats = collectorStats,
+                        autoLive = collectorAutoLive,
+                        surface = collectorSurface,
+                    ) // S060/RF-1
                     else -> PositionPanel(project, state.position, state.accuracyM, state.uncompensated, onInfo, Modifier, library)
                 }
             }

@@ -86,7 +86,13 @@ object StatusNotes {
  * (S060/RF-8, RF-17b, RF-18). El color acompaña al texto, nunca lo sustituye (RNF-T8).
  */
 @Composable
-fun StatusLine(live: LiveQuality?, unit: LinearUnit, precision: PrecisionControl, modifier: Modifier = Modifier) {
+fun StatusLine(
+    live: LiveQuality?,
+    unit: LinearUnit,
+    precision: PrecisionControl,
+    modifier: Modifier = Modifier,
+    savedName: String? = null,
+) {
     if (live == null) return
     val locale = uiLocale()
     val symbol = unitSymbol(unit)
@@ -119,6 +125,13 @@ fun StatusLine(live: LiveQuality?, unit: LinearUnit, precision: PrecisionControl
                 )
             }
             Text(text, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.testTag(STATUS_NOTE_TAG))
+        } ?: savedName?.let {
+            // El punto guardado comparte la segunda línea de la cabecera con las notas, que van antes (S060/RF-22).
+            Text(
+                stringResource(R.string.collector_saved, it),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.testTag(COLLECTOR_SAVED_TAG),
+            )
         }
     }
 }

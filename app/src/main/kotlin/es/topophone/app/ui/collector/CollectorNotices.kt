@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -114,13 +115,24 @@ fun CollectorNoticeLine(notice: CollectorNotice?, modifier: Modifier = Modifier)
  */
 @Composable
 internal fun MeasuringBar(state: CollectorUiState, actions: CollectorActions, modifier: Modifier = Modifier) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
         val progress = state.progress
         if (progress != null) {
-            Column(
-                modifier = Modifier.semantics(mergeDescendants = true) {
-                }.testTag(COLLECTOR_PROGRESS_TAG),
-            ) { AveragingProgress(progress) }
+            // Compacto: el tiempo y las épocas en una línea y el avance debajo, para tapar poco mapa (S060/RF-2).
+            Column(modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(COLLECTOR_PROGRESS_TAG)) {
+                Text(
+                    "${stringResource(
+                        R.string.collector_progress_time,
+                        DurationText.format(progress.elapsedS.toInt()),
+                        DurationText.format(progress.requiredS.toInt()),
+                    )} · ${stringResource(R.string.collector_epochs, progress.epochsUsed, progress.epochsDiscarded)}",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                LinearProgressIndicator(progress = {
+                    (progress.elapsedS / progress.requiredS).toFloat()
+                }, modifier = Modifier.fillMaxWidth())
+            }
+            AnnounceMinutes(progress)
         } else {
             Text(stringResource(R.string.collector_measuring), modifier = Modifier.testTag(COLLECTOR_PROGRESS_TAG))
         }

@@ -49,9 +49,9 @@ fun SettingPill(data: SettingPillData, modifier: Modifier = Modifier) {
             }
             .testTag(data.tag),
     ) {
-        Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp), verticalArrangement = Arrangement.Center) {
+        Column(modifier = Modifier.padding(horizontal = 6.dp, vertical = 6.dp), verticalArrangement = Arrangement.Center) {
             Text(data.label, style = MaterialTheme.typography.labelSmall)
-            Text(data.value, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(data.value, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -72,4 +72,4 @@ fun SettingsRow(pills: List<SettingPillData>, modifier: Modifier = Modifier) {
     }
 }
 
-private val PILL_MIN_WIDTH = 72.dp
+private val PILL_MIN_WIDTH = 60.dp

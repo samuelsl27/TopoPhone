@@ -292,6 +292,9 @@ class SurveyNavigation(
     val onOpenTrash: () -> Unit = {},
     /** El apartado "Inclinación" del receptor, desde el recolector (S016/RF-2, RF-18). */
     val onOpenTilt: () -> Unit = {},
+    /** La sección Receptor y su apartado «Antena y jalón», desde el motivo de bloqueo del recolector (S060/RF-16). */
+    val onOpenReceiver: () -> Unit = {},
+    val onOpenGear: () -> Unit = {},
     val onBack: () -> Unit = {},
 )
 

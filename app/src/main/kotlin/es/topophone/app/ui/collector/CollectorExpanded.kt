@@ -34,6 +34,18 @@ fun CollectorExpanded(
     surface: SurfaceReading? = null,
 ) {
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        // Las pastillas informativas ceden su fila en la hoja plegada al motivo o al aviso: aquí se ven siempre (S060/RF-2, RF-14).
+        val foldedShowsInfo = (state.measuring || state.auto.running || MeasureReasons.of(state.blocker) == null) &&
+            CollectorNotices.current(state)?.takeUnless { it is CollectorNotice.Saved } == null
+        if (!foldedShowsInfo) {
+            InfoPills(state.settings.precision, state.baseShiftName, state.localized, unit) { kind ->
+                when (kind) {
+                    InfoPillKind.PRECISION -> Unit
+                    InfoPillKind.BASE_SHIFT -> actions.onRepeatBaseShift()
+                    InfoPillKind.LOCALIZATION -> actions.onOpenLocalization()
+                }
+            }
+        }
         NameField(state, actions)
         OutlinedTextField(
             value = state.description,

@@ -3840,7 +3840,6 @@
     <string name="field_reason_name_taken">Ya hay un punto con ese nombre.</string>
     <string name="field_reason_seconds">El tiempo de medición no es válido.</string>
     <string name="field_reason_auto_interval">El intervalo del modo automático no es válido.</string>
-    <string name="field_reason_auto_short">El intervalo es menor que el tiempo de promediado.</string>
     <string name="field_reason_auto_distance">La distancia del modo automático no es válida.</string>
     <string name="field_action_receivers">Ver receptores</string>
     <string name="field_action_crs">Ver sistema</string>
@@ -3857,7 +3856,6 @@
     <string name="field_pole_label">Altura (%1$s)</string>
     <string name="field_time_title">Tiempo</string>
     <string name="field_distance_label">Distancia (%1$s)</string>
-    <string name="field_distance_invalid">Escribe una distancia válida.</string>
     <string name="field_mode_title">Modo de medida</string>
     <string name="field_mode_auto_time">Auto · tiempo</string>
     <string name="field_mode_auto_distance">Auto · distancia</string>

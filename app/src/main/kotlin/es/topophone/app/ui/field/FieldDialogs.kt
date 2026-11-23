@@ -50,6 +50,8 @@ fun NumericEntryDialog(
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit,
     decimal: Boolean = true,
+    /** Los argumentos del texto del error, si lleva (por ejemplo, el rango válido). */
+    errorArgs: List<Any> = emptyList(),
 ) {
     var text by remember { mutableStateOf(initial) }
     val error = validate(text)
@@ -62,7 +64,9 @@ fun NumericEntryDialog(
                 onValueChange = { text = it },
                 label = { Text(label) },
                 isError = error != null,
-                supportingText = error?.let { { Text(stringResource(it), modifier = Modifier.testTag(FIELD_ENTRY_ERROR_TAG)) } },
+                supportingText = error?.let {
+                    { Text(stringResource(it, *errorArgs.toTypedArray()), modifier = Modifier.testTag(FIELD_ENTRY_ERROR_TAG)) }
+                },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = fieldEntryKeyboard(decimal)),
                 modifier = Modifier.fillMaxWidth().testTag(FIELD_ENTRY_TAG),

@@ -535,6 +535,12 @@ private fun AppNavHost(
                     navController.navigateToTopLevel(TopLevelDestination.RECEIVER)
                     navController.navigate(ReceiverTiltRoute)
                 },
+                onOpenReceiver = { navController.navigateToTopLevel(TopLevelDestination.RECEIVER) }, // S060/RF-16
+                onOpenGear = {
+                    // S060/RF-16: a la sección Receptor, con «Antena y jalón» encima.
+                    navController.navigateToTopLevel(TopLevelDestination.RECEIVER)
+                    navController.navigate(ReceiverGearRoute)
+                },
                 onBack = { navController.popBackStack() },
             )
             composable<SurveyRoute> { entry ->

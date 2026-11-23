@@ -14,6 +14,12 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.field.FIELD_ENTRY_CONFIRM_TAG
+import es.topophone.app.ui.field.FIELD_ENTRY_MINUTES_TAG
+import es.topophone.app.ui.field.FIELD_ENTRY_SECONDS_TAG
+import es.topophone.app.ui.field.FIELD_ENTRY_TAG
+import es.topophone.app.ui.field.FIELD_SHEET_HANDLE_TAG
+import es.topophone.app.ui.field.shortListOptionTag
 import es.topophone.app.ui.map.FakeMapController
 import es.topophone.app.ui.map.fakeMap
 import es.topophone.app.ui.projects.ProjectViewScreen
@@ -123,7 +129,11 @@ class CollectorPanelAdvancedTest {
     fun `S017 RF-1 el tiempo se escribe en minutos y segundos y fuera de rango se dice el rango`() {
         show(ready.copy(averagingSecondsText = "1:30"))
 
-        compose.onNodeWithTag(COLLECTOR_SECONDS_TAG).performScrollTo().assert(hasText("1:30")).performTextReplacement("2:00")
+        // S060/RF-11: el tiempo se cambia desde su pastilla, con minutos y segundos que se juntan en «m:ss».
+        compose.onNodeWithTag(COLLECTOR_TIME_PILL_TAG).assert(hasText("1:30", substring = true)).performClick()
+        compose.onNodeWithTag(FIELD_ENTRY_MINUTES_TAG).performTextReplacement("2")
+        compose.onNodeWithTag(FIELD_ENTRY_SECONDS_TAG).performTextReplacement("00")
+        compose.onNodeWithTag(FIELD_ENTRY_CONFIRM_TAG).performClick()
         calls shouldContainExactly listOf("seconds:2:00")
     }
 
@@ -131,22 +141,25 @@ class CollectorPanelAdvancedTest {
     fun `S017 RF-1 un tiempo fuera de 0 01 a 60 00 se rechaza y no se mide`() {
         show(ready.copy(averagingSecondsText = "60:01", averagingSecondsValid = false, blocker = MeasureBlocker.INVALID_SECONDS))
 
-        compose.onNodeWithText("De 0:01 a 60:00.").performScrollTo().assertIsDisplayed()
+        // S060/RF-16: el motivo lleva a un selector que dice el rango.
+        compose.onNodeWithTag(COLLECTOR_REASON_ACTION_TAG).performClick()
+        compose.onNodeWithText("De 0:01 a 60:00.").assertIsDisplayed()
     }
 
     @Test
     fun `S017 RF-2 durante el promediado se ve el tiempo reunido y las epocas usadas y descartadas`() {
         show(measuring)
 
-        compose.onNodeWithText("Tiempo 2:05 de 10:00").assertIsDisplayed()
-        compose.onNodeWithText("Épocas: 125 usadas, 3 descartadas").assertIsDisplayed()
+        compose.onNode(hasText("Tiempo 2:05 de 10:00", substring = true)).assertIsDisplayed()
+        compose.onNode(hasText("Épocas: 125 usadas, 3 descartadas", substring = true)).assertIsDisplayed()
     }
 
     @Test
     fun `S017 RF-3 y RF-4 las desviaciones tipicas y la estabilidad salen en la unidad del proyecto`() {
         show(measuring, stats())
+        compose.onNodeWithTag(FIELD_SHEET_HANDLE_TAG).performClick() // S060/RF-20: las estadísticas están en la hoja expandida
 
-        compose.onNodeWithTag(COLLECTOR_STATS_TAG).assertIsDisplayed()
+        compose.onNodeWithTag(COLLECTOR_STATS_TAG).performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag(COLLECTOR_DEVIATION_TAG).assert(hasText("Desviación típica: H ", substring = true))
         compose.onNodeWithTag(COLLECTOR_STABILITY_TAG).assert(hasText("Estabilidad (último minuto): planta ", substring = true))
     }
@@ -154,6 +167,7 @@ class CollectorPanelAdvancedTest {
     @Test
     fun `S017 RF-3 y RF-4 sin datos todavia se dice Sin dato`() {
         show(measuring, stats(epochs = 1))
+        compose.onNodeWithTag(FIELD_SHEET_HANDLE_TAG).performClick()
 
         compose.onNodeWithTag(COLLECTOR_DEVIATION_TAG).assert(hasText("Desviación típica: H Sin dato · V Sin dato"))
         compose.onNodeWithTag(COLLECTOR_STABILITY_TAG).assert(hasText("Estabilidad (último minuto): planta Sin dato · vertical Sin dato"))
@@ -162,6 +176,7 @@ class CollectorPanelAdvancedTest {
     @Test
     fun `S017 RF-5 el grafico de dispersion lleva su descripcion para TalkBack`() {
         show(measuring, stats())
+        compose.onNodeWithTag(FIELD_SHEET_HANDLE_TAG).performClick()
 
         val description = compose.onNodeWithTag(
             COLLECTOR_PLOT_TAG,
@@ -267,8 +282,10 @@ class CollectorPanelAdvancedTest {
         show(ready.copy(settings = CollectorSettings()))
 
         compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertIsDisplayed()
-        compose.onNodeWithTag(COLLECTOR_AUTO_TAG).performScrollTo().performClick()
-        calls shouldContainExactly listOf("auto:true")
+        // S060/RF-13: el automático se elige en la lista de «Modo».
+        compose.onNodeWithTag(COLLECTOR_MODE_PILL_TAG).performClick()
+        compose.onNodeWithTag(shortListOptionTag(CollectionMode.AUTO_TIME)).performClick()
+        calls shouldContainExactly listOf("trigger:TIME", "auto:true")
     }
 
     @Test
@@ -277,7 +294,8 @@ class CollectorPanelAdvancedTest {
 
         compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertDoesNotExist()
         compose.onNodeWithTag(COLLECTOR_START_AUTO_TAG).assertIsDisplayed().assertIsEnabled().performClick()
-        compose.onNodeWithTag(autoTriggerTag(AutoTrigger.DISTANCE)).performScrollTo().performClick()
+        compose.onNodeWithTag(COLLECTOR_MODE_PILL_TAG).performClick()
+        compose.onNodeWithTag(shortListOptionTag(CollectionMode.AUTO_DISTANCE)).performClick()
         calls shouldContainExactly listOf("start", "trigger:DISTANCE")
     }
 
@@ -285,7 +303,10 @@ class CollectorPanelAdvancedTest {
     fun `S017 RF-16 por tiempo se escribe el intervalo en minutos y segundos y fuera de rango se dice el rango`() {
         show(automatic.copy(autoIntervalText = "0:10"))
 
-        compose.onNodeWithTag(COLLECTOR_AUTO_INTERVAL_TAG).performScrollTo().assert(hasText("0:10")).performTextReplacement("0:30")
+        compose.onNodeWithTag(COLLECTOR_TIME_PILL_TAG).assert(hasText("0:10", substring = true)).performClick()
+        compose.onNodeWithTag(FIELD_ENTRY_MINUTES_TAG).performTextReplacement("0")
+        compose.onNodeWithTag(FIELD_ENTRY_SECONDS_TAG).performTextReplacement("30")
+        compose.onNodeWithTag(FIELD_ENTRY_CONFIRM_TAG).performClick()
         calls shouldContainExactly listOf("interval:0:30")
     }
 
@@ -293,8 +314,9 @@ class CollectorPanelAdvancedTest {
     fun `S017 RF-16 un intervalo fuera de rango no deja iniciar`() {
         show(automatic.copy(autoIntervalText = "90:00", autoIntervalValid = false, blocker = MeasureBlocker.INVALID_AUTO_INTERVAL))
 
-        compose.onNodeWithText("De 0:01 a 60:00.").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag(COLLECTOR_START_AUTO_TAG).assertIsNotEnabled()
+        compose.onNodeWithTag(COLLECTOR_REASON_ACTION_TAG).performClick()
+        compose.onNodeWithText("De 0:01 a 60:00.").assertIsDisplayed()
     }
 
     @Test
@@ -307,9 +329,11 @@ class CollectorPanelAdvancedTest {
         )
         show(distance)
 
-        compose.onNodeWithTag(COLLECTOR_AUTO_DISTANCE_TAG).performScrollTo().assert(hasText("0,05")).performTextReplacement("2")
-        compose.onNodeWithText("De 0,1 m a 1.000,0 m.").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag(COLLECTOR_START_AUTO_TAG).assertIsNotEnabled()
+        compose.onNodeWithTag(COLLECTOR_TIME_PILL_TAG).assert(hasText("0,05", substring = true)).performClick()
+        compose.onNodeWithText("De 0,1 m a 1.000,0 m.").assertIsDisplayed()
+        compose.onNodeWithTag(FIELD_ENTRY_TAG).performTextReplacement("2")
+        compose.onNodeWithTag(FIELD_ENTRY_CONFIRM_TAG).performClick()
         calls shouldContainExactly listOf("distance:2")
     }
 
@@ -348,13 +372,12 @@ class CollectorPanelAdvancedTest {
     fun `S017 RF-32 con el modo en marcha la medida y el disparo no se pueden cambiar pero el nombre si`() {
         show(running)
 
-        compose.onNodeWithTag(modeOptionTag(MeasurementMode.INSTANT)).assertIsNotEnabled()
-        compose.onNodeWithTag(modeOptionTag(MeasurementMode.AVERAGED)).assertIsNotEnabled()
-        compose.onNodeWithTag(COLLECTOR_AUTO_TAG).performScrollTo().assertIsNotEnabled()
-        compose.onNodeWithTag(autoTriggerTag(AutoTrigger.TIME)).performScrollTo().assertIsNotEnabled()
-        compose.onNodeWithTag(COLLECTOR_AUTO_INTERVAL_TAG).performScrollTo().assertIsNotEnabled()
+        // S060/RF-9: el modo, el disparo y el intervalo son las pastillas Modo y Tiempo, desactivadas; el jalón y el nombre siguen activos.
+        compose.onNodeWithTag(COLLECTOR_MODE_PILL_TAG).assertIsNotEnabled()
+        compose.onNodeWithTag(COLLECTOR_TIME_PILL_TAG).assertIsNotEnabled()
+        compose.onNodeWithTag(COLLECTOR_POLE_PILL_TAG).assertIsEnabled()
+        compose.onNodeWithTag(FIELD_SHEET_HANDLE_TAG).performClick()
         compose.onNodeWithTag(COLLECTOR_NAME_TAG).performScrollTo().assertIsEnabled()
-        compose.onNodeWithTag(COLLECTOR_POLE_TAG).performScrollTo().assertIsEnabled()
     }
 
     @Test

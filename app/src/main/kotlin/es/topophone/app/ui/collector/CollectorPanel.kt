@@ -475,7 +475,7 @@ internal fun Measuring(state: CollectorUiState, unit: LinearUnit, stats: Average
 
 /** S010/RF-7 y RNF-T2. */
 @Composable
-private fun KeepScreenOn() {
+internal fun KeepScreenOn() {
     val view = LocalView.current
     DisposableEffect(view) {
         view.keepScreenOn = true

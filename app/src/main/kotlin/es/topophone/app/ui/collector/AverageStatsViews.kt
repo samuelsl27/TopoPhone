@@ -67,6 +67,12 @@ internal fun AveragingProgress(progress: MeasureProgress) {
     )
     LinearProgressIndicator(progress = { (progress.elapsedS / progress.requiredS).toFloat() }, modifier = Modifier.fillMaxWidth())
     Text(stringResource(R.string.collector_epochs, progress.epochsUsed, progress.epochsDiscarded))
+    AnnounceMinutes(progress)
+}
+
+/** Con 1 min o más de promediado, TalkBack anuncia cada minuto cumplido sin leer el resto (S017/RF-4). */
+@Composable
+internal fun AnnounceMinutes(progress: MeasureProgress) {
     if (progress.requiredS >= SECONDS_PER_MINUTE) {
         val minutes = (progress.elapsedS / SECONDS_PER_MINUTE).toInt()
         val total = ((progress.requiredS + SECONDS_PER_MINUTE - 1) / SECONDS_PER_MINUTE).toInt()

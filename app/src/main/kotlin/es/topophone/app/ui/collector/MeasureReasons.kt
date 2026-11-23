@@ -64,7 +64,7 @@ object MeasureReasons {
         MeasureBlocker.NAME_TAKEN -> reason(blocker, R.string.field_reason_name_taken, R.string.field_action_expand, ReasonAction.EXPAND)
         MeasureBlocker.INVALID_SECONDS -> reason(blocker, R.string.field_reason_seconds, R.string.field_action_time, ReasonAction.EDIT_TIME)
         MeasureBlocker.AUTO_INTERVAL_TOO_SHORT ->
-            reason(blocker, R.string.field_reason_auto_short, R.string.field_action_time, ReasonAction.EDIT_TIME)
+            reason(blocker, R.string.collector_auto_interval_too_short, R.string.field_action_time, ReasonAction.EDIT_TIME)
         MeasureBlocker.INVALID_AUTO_INTERVAL ->
             reason(blocker, R.string.field_reason_auto_interval, R.string.field_action_time, ReasonAction.EDIT_TIME)
         MeasureBlocker.INVALID_AUTO_DISTANCE ->
