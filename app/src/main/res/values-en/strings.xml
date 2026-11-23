@@ -3733,4 +3733,23 @@
     <string name="localization_pair_component_h">Use the horizontal component (Easting and Northing)</string>
     <string name="localization_pair_component_v">Use the vertical component (height)</string>
     <string name="localization_pair_remove">Remove pair</string>
+    <string name="localization_result_title">Result</string>
+    <string name="localization_result_failed_no_pairs">No pair has an active component: it cannot be calculated.</string>
+    <string name="localization_result_failed_degenerate">The GNSS points of the pairs coincide in plan: the horizontal part cannot be calculated.</string>
+    <string name="localization_result_translation">Centroid translation: Easting %1$s · Northing %2$s</string>
+    <string name="localization_result_rotation">Rotation: %1$s</string>
+    <string name="localization_result_scale">Scale: %1$s (%2$s ppm)</string>
+    <string name="localization_result_vertical_none">Vertical: no pair has a height</string>
+    <string name="localization_result_vertical_offset">Vertical: offset of %1$s</string>
+    <string name="localization_result_vertical_plane">Vertical: tilted plane, offset of %1$s and slope of %2$s ppm</string>
+    <string name="localization_result_aligned">The points with height are aligned: only the offset is used.</string>
+    <string name="localization_result_rms">RMS: horizontal %1$s · vertical %2$s</string>
+    <string name="localization_result_worst">Pair with the largest residual: %1$s</string>
+    <string name="localization_residuals_title">Residuals (known minus transformed)</string>
+    <string name="localization_residual_row">%1$s: Easting %2$s · Northing %3$s · horizontal %4$s · vertical %5$s</string>
+    <string name="localization_residual_high">High residual</string>
+    <string name="localization_scale_warning">The scale differs from 1 by more than the limit.</string>
+    <string name="localization_limits_title">Warning limits</string>
+    <string name="localization_limit_residual">Residual (%1$s)</string>
+    <string name="localization_limit_scale">Scale: |scale − 1|</string>
 </resources>

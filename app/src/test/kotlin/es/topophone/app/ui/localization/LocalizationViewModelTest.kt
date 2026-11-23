@@ -310,4 +310,20 @@ class LocalizationViewModelTest {
         val edited = await { it.draft != null && it.pairs.singleOrNull()?.useHorizontal == false }
         edited.active.shouldNotBeNull().pairs.single().useHorizontal shouldBe true
     }
+
+    @Test
+    fun `S039 RF-13 los umbrales se guardan en el borrador y un texto invalido no los cambia`() {
+        create(gnss("g1"))
+        viewModel()
+        addPairTo("g1", "440390", "4474207")
+        await { it.pairs.size == 1 }
+
+        viewModel.setLimits("0,05", "0,002")
+        val changed = await { it.residualLimitM == 0.05 }
+        viewModel.setLimits("abc", "-1")
+
+        changed.scaleLimit shouldBe 0.002
+        state().residualLimitM shouldBe 0.05
+        state().scaleLimit shouldBe 0.002
+    }
 }

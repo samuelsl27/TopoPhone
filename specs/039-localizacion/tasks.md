@@ -45,7 +45,7 @@
       Hecho cuando: `LocalizationViewModelTest` y `LocalizationScreenTest` cubren el par válido, los tres rechazos y la confirmación de calidad.
 - [x] T18. Activar o excluir cada componente, quitar un par, «Fijar escala = 1» y recálculo instantáneo. (RF-5, RF-8, RF-11)
       Hecho cuando: `LocalizationViewModelTest` comprueba que cada cambio recalcula el borrador y que con la escala fija sale exactamente 1.
-- [ ] T19. Los resultados: traslación, giro en el formato del proyecto, escala y ppm, pendiente, residuos por par, RMS, mayor residuo, umbrales ajustables y avisos con texto. (RF-9, RF-10, RF-12, RF-13)
+- [x] T19. Los resultados: traslación, giro en el formato del proyecto, escala y ppm, pendiente, residuos por par, RMS, mayor residuo, umbrales ajustables y avisos con texto. (RF-9, RF-10, RF-12, RF-13)
       Hecho cuando: `LocalizationScreenTest` comprueba cada valor, el destacado con texto de un residuo y de una escala fuera de umbral y el motivo cuando no se puede calcular.
 - [ ] T20. «Aplicar al proyecto» con confirmación y recuento, la segunda confirmación por umbrales, editar sin tocar la activa, «Quitar», historial y «Reactivar». (RF-14, RF-15, RF-16, RF-21)
       Hecho cuando: `LocalizationScreenTest` y `LocalizationViewModelTest` cubren aplicar, aplicar con umbrales superados, editar con una activa, quitar y reactivar.

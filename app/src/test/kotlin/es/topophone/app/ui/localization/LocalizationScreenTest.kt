@@ -10,6 +10,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.format.LengthFormat
@@ -26,6 +27,10 @@ import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.survey.localization.LocalizationFailure
+import es.topophone.core.survey.localization.LocalizationOutcome
+import es.topophone.core.survey.localization.LocalizationSolver
+import es.topophone.core.survey.localization.assess
 import io.kotest.matchers.shouldBe
 import java.util.Locale
 import org.junit.Rule
@@ -202,5 +207,101 @@ class LocalizationScreenTest {
         compose.onNodeWithTag(LOCALIZATION_FIX_SCALE_TAG).performScrollTo().shows("Fijar escala = 1").performClick()
 
         calls shouldBe listOf(true)
+    }
+
+    /** Cuatro pares con la misma traslación y un residuo de 0,20 m en el Norte del segundo, y el estado calculado como lo hace la pantalla. */
+    private fun solvedState(scaled: Double = 1.0, error: Double = 0.20): LocalizationUiState {
+        val base = listOf(440_000.0 to 4_474_000.0, 440_800.0 to 4_474_600.0, 439_300.0 to 4_474_100.0, 440_400.0 to 4_473_200.0)
+        val pairs = base.mapIndexed { i, (e, n) ->
+            val knownE = 440_000.0 + (e - 440_000.0) * scaled + 100.0
+            val knownN = 4_474_000.0 + (n - 4_474_000.0) * scaled - 50.0 + (if (i == 1) error else 0.0)
+            LocalizationPair("p$i", "pt$i", "Clavo $i", e, n, 650.0 + i, knownE, knownN, 650.25 + i)
+        }
+        val outcome = LocalizationSolver.solve(pairs, false)
+        val solved = outcome as LocalizationOutcome.Solved
+        return LocalizationUiState(
+            loaded = true,
+            project = project,
+            pairs = pairs,
+            residualLimitM = 0.03,
+            scaleLimit = 0.001,
+            outcome = outcome,
+            assessment = solved.solution.assess(0.03, 0.001),
+        )
+    }
+
+    @Test
+    fun `S039 RF-10 el resultado enseña traslacion, giro, escala, vertical, RMS y el mayor residuo`() {
+        show(solvedState())
+
+        compose.onNodeWithTag(LOCALIZATION_TRANSLATION_TAG).performScrollTo().shows("Traslación del centroide")
+        compose.onNodeWithTag(LOCALIZATION_ROTATION_TAG).performScrollTo().shows("Giro")
+        compose.onNodeWithTag(LOCALIZATION_SCALE_TAG).performScrollTo().shows("Escala").shows("ppm")
+        compose.onNodeWithTag(LOCALIZATION_VERTICAL_TAG).performScrollTo().shows("plano inclinado")
+        compose.onNodeWithTag(LOCALIZATION_RMS_TAG).performScrollTo().shows("horizontal").shows("vertical")
+        compose.onNodeWithTag(LOCALIZATION_WORST_TAG).performScrollTo().shows("Clavo 1")
+        compose.onNodeWithTag(localizationResidualTag("p0")).performScrollTo().shows("Clavo 0").shows("Este").shows("Norte")
+    }
+
+    @Test
+    fun `S039 RF-13 un residuo mayor que el umbral se destaca con texto y los demas no`() {
+        show(solvedState())
+
+        compose.onNodeWithTag(localizationResidualHighTag("p1"), useUnmergedTree = true).performScrollTo().shows("Residuo alto")
+        compose.onNodeWithTag(LOCALIZATION_SCALE_WARNING_TAG, useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S039 RF-13 sin residuos mayores que el umbral no se destaca ninguno`() {
+        show(solvedState(error = 0.0))
+
+        for (id in listOf("p0", "p1", "p2", "p3")) {
+            compose.onNodeWithTag(localizationResidualHighTag(id), useUnmergedTree = true).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun `S039 RF-13 una escala lejos de uno se avisa con texto`() {
+        show(solvedState(scaled = 1.002))
+
+        compose.onNodeWithTag(LOCALIZATION_SCALE_WARNING_TAG, useUnmergedTree = true).performScrollTo().shows("se aleja de 1")
+    }
+
+    @Test
+    fun `S039 RF-12 sin componentes activas o con puntos coincidentes dice el motivo`() {
+        show(
+            LocalizationUiState(
+                loaded = true,
+                project = project,
+                pairs = listOf(pair("a", "A")),
+                outcome = LocalizationOutcome.Failed(LocalizationFailure.NO_PAIRS),
+            ),
+        )
+
+        compose.onNodeWithTag(LOCALIZATION_RESULT_FAILED_TAG).performScrollTo().shows("Ningún par tiene una componente activa")
+    }
+
+    @Test
+    fun `S039 RF-12 los puntos coincidentes en planta se explican`() {
+        show(
+            LocalizationUiState(
+                loaded = true,
+                project = project,
+                pairs = listOf(pair("a", "A")),
+                outcome = LocalizationOutcome.Failed(LocalizationFailure.DEGENERATE),
+            ),
+        )
+
+        compose.onNodeWithTag(LOCALIZATION_RESULT_FAILED_TAG).performScrollTo().shows("coinciden en planta")
+    }
+
+    @Test
+    fun `S039 RF-13 los umbrales se editan y avisan a la pantalla`() {
+        val calls = mutableListOf<Pair<String, String>>()
+        show(solvedState(), LocalizationActions(onLimits = { residual, scale -> calls += residual to scale }))
+
+        compose.onNodeWithTag(LOCALIZATION_LIMIT_RESIDUAL_TAG).performScrollTo().performTextReplacement("0,05")
+
+        calls.last().first shouldBe "0,05"
     }
 }

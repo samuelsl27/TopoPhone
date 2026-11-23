@@ -21,6 +21,10 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -36,12 +40,18 @@ import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.model.format.AngleFormat
+import es.topophone.core.model.format.FactorFormat
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.localization.LocalizationLimits
 import es.topophone.core.model.localization.LocalizationOrigin
 import es.topophone.core.model.localization.LocalizationPair
+import es.topophone.core.model.localization.LocalizationParams
+import es.topophone.core.model.localization.VerticalKind
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.Project
+import es.topophone.core.survey.localization.LocalizationFailure
+import es.topophone.core.survey.localization.LocalizationOutcome
 
 const val LOCALIZATION_STATUS_TAG = "localization_status"
 const val LOCALIZATION_PAIRS_TITLE_TAG = "localization_pairs_title"
@@ -76,6 +86,22 @@ fun localizationPairVerticalTag(id: String) = "localization_pair_v_$id"
 fun localizationRemovePairTag(id: String) = "localization_remove_pair_$id"
 
 const val LOCALIZATION_FIX_SCALE_TAG = "localization_fix_scale"
+const val LOCALIZATION_RESULT_TAG = "localization_result"
+const val LOCALIZATION_RESULT_FAILED_TAG = "localization_result_failed"
+const val LOCALIZATION_TRANSLATION_TAG = "localization_translation"
+const val LOCALIZATION_ROTATION_TAG = "localization_rotation"
+const val LOCALIZATION_SCALE_TAG = "localization_scale"
+const val LOCALIZATION_VERTICAL_TAG = "localization_vertical"
+const val LOCALIZATION_ALIGNED_TAG = "localization_aligned"
+const val LOCALIZATION_RMS_TAG = "localization_rms"
+const val LOCALIZATION_WORST_TAG = "localization_worst"
+const val LOCALIZATION_SCALE_WARNING_TAG = "localization_scale_warning"
+const val LOCALIZATION_LIMIT_RESIDUAL_TAG = "localization_limit_residual"
+const val LOCALIZATION_LIMIT_SCALE_TAG = "localization_limit_scale"
+
+fun localizationResidualTag(id: String) = "localization_residual_$id"
+
+fun localizationResidualHighTag(id: String) = "localization_residual_high_$id"
 
 /** Acciones de la pantalla de localización (S039); crecen con cada tarea. */
 class LocalizationActions(
@@ -92,6 +118,7 @@ class LocalizationActions(
     val onComponent: (pairId: String, horizontal: Boolean, enabled: Boolean) -> Unit = { _, _, _ -> },
     val onRemovePair: (String) -> Unit = {},
     val onFixScale: (Boolean) -> Unit = {},
+    val onLimits: (residualText: String, scaleText: String) -> Unit = { _, _ -> },
 )
 
 /**
@@ -122,6 +149,7 @@ fun LocalizationScreen(
                 StatusCard(state, project)
                 FixScaleRow(state.fixScale, actions.onFixScale)
                 PairsSection(state, project, actions)
+                ResultSection(state, project, actions)
             }
         }
     }
@@ -145,6 +173,144 @@ private fun StatusCard(state: LocalizationUiState, project: Project) {
     Card(modifier = Modifier.fillMaxWidth().testTag(LOCALIZATION_STATUS_TAG).semantics { liveRegion = LiveRegionMode.Polite }) {
         Text(text, modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleSmall)
     }
+}
+
+@Composable
+private fun ResultSection(state: LocalizationUiState, project: Project, actions: LocalizationActions) {
+    val outcome = state.outcome ?: return
+    val locale = uiLocale()
+    val unit = unitSymbol(project.linearUnit)
+    fun length(valueM: Double) = "${LengthFormat.inUnit(valueM, project.linearUnit, locale)} $unit"
+    fun ppm(value: Double) = String.format(locale, "%.3f", value)
+    Text(stringResource(R.string.localization_result_title), style = MaterialTheme.typography.titleSmall)
+    when (outcome) {
+        is LocalizationOutcome.Failed -> Text(
+            stringResource(
+                if (outcome.reason == LocalizationFailure.NO_PAIRS) {
+                    R.string.localization_result_failed_no_pairs
+                } else {
+                    R.string.localization_result_failed_degenerate
+                },
+            ),
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.testTag(LOCALIZATION_RESULT_FAILED_TAG).semantics { liveRegion = LiveRegionMode.Polite },
+        )
+        is LocalizationOutcome.Solved -> {
+            val solution = outcome.solution
+            val p = solution.params
+            Card(modifier = Modifier.fillMaxWidth().testTag(LOCALIZATION_RESULT_TAG).semantics { liveRegion = LiveRegionMode.Polite }) {
+                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (p.hasHorizontal) {
+                        Text(
+                            stringResource(R.string.localization_result_translation, length(p.translationE), length(p.translationN)),
+                            modifier = Modifier.testTag(LOCALIZATION_TRANSLATION_TAG),
+                        )
+                        Text(
+                            stringResource(
+                                R.string.localization_result_rotation,
+                                AngleFormat.convergence(p.rotationRad, project.angularUnit, locale),
+                            ),
+                            modifier = Modifier.testTag(LOCALIZATION_ROTATION_TAG),
+                        )
+                        Text(
+                            stringResource(R.string.localization_result_scale, FactorFormat.factor(p.scale, locale), ppm(p.scalePpm)),
+                            modifier = Modifier.testTag(LOCALIZATION_SCALE_TAG),
+                        )
+                        if (state.assessment?.scaleOutOfLimit == true) {
+                            Text(
+                                stringResource(R.string.localization_scale_warning),
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.testTag(LOCALIZATION_SCALE_WARNING_TAG),
+                            )
+                        }
+                    }
+                    Text(verticalText(p, ::length, ::ppm), modifier = Modifier.testTag(LOCALIZATION_VERTICAL_TAG))
+                    if (solution.verticalAligned) {
+                        Text(stringResource(R.string.localization_result_aligned), modifier = Modifier.testTag(LOCALIZATION_ALIGNED_TAG))
+                    }
+                    Text(
+                        stringResource(
+                            R.string.localization_result_rms,
+                            solution.rmsHorizontal?.let(::length) ?: "—",
+                            solution.rmsVertical?.let(::length) ?: "—",
+                        ),
+                        modifier = Modifier.testTag(LOCALIZATION_RMS_TAG),
+                    )
+                    val worst = state.pairs.firstOrNull { it.id == solution.worstPairId }
+                    if (worst != null) {
+                        Text(
+                            stringResource(R.string.localization_result_worst, worst.pointName),
+                            modifier = Modifier.testTag(LOCALIZATION_WORST_TAG),
+                        )
+                    }
+                }
+            }
+            Text(stringResource(R.string.localization_residuals_title), style = MaterialTheme.typography.titleSmall)
+            solution.residuals.forEach { residual ->
+                val pair = state.pairs.firstOrNull { it.id == residual.pairId } ?: return@forEach
+                val high = state.assessment?.highPairIds?.contains(residual.pairId) == true
+                Column(modifier = Modifier.fillMaxWidth().testTag(localizationResidualTag(residual.pairId))) {
+                    Text(
+                        stringResource(
+                            R.string.localization_residual_row,
+                            pair.pointName,
+                            residual.east?.let(::length) ?: "—",
+                            residual.north?.let(::length) ?: "—",
+                            residual.horizontal?.let(::length) ?: "—",
+                            residual.vertical?.let(::length) ?: "—",
+                        ),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    if (high) {
+                        Text(
+                            stringResource(R.string.localization_residual_high),
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier.testTag(localizationResidualHighTag(residual.pairId)),
+                        )
+                    }
+                }
+            }
+        }
+    }
+    LimitsSection(state, project, actions)
+}
+
+@Composable
+private fun verticalText(p: LocalizationParams, length: (Double) -> String, ppm: (Double) -> String): String = when (p.verticalKind) {
+    VerticalKind.NONE -> stringResource(R.string.localization_result_vertical_none)
+    VerticalKind.OFFSET -> stringResource(R.string.localization_result_vertical_offset, length(p.dh))
+    VerticalKind.PLANE -> stringResource(R.string.localization_result_vertical_plane, length(p.dh), ppm(p.slopePpm))
+}
+
+/** Los umbrales de aviso, ajustables (S039/RF-13): el del residuo en la unidad del proyecto y el de la escala. */
+@Composable
+private fun LimitsSection(state: LocalizationUiState, project: Project, actions: LocalizationActions) {
+    val locale = uiLocale()
+    val unit = unitSymbol(project.linearUnit)
+    val residualShown = LengthFormat.inUnit(state.residualLimitM, project.linearUnit, locale)
+    val scaleShown = String.format(locale, "%.4f", state.scaleLimit)
+    var residualText by remember(residualShown) { mutableStateOf(residualShown) }
+    var scaleText by remember(scaleShown) { mutableStateOf(scaleShown) }
+    Text(stringResource(R.string.localization_limits_title), style = MaterialTheme.typography.titleSmall)
+    NumberField(
+        stringResource(R.string.localization_limit_residual, unit),
+        residualText,
+        {
+            residualText = it
+            actions.onLimits(it, scaleText)
+        },
+        LOCALIZATION_LIMIT_RESIDUAL_TAG,
+    )
+    NumberField(
+        stringResource(R.string.localization_limit_scale),
+        scaleText,
+        {
+            scaleText = it
+            actions.onLimits(residualText, it)
+        },
+        LOCALIZATION_LIMIT_SCALE_TAG,
+    )
 }
 
 @Composable

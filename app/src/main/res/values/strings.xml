@@ -3745,4 +3745,23 @@
     <string name="localization_pair_component_h">Usar la componente horizontal (Este y Norte)</string>
     <string name="localization_pair_component_v">Usar la componente vertical (cota)</string>
     <string name="localization_pair_remove">Quitar par</string>
+    <string name="localization_result_title">Resultado</string>
+    <string name="localization_result_failed_no_pairs">Ningún par tiene una componente activa: no se puede calcular.</string>
+    <string name="localization_result_failed_degenerate">Los puntos GNSS de los pares coinciden en planta: no se puede calcular la parte horizontal.</string>
+    <string name="localization_result_translation">Traslación del centroide: Este %1$s · Norte %2$s</string>
+    <string name="localization_result_rotation">Giro: %1$s</string>
+    <string name="localization_result_scale">Escala: %1$s (%2$s ppm)</string>
+    <string name="localization_result_vertical_none">Vertical: ningún par con cota</string>
+    <string name="localization_result_vertical_offset">Vertical: desplazamiento de %1$s</string>
+    <string name="localization_result_vertical_plane">Vertical: plano inclinado, desplazamiento de %1$s y pendiente de %2$s ppm</string>
+    <string name="localization_result_aligned">Los puntos con cota están alineados: se usa solo el desplazamiento.</string>
+    <string name="localization_result_rms">RMS: horizontal %1$s · vertical %2$s</string>
+    <string name="localization_result_worst">Par con mayor residuo: %1$s</string>
+    <string name="localization_residuals_title">Residuos (conocido menos transformado)</string>
+    <string name="localization_residual_row">%1$s: Este %2$s · Norte %3$s · horizontal %4$s · vertical %5$s</string>
+    <string name="localization_residual_high">Residuo alto</string>
+    <string name="localization_scale_warning">La escala se aleja de 1 más que el umbral.</string>
+    <string name="localization_limits_title">Umbrales de aviso</string>
+    <string name="localization_limit_residual">Residuo (%1$s)</string>
+    <string name="localization_limit_scale">Escala: |escala − 1|</string>
 </resources>

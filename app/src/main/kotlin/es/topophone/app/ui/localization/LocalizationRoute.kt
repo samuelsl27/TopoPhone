@@ -36,6 +36,7 @@ fun LocalizationRoute(
             onComponent = viewModel::setComponent,
             onRemovePair = viewModel::removePair,
             onFixScale = viewModel::setFixScale,
+            onLimits = viewModel::setLimits,
         ),
         onBack = onBack,
     )

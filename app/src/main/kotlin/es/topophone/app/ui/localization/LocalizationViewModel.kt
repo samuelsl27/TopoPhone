@@ -237,6 +237,22 @@ class LocalizationViewModel @Inject constructor(
         viewModelScope.launch { localizations.setFixScale(id, fixScale) }
     }
 
+    /**
+     * Los umbrales de aviso: el del residuo en la unidad del proyecto y el de la escala como número (RF-13). Un texto que no sea un número positivo
+     * no cambia nada.
+     */
+    fun setLimits(residualText: String, scaleText: String) {
+        val id = projectId.value ?: return
+        val project = state.value.project ?: return
+        val residual = NumberInput.parse(residualText)?.let(project.linearUnit::toMetres)?.takeIf { it > 0.0 }
+        val scale = NumberInput.parse(scaleText)?.takeIf { it > 0.0 }
+        if (residual == null && scale == null) return
+        val current = state.value
+        viewModelScope.launch {
+            localizations.setLimits(id, residual ?: current.residualLimitM, scale ?: current.scaleLimit)
+        }
+    }
+
     /** El usuario confirma el uso de un par de baja calidad (RF-6). */
     fun confirmPair(pairId: String) {
         edit(pairId) { projectId, draftPairId -> localizations.confirmPair(projectId, draftPairId) }
