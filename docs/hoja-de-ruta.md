@@ -117,6 +117,12 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | 051 taludes | Replanteo de cabezas y pies de talud contra los perfiles transversales o una sección manual, con seguimiento en alzado | 050, 054, 042 (opcional) | implementada |
 | 052 toma-de-datos-lineal | Tomar un eje con el receptor, perfil longitudinal y perfil transversal a lo largo del eje | 054, 050, 049, 010, 017 | implementada |
 
+## H9 · Interfaz
+
+| Spec | Alcance | Depende de | Estado |
+|---|---|---|---|
+| 059 organizar-opciones-del-proyecto | Menús cortos y agrupados (Importar, Exportar, Herramientas) en lugar del menú plano de 21 opciones, lista de Objetos con pestañas Puntos y Líneas, sección «Activo en este proyecto» en «Datos del proyecto» y regla transversal RNF-T15 de presentación de opciones (entrevista 23/11/2026) | 011, 006, 005, 012, 020, 025, 038, 039, 042, 049, 058 | spec |
+
 ## Puertas de validación
 | Puerta | Al cerrar | Qué se demuestra |
 |---|---|---|
