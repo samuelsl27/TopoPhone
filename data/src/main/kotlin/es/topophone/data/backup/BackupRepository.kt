@@ -447,6 +447,7 @@ class BackupRepository(
         val surfaceIds = surfaceIds(source, args, keepIds)
         val alignmentIds = alignmentIds(source, args, keepIds)
         val shiftIds = baseShiftIds(source, args, keepIds)
+        val localizationIds = localizationIds(source, args, keepIds)
         source("SELECT * FROM projects WHERE id = ?", args).use { cursor ->
             DatabaseSnapshot.copyRows(cursor, sink, "projects") {
                 it.put("id", newProjectId)
@@ -471,6 +472,8 @@ class BackupRepository(
                 if (point.getAsString("trash_key").isNotEmpty()) point.put("trash_key", id)
                 // S020/RF-8: el punto sigue señalando el cálculo de su desplazamiento, que en la copia tiene id nuevo.
                 point.getAsString("shift_id")?.let { oldShift -> point.put("shift_id", shiftIds[oldShift] ?: oldShift) }
+                // S039/RF-19: lo mismo con la localización con que se calcularon sus coordenadas.
+                point.getAsString("localization_id")?.let { old -> point.put("localization_id", localizationIds[old] ?: old) }
             }
         }
         source("SELECT * FROM point_attributes WHERE point_id IN (SELECT id FROM points WHERE project_id = ?)", args).use { cursor ->
@@ -502,6 +505,7 @@ class BackupRepository(
         copyLinearSurveys(source, sink, args, newProjectId, alignmentIds, pointIds, keepIds)
         copyLines(source, sink, args, newProjectId, pointIds, keepIds)
         copyBaseShifts(source, sink, args, newProjectId, shiftIds)
+        copyLocalizations(source, sink, args, newProjectId, localizationIds)
         copyCodeLibrary(source, sink, args, newProjectId, keepIds)
         copyWmsLayers(source, sink, args, newProjectId, keepIds)
         copyCrsHistory(source, sink, args, newProjectId, keepIds)
@@ -662,6 +666,39 @@ class BackupRepository(
         source("SELECT * FROM attribute_options WHERE attribute_id IN ($inAttributes) ORDER BY attribute_id, ordinal", args).use { cursor ->
             DatabaseSnapshot.copyRows(cursor, sink, "attribute_options") { option ->
                 option.put("attribute_id", attributeIds.getValue(option.getAsString("attribute_id")))
+            }
+        }
+    }
+
+    /** De los ids de las localizaciones del proyecto a los que tendrán al copiarlas: los mismos con [keepIds], nuevos si no (S039/RF-26). */
+    private fun localizationIds(
+        source: (String, Array<String>) -> android.database.Cursor,
+        args: Array<String>,
+        keepIds: Boolean,
+    ): Map<String, String> = source("SELECT id FROM localizations WHERE project_id = ?", args).use { cursor ->
+        buildMap { while (cursor.moveToNext()) cursor.getString(0).let { old -> put(old, if (keepIds) old else newId()) } }
+    }
+
+    /** Las localizaciones del proyecto (borrador, activa e historial) con sus pares (S039/RF-26). */
+    private fun copyLocalizations(
+        source: (String, Array<String>) -> android.database.Cursor,
+        sink: androidx.sqlite.db.SupportSQLiteDatabase,
+        args: Array<String>,
+        newProjectId: String,
+        localizationIds: Map<String, String>,
+    ) {
+        source("SELECT * FROM localizations WHERE project_id = ? ORDER BY created_at_ms, rowid", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "localizations") { localization ->
+                localization.put("id", localizationIds.getValue(localization.getAsString("id")))
+                localization.put("project_id", newProjectId)
+            }
+        }
+        val pairs = "SELECT * FROM localization_pairs WHERE localization_id IN (SELECT id FROM localizations WHERE project_id = ?) " +
+            "ORDER BY position, rowid"
+        source(pairs, args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "localization_pairs") { pair ->
+                pair.put("id", newId())
+                pair.put("localization_id", localizationIds.getValue(pair.getAsString("localization_id")))
             }
         }
     }

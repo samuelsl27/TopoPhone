@@ -226,6 +226,10 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
             ),
             // S020/RF-12: los desplazamientos de base viajan con el proyecto.
             Table("base_shifts", "WHERE project_id = ?"),
+            // S039/RF-26: las localizaciones del proyecto (borrador, activa e historial) y sus pares viajan con él; los SC guardados con una
+            // localización, en la copia completa.
+            Table("localizations", "WHERE project_id = ?"),
+            Table("localization_pairs", "WHERE localization_id IN (SELECT id FROM localizations WHERE project_id = ?)"),
             // S036/RF-25: la biblioteca de servicios WMS va entera en la copia; en el paquete, solo los servicios que usan las capas del
             // proyecto, con las capas que leyó su GetCapabilities, y las capas del proyecto.
             Table("wms_services", "WHERE id IN (SELECT service_id FROM project_wms_layers WHERE project_id = ?)"),
@@ -243,6 +247,7 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
             Table("equipment_profiles", projectFilter = null),
             // S035/RF-16: los SC personalizados de Mis SC van en la copia completa; en el paquete va el SC del proyecto con su definición.
             Table("custom_crs", projectFilter = null),
+            Table("localized_crs", projectFilter = null),
         )
     }
 }
