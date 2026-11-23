@@ -53,12 +53,14 @@ import es.topophone.core.formats.crs.CustomCrsJson
 import es.topophone.core.formats.crs.CustomCrsReadResult
 import es.topophone.core.formats.crs.CustomCrsRejection
 import es.topophone.core.geodesy.catalog.CustomCrsDraft
+import es.topophone.core.model.localization.LocalizedCrs
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.CustomCrs
 import es.topophone.data.crs.CustomCrsConflictChoice
 import es.topophone.data.crs.CustomCrsImport
 import es.topophone.data.crs.CustomCrsRepository
 import es.topophone.data.crs.CustomCrsSave
+import es.topophone.data.localization.LocalizedCrsRepository
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -90,6 +92,10 @@ const val MY_CRS_EXPORT_FAILED_TAG = "my_crs_export_failed"
 
 fun myCrsTag(id: String) = "my_crs_$id"
 
+fun myCrsLocalizedTag(id: String) = "my_crs_localized_$id"
+
+fun myCrsLocalizedDeleteTag(id: String) = "my_crs_localized_delete_$id"
+
 fun myCrsMenuTag(id: String) = "my_crs_menu_$id"
 
 fun myCrsActionTag(action: String, id: String) = "my_crs_${action}_$id"
@@ -111,6 +117,8 @@ class MyCrsActions(
     val onExportShare: (CustomCrs) -> Unit = {},
     val onCancelExport: () -> Unit = {},
     val onDismissExportFailed: () -> Unit = {},
+    /** Borra un SC guardado con una localización (S039/RF-24). */
+    val onDeleteLocalized: (String) -> Unit = {},
     val onBack: () -> Unit = {},
 )
 
@@ -144,11 +152,16 @@ data class MyCrsUiState(
     /** El SC cuyo JSON se va a guardar o compartir (S035/RF-12). */
     val exporting: CustomCrs? = null,
     val exportFailed: Boolean = false,
+    /** Los SC guardados con una localización, marcados «Localizado» (S039/RF-24). */
+    val localized: List<LocalizedCrs> = emptyList(),
 )
 
 /** Mis SC: ver, duplicar, renombrar y borrar los SC personalizados (S035/RF-9, RF-10). */
 @HiltViewModel
-class MyCrsViewModel @Inject constructor(private val repository: CustomCrsRepository) : ViewModel() {
+class MyCrsViewModel @Inject constructor(
+    private val repository: CustomCrsRepository,
+    private val localized: LocalizedCrsRepository = NoLocalizedCrs,
+) : ViewModel() {
     private val nameTaken = MutableStateFlow(false)
     private val renamed = MutableStateFlow(false)
     private val importStage = MutableStateFlow<MyCrsImport>(MyCrsImport.None)
@@ -160,8 +173,9 @@ class MyCrsViewModel @Inject constructor(private val repository: CustomCrsReposi
         combine(nameTaken, renamed) { taken, done -> taken to done },
         importStage,
         combine(exporting, exportFailed) { crs, failed -> crs to failed },
-    ) { items, (taken, done), stage, (export, failed) ->
-        MyCrsUiState(items, loaded = true, nameTaken = taken, renamed = done, import = stage, exporting = export, exportFailed = failed)
+        localized.observeAll(),
+    ) { items, (taken, done), stage, (export, failed), withLocalization ->
+        MyCrsUiState(items, true, taken, done, stage, export, failed, withLocalization)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), MyCrsUiState())
 
     fun rename(crs: CustomCrs, name: String) {
@@ -178,6 +192,10 @@ class MyCrsViewModel @Inject constructor(private val repository: CustomCrsReposi
 
     fun delete(crs: CustomCrs) {
         viewModelScope.launch { repository.delete(crs.id) }
+    }
+
+    fun deleteLocalized(id: String) {
+        viewModelScope.launch { localized.delete(id) }
     }
 
     fun dismissNameTaken() {
@@ -264,13 +282,14 @@ fun MyCrsScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: MyCrsUiS
             }
         },
     ) { padding ->
-        if (state.loaded && state.items.isEmpty()) {
+        if (state.loaded && state.items.isEmpty() && state.localized.isEmpty()) {
             Text(stringResource(R.string.my_crs_empty), modifier = Modifier.padding(padding).padding(16.dp).testTag(MY_CRS_EMPTY_TAG))
         } else {
             LazyColumn(modifier = Modifier.padding(padding).fillMaxSize().padding(horizontal = 16.dp)) {
                 items(state.items, key = { it.id }) { crs ->
                     MyCrsRow(crs, actions, onRename = { renaming = crs.id }, onDelete = { deleting = crs.id })
                 }
+                items(state.localized, key = { "localized-" + it.id }) { crs -> LocalizedCrsRow(crs, actions) } // S039/RF-24
             }
         }
     }
@@ -309,6 +328,28 @@ fun MyCrsScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: MyCrsUiS
             },
             dismissButton = { TextButton(onClick = { deleting = null }) { Text(stringResource(R.string.my_crs_cancel)) } },
         )
+    }
+}
+
+/** Un SC guardado con una localización: su nombre, la marca «Localizado» y el SC base; se elige desde la pantalla de localización (S039/RF-24). */
+@Composable
+private fun LocalizedCrsRow(crs: LocalizedCrs, actions: MyCrsActions) {
+    Row(
+        modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(myCrsLocalizedTag(crs.id)),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Column(modifier = Modifier.weight(1f).padding(vertical = 8.dp)) {
+            Text(crs.name, style = MaterialTheme.typography.bodyLarge)
+            Text(
+                stringResource(R.string.my_crs_localized_mark) + " · " + stringResource(R.string.localization_saved_crs_item, crs.crs.name),
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+        TextButton(
+            onClick = { actions.onDeleteLocalized(crs.id) },
+            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(myCrsLocalizedDeleteTag(crs.id)),
+        ) { Text(stringResource(R.string.my_crs_delete)) }
     }
 }
 
@@ -595,6 +636,7 @@ fun MyCrsRoute(themeState: ThemeState, onToggleSun: () -> Unit, viewModel: MyCrs
             },
             onCancelExport = viewModel::cancelExport,
             onDismissExportFailed = viewModel::dismissExportFailed,
+            onDeleteLocalized = viewModel::deleteLocalized,
             onBack = onBack,
         ),
     )
@@ -626,4 +668,15 @@ private fun readText(resolver: android.content.ContentResolver, uri: android.net
     null
 } catch (_: SecurityException) {
     null
+}
+
+/** Sin SC guardados con localización: para quien construye el modelo de la pantalla sin ellos. */
+private object NoLocalizedCrs : LocalizedCrsRepository {
+    override fun observeAll() = kotlinx.coroutines.flow.flowOf(emptyList<LocalizedCrs>())
+
+    override suspend fun saveFromProject(projectId: String, name: String) = es.topophone.data.localization.LocalizedCrsSave.NothingToSave
+
+    override suspend fun delete(id: String) = Unit
+
+    override suspend fun use(projectId: String, id: String, nowMs: Long) = es.topophone.data.localization.LocalizedCrsUse.NotFound
 }

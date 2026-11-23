@@ -66,7 +66,9 @@ import es.topophone.data.linear.LinearSurveyRepository
 import es.topophone.data.linear.RoomLinearSurveyRepository
 import es.topophone.data.localization.ActiveLocalization
 import es.topophone.data.localization.LocalizationRepository
+import es.topophone.data.localization.LocalizedCrsRepository
 import es.topophone.data.localization.RoomLocalizationRepository
+import es.topophone.data.localization.RoomLocalizedCrsRepository
 import es.topophone.data.log.DataStoreLogPreferences
 import es.topophone.data.log.LogPreferences
 import es.topophone.data.map.DataStoreMapPreferences
@@ -398,6 +400,15 @@ object DatabaseModule {
     @Singleton
     fun provideLocalizationRepository(database: TopoPhoneDatabase, log: AppLog): LocalizationRepository =
         RoomLocalizationRepository(database, log)
+
+    /** Los SC de «Mis SC» guardados con una localización (S039/RF-24, RF-28). */
+    @Provides
+    @Singleton
+    fun provideLocalizedCrsRepository(
+        database: TopoPhoneDatabase,
+        localizations: LocalizationRepository,
+        history: ProjectCrsHistoryRepository,
+    ): LocalizedCrsRepository = RoomLocalizedCrsRepository(database, localizations, history)
 
     @Provides
     @Singleton

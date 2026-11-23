@@ -100,6 +100,16 @@ const val LOCALIZATION_CANCEL_REMOVE_TAG = "localization_cancel_remove"
 const val LOCALIZATION_NOTICE_TAG = "localization_notice"
 const val LOCALIZATION_HISTORY_TAG = "localization_history"
 const val LOCALIZATION_REPORT_SAVE_TAG = "localization_report_save"
+const val LOCALIZATION_SAVE_CRS_TAG = "localization_save_crs"
+const val LOCALIZATION_CRS_NAME_TAG = "localization_crs_name"
+const val LOCALIZATION_CRS_NAME_ERROR_TAG = "localization_crs_name_error"
+const val LOCALIZATION_CRS_CONFIRM_TAG = "localization_crs_confirm"
+const val LOCALIZATION_CRS_CANCEL_TAG = "localization_crs_cancel"
+const val LOCALIZATION_SAVED_CRS_TAG = "localization_saved_crs"
+
+fun localizationUseCrsTag(id: String) = "localization_use_crs_$id"
+
+fun localizationDeleteCrsTag(id: String) = "localization_delete_crs_$id"
 const val LOCALIZATION_REPORT_SHARE_TAG = "localization_report_share"
 
 fun localizationReactivateTag(id: String) = "localization_reactivate_$id"
@@ -147,6 +157,12 @@ class LocalizationActions(
     val onDismissNotice: () -> Unit = {},
     val onSaveReport: () -> Unit = {},
     val onShareReport: () -> Unit = {},
+    val onSaveCrs: () -> Unit = {},
+    val onCrsName: (String) -> Unit = {},
+    val onConfirmSaveCrs: () -> Unit = {},
+    val onCancelSaveCrs: () -> Unit = {},
+    val onUseCrs: (String) -> Unit = {},
+    val onDeleteCrs: (String) -> Unit = {},
 )
 
 /**
@@ -181,6 +197,7 @@ fun LocalizationScreen(
                 ResultSection(state, project, actions)
                 ApplySection(state, actions)
                 ReportSection(state, actions)
+                SavedCrsSection(state, actions)
                 HistorySection(state, project, actions)
                 ApplyDialogs(state, actions)
             }
@@ -220,6 +237,9 @@ private fun NoticeCard(notice: LocalizationNotice, onDismiss: () -> Unit) {
         LocalizationNotice.NotFound -> stringResource(R.string.localization_notice_not_found)
         LocalizationNotice.ReportSaved -> stringResource(R.string.localization_notice_report_saved)
         LocalizationNotice.ReportFailed -> stringResource(R.string.localization_notice_report_failed)
+        is LocalizationNotice.CrsSaved -> stringResource(R.string.localization_notice_crs_saved, notice.name)
+        is LocalizationNotice.CrsUsed -> stringResource(R.string.localization_notice_crs_used, notice.pointsChanged)
+        LocalizationNotice.CrsOtherDatum -> stringResource(R.string.localization_notice_crs_other_datum)
     }
     Card(modifier = Modifier.fillMaxWidth().testTag(LOCALIZATION_NOTICE_TAG).semantics { liveRegion = LiveRegionMode.Polite }) {
         Row(
@@ -280,6 +300,91 @@ private fun ReportSection(state: LocalizationUiState, actions: LocalizationActio
             enabled = hasContent,
             modifier = Modifier.weight(1f).heightIn(min = MinTouchTarget).testTag(LOCALIZATION_REPORT_SHARE_TAG),
         ) { Text(stringResource(R.string.localization_report_share)) }
+    }
+}
+
+/** «Guardar como SC» y los SC guardados con una localización, para elegirlos en este proyecto (S039/RF-24, RF-28). */
+@Composable
+private fun SavedCrsSection(state: LocalizationUiState, actions: LocalizationActions) {
+    if (state.active?.origin == LocalizationOrigin.PAIRS) {
+        OutlinedButton(
+            onClick = actions.onSaveCrs,
+            modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(LOCALIZATION_SAVE_CRS_TAG),
+        ) { Text(stringResource(R.string.localization_save_crs)) }
+    }
+    if (state.savedCrs.isNotEmpty()) {
+        Text(
+            stringResource(R.string.localization_saved_crs_title),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.testTag(LOCALIZATION_SAVED_CRS_TAG),
+        )
+        state.savedCrs.forEach { crs ->
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(crs.name, style = MaterialTheme.typography.titleSmall)
+                    Text(stringResource(R.string.localization_saved_crs_item, crs.crs.name), style = MaterialTheme.typography.bodySmall)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(
+                            onClick = { actions.onUseCrs(crs.id) },
+                            enabled = !state.terrain,
+                            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(localizationUseCrsTag(crs.id)),
+                        ) { Text(stringResource(R.string.localization_use_crs)) }
+                        OutlinedButton(
+                            onClick = { actions.onDeleteCrs(crs.id) },
+                            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(localizationDeleteCrsTag(crs.id)),
+                        ) { Text(stringResource(R.string.my_crs_delete)) }
+                    }
+                }
+            }
+        }
+    }
+    state.saveCrs?.let { dialog ->
+        AlertDialog(
+            onDismissRequest = actions.onCancelSaveCrs,
+            title = { Text(stringResource(R.string.localization_save_crs)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = dialog.name,
+                        onValueChange = actions.onCrsName,
+                        label = { Text(stringResource(R.string.localization_crs_name)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().testTag(LOCALIZATION_CRS_NAME_TAG),
+                    )
+                    dialog.error?.let {
+                        Text(
+                            stringResource(
+                                if (it ==
+                                    SaveCrsError.EMPTY
+                                ) {
+                                    R.string.localization_crs_name_empty
+                                } else {
+                                    R.string.localization_crs_name_taken
+                                },
+                            ),
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.testTag(LOCALIZATION_CRS_NAME_ERROR_TAG),
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = actions.onConfirmSaveCrs,
+                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(LOCALIZATION_CRS_CONFIRM_TAG),
+                ) {
+                    Text(stringResource(R.string.localization_confirm_ok))
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = actions.onCancelSaveCrs,
+                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(LOCALIZATION_CRS_CANCEL_TAG),
+                ) {
+                    Text(stringResource(R.string.localization_add_cancel))
+                }
+            },
+        )
     }
 }
 

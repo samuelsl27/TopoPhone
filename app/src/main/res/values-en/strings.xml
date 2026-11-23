@@ -3785,4 +3785,15 @@
     <string name="localization_report_share">Share report</string>
     <string name="localization_notice_report_saved">Localization report saved.</string>
     <string name="localization_notice_report_failed">The localization report could not be saved.</string>
+    <string name="localization_save_crs">Save as CRS</string>
+    <string name="localization_crs_name">CRS name</string>
+    <string name="localization_crs_name_empty">Type a name.</string>
+    <string name="localization_crs_name_taken">There is already a CRS with that name in My CRS.</string>
+    <string name="localization_saved_crs_title">CRS saved with a localization</string>
+    <string name="localization_saved_crs_item">Base: %1$s</string>
+    <string name="localization_use_crs">Use in this project</string>
+    <string name="localization_notice_crs_saved">Saved in My CRS as «%1$s».</string>
+    <string name="localization_notice_crs_used">CRS applied: the project now has the active localization and %1$d GNSS points changed.</string>
+    <string name="localization_notice_crs_other_datum">That CRS uses another datum than the project: nothing changes.</string>
+    <string name="my_crs_localized_mark">Localized</string>
 </resources>

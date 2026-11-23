@@ -17,8 +17,10 @@ import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.TypedCoordinates
 import es.topophone.core.model.project.ProjectDefaults
+import es.topophone.data.crs.RoomProjectCrsHistoryRepository
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.localization.RoomLocalizationRepository
+import es.topophone.data.localization.RoomLocalizedCrsRepository
 import es.topophone.data.point.RoomPointRepository
 import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.project.SaveResult
@@ -100,7 +102,13 @@ class LocalizationViewModelTest {
     )
 
     private fun viewModel(): LocalizationViewModel {
-        viewModel = LocalizationViewModel(localizations, projects, points)
+        viewModel =
+            LocalizationViewModel(
+                localizations,
+                projects,
+                points,
+                RoomLocalizedCrsRepository(db, localizations, RoomProjectCrsHistoryRepository(db)),
+            )
         viewModel.start(project)
         scope.launch { viewModel.state.collect {} }
         runBlocking { withTimeout(10_000) { viewModel.state.first { it.loaded } } }
@@ -441,5 +449,78 @@ class LocalizationViewModelTest {
         viewModel()
 
         runBlocking { viewModel.writeReport(java.io.ByteArrayOutputStream()) } shouldBe false
+    }
+    private fun appliedThreePairs() {
+        threePairs()
+        viewModel.requestApply()
+        await { it.confirmApply != null }
+        viewModel.confirmApply()
+        await { it.active != null }
+    }
+
+    @Test
+    fun `S039 RF-24 la localizacion activa se guarda como SC con un nombre`() {
+        appliedThreePairs()
+
+        viewModel.openSaveCrs()
+        await { it.saveCrs != null }
+        viewModel.setCrsName("Plano de obra")
+        viewModel.confirmSaveCrs()
+
+        val s = await { it.notice == LocalizationNotice.CrsSaved("Plano de obra") }
+        s.saveCrs.shouldBeNull()
+        await { it.savedCrs.map { crs -> crs.name } == listOf("Plano de obra") }
+    }
+
+    @Test
+    fun `S039 RF-24 un nombre vacio o repetido deja el dialogo abierto con su motivo`() {
+        appliedThreePairs()
+        viewModel.openSaveCrs()
+        await { it.saveCrs != null }
+
+        viewModel.confirmSaveCrs()
+        await { it.saveCrs?.error == SaveCrsError.EMPTY }
+        viewModel.setCrsName("Plano")
+        viewModel.confirmSaveCrs()
+        await { it.savedCrs.size == 1 }
+        viewModel.openSaveCrs()
+        await { it.saveCrs != null }
+        viewModel.setCrsName("PLANO")
+        viewModel.confirmSaveCrs()
+
+        await { it.saveCrs?.error == SaveCrsError.TAKEN }
+    }
+
+    @Test
+    fun `S039 RF-28 usar un SC guardado deja la localizacion activa sin pares`() {
+        appliedThreePairs()
+        viewModel.openSaveCrs()
+        await { it.saveCrs != null }
+        viewModel.setCrsName("Plano")
+        viewModel.confirmSaveCrs()
+        val saved = await { it.savedCrs.size == 1 }.savedCrs.single()
+
+        viewModel.useCrs(saved.id)
+
+        val s = await {
+            it.notice is LocalizationNotice.CrsUsed &&
+                it.active?.origin == es.topophone.core.model.localization.LocalizationOrigin.SAVED_CRS
+        }
+        s.active!!.pairs shouldBe emptyList()
+        s.notice shouldBe LocalizationNotice.CrsUsed(3)
+    }
+
+    @Test
+    fun `S039 RF-24 un SC guardado se puede borrar`() {
+        appliedThreePairs()
+        viewModel.openSaveCrs()
+        await { it.saveCrs != null }
+        viewModel.setCrsName("Plano")
+        viewModel.confirmSaveCrs()
+        val saved = await { it.savedCrs.size == 1 }.savedCrs.single()
+
+        viewModel.deleteCrs(saved.id)
+
+        await { it.savedCrs.isEmpty() }
     }
 }

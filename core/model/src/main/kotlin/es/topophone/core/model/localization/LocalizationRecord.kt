@@ -1,5 +1,8 @@
 package es.topophone.core.model.localization
 
+import es.topophone.core.model.project.HeightSystem
+import es.topophone.core.model.project.ProjectCrs
+
 /** El residuo guardado de un par en el último cálculo, en metros: conocido menos transformado; null en la componente que no entra (S039/RF-10). */
 data class PairResidualValues(val east: Double?, val north: Double?, val vertical: Double?)
 
@@ -28,4 +31,17 @@ data class Localization(
     val rmsVertical: Double?,
     val pairs: List<LocalizationPair>,
     val residuals: Map<String, PairResidualValues> = emptyMap(),
+)
+
+/**
+ * Un SC de «Mis SC» guardado con una localización (S039/RF-24, RF-28): el SC base y las alturas del proyecto con que se calculó y los parámetros de
+ * la localización.
+ */
+data class LocalizedCrs(
+    val id: String,
+    val name: String,
+    val crs: ProjectCrs,
+    val heightSystem: HeightSystem,
+    val params: LocalizationParams,
+    val createdAtMs: Long,
 )

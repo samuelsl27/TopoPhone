@@ -10,6 +10,7 @@ import es.topophone.core.model.localization.Localization
 import es.topophone.core.model.localization.LocalizationLimits
 import es.topophone.core.model.localization.LocalizationOrigin
 import es.topophone.core.model.localization.LocalizationPair
+import es.topophone.core.model.localization.LocalizedCrs
 import es.topophone.core.model.localization.PairResidualValues
 import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.hasMeasurement
@@ -24,6 +25,9 @@ import es.topophone.core.survey.localization.PairResult
 import es.topophone.core.survey.localization.assess
 import es.topophone.data.localization.ApplyResult
 import es.topophone.data.localization.LocalizationRepository
+import es.topophone.data.localization.LocalizedCrsRepository
+import es.topophone.data.localization.LocalizedCrsSave
+import es.topophone.data.localization.LocalizedCrsUse
 import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
 import java.io.BufferedWriter
@@ -83,7 +87,20 @@ sealed interface LocalizationNotice {
     data object ReportSaved : LocalizationNotice
 
     data object ReportFailed : LocalizationNotice
+
+    /** La localización activa se guardó como SC de «Mis SC» (RF-24). */
+    data class CrsSaved(val name: String) : LocalizationNotice
+
+    /** Un SC guardado con localización se eligió en el proyecto (RF-28). */
+    data class CrsUsed(val pointsChanged: Int) : LocalizationNotice
+
+    data object CrsOtherDatum : LocalizationNotice
 }
+
+/** El nombre que se está escribiendo para guardar la localización como SC y si ya está cogido o vacío (S039/RF-24). */
+data class SaveCrsUi(val name: String = "", val error: SaveCrsError? = null)
+
+enum class SaveCrsError { EMPTY, TAKEN }
 
 /** De dónde salen las coordenadas conocidas de un par (S039/RF-2). */
 enum class KnownSource { TYPED, POINT }
@@ -138,6 +155,10 @@ data class LocalizationUiState(
     /** Cuántos puntos cambiarían al quitar la localización, con la confirmación de quitar abierta; null si está cerrada (RF-21). */
     val confirmRemove: Int? = null,
     val notice: LocalizationNotice? = null,
+    /** Los SC de «Mis SC» guardados con una localización (RF-24, RF-28). */
+    val savedCrs: List<LocalizedCrs> = emptyList(),
+    /** El diálogo de «Guardar como SC», o null si está cerrado. */
+    val saveCrs: SaveCrsUi? = null,
 ) {
     /** El proyecto está en coordenadas de terreno (RF-22). */
     val terrain: Boolean get() = project?.terrain != null
@@ -153,16 +174,20 @@ class LocalizationViewModel @Inject constructor(
     private val localizations: LocalizationRepository,
     private val projects: ProjectRepository,
     private val points: PointRepository,
+    private val localizedCrs: LocalizedCrsRepository,
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
     private val form = MutableStateFlow<AddPairUi?>(null)
     private val confirmApplyFlow = MutableStateFlow<ApplyConfirmUi?>(null)
     private val confirmRemoveFlow = MutableStateFlow<Int?>(null)
     private val noticeFlow = MutableStateFlow<LocalizationNotice?>(null)
+    private val saveCrsFlow = MutableStateFlow<SaveCrsUi?>(null)
 
     fun start(id: String) {
         projectId.value = id
     }
+
+    private data class Extras(val dialogs: Dialogs, val saveCrs: SaveCrsUi?, val savedCrs: List<LocalizedCrs>)
 
     private data class Dialogs(val confirmApply: ApplyConfirmUi?, val confirmRemove: Int?, val notice: LocalizationNotice?)
 
@@ -173,8 +198,9 @@ class LocalizationViewModel @Inject constructor(
             combine(projects.observe(id), localizations.active(id), localizations.draft(id), localizations.history(id), ::Loaded),
             points.points(id),
             form,
-            combine(confirmApplyFlow, confirmRemoveFlow, noticeFlow, ::Dialogs),
-        ) { loaded, projectPoints, addPair, dialogs ->
+            combine(combine(confirmApplyFlow, confirmRemoveFlow, noticeFlow, ::Dialogs), saveCrsFlow, localizedCrs.observeAll(), ::Extras),
+        ) { loaded, projectPoints, addPair, extras ->
+            val dialogs = extras.dialogs
             val shown = loaded.draft ?: loaded.active
             val pairs = shown?.pairs.orEmpty()
             val fixScale = shown?.fixScale ?: false
@@ -210,6 +236,8 @@ class LocalizationViewModel @Inject constructor(
                 confirmApply = dialogs.confirmApply,
                 confirmRemove = dialogs.confirmRemove,
                 notice = dialogs.notice,
+                savedCrs = extras.savedCrs,
+                saveCrs = extras.saveCrs,
             )
         }.flowOn(Dispatchers.Default)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), LocalizationUiState())
@@ -381,6 +409,53 @@ class LocalizationViewModel @Inject constructor(
 
     fun dismissNotice() {
         noticeFlow.value = null
+    }
+
+    /** «Guardar como SC»: abre el diálogo del nombre (RF-24). */
+    fun openSaveCrs() {
+        if (state.value.active?.origin == LocalizationOrigin.PAIRS) saveCrsFlow.value = SaveCrsUi()
+    }
+
+    fun setCrsName(name: String) {
+        saveCrsFlow.update { it?.copy(name = name, error = null) }
+    }
+
+    fun closeSaveCrs() {
+        saveCrsFlow.value = null
+    }
+
+    /** Guarda la localización activa en «Mis SC» con el nombre escrito (RF-24). */
+    fun confirmSaveCrs() {
+        val id = projectId.value ?: return
+        val name = saveCrsFlow.value?.name ?: return
+        viewModelScope.launch {
+            when (val result = localizedCrs.saveFromProject(id, name)) {
+                is LocalizedCrsSave.Saved -> {
+                    saveCrsFlow.value = null
+                    noticeFlow.value = LocalizationNotice.CrsSaved(result.crs.name)
+                }
+                LocalizedCrsSave.InvalidName -> saveCrsFlow.update { it?.copy(error = SaveCrsError.EMPTY) }
+                LocalizedCrsSave.NameTaken -> saveCrsFlow.update { it?.copy(error = SaveCrsError.TAKEN) }
+                LocalizedCrsSave.NothingToSave -> saveCrsFlow.value = null
+            }
+        }
+    }
+
+    /** Elige un SC guardado con localización en este proyecto: el SC base y la localización activa, sin pares (RF-28). */
+    fun useCrs(crsId: String) {
+        val id = projectId.value ?: return
+        viewModelScope.launch {
+            noticeFlow.value = when (val result = localizedCrs.use(id, crsId)) {
+                is LocalizedCrsUse.Applied -> LocalizationNotice.CrsUsed(result.pointsChanged)
+                LocalizedCrsUse.OtherDatum -> LocalizationNotice.CrsOtherDatum
+                LocalizedCrsUse.TerrainActive -> LocalizationNotice.TerrainActive
+                LocalizedCrsUse.NotFound -> LocalizationNotice.NotFound
+            }
+        }
+    }
+
+    fun deleteCrs(crsId: String) {
+        viewModelScope.launch { localizedCrs.delete(crsId) }
     }
 
     /** Lo que pasó al guardar o compartir el informe (RF-25). */

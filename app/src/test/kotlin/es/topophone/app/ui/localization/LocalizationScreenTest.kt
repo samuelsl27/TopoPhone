@@ -414,4 +414,63 @@ class LocalizationScreenTest {
         compose.onNodeWithTag(LOCALIZATION_REPORT_SAVE_TAG).performScrollTo().assertIsNotEnabled()
         compose.onNodeWithTag(LOCALIZATION_REPORT_SHARE_TAG).performScrollTo().assertIsNotEnabled()
     }
+    private val savedCrs = es.topophone.core.model.localization.LocalizedCrs(
+        id = "c1",
+        name = "Plano de obra",
+        crs = es.topophone.core.model.project.ProjectCrs.ETRS89_UTM30,
+        heightSystem = es.topophone.core.model.project.HeightSystem.ORTHOMETRIC,
+        params = LocalizationParams(),
+        createdAtMs = 1,
+    )
+
+    @Test
+    fun `S039 RF-24 con una localizacion activa de pares se ofrece guardarla como SC`() {
+        val calls = mutableListOf<String>()
+        val active = localization(LocalizationStatus.ACTIVE, listOf(pair("a", "A")))
+        show(
+            LocalizationUiState(loaded = true, project = project, active = active, pairs = active.pairs),
+            LocalizationActions(onSaveCrs = { calls += "save" }),
+        )
+
+        compose.onNodeWithTag(LOCALIZATION_SAVE_CRS_TAG).performScrollTo().performClick()
+
+        calls shouldBe listOf("save")
+    }
+
+    @Test
+    fun `S039 RF-24 sin localizacion activa no se ofrece guardarla`() {
+        show(LocalizationUiState(loaded = true, project = project))
+
+        compose.onNodeWithTag(LOCALIZATION_SAVE_CRS_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S039 RF-24 el dialogo del nombre enseña el motivo si no vale`() {
+        show(LocalizationUiState(loaded = true, project = project, saveCrs = SaveCrsUi("Plano", SaveCrsError.TAKEN)))
+
+        compose.onNodeWithTag(LOCALIZATION_CRS_NAME_ERROR_TAG).shows("Ya hay un SC con ese nombre")
+        compose.onNodeWithTag(LOCALIZATION_CRS_CONFIRM_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    fun `S039 RF-28 los SC guardados se pueden usar en el proyecto o borrar`() {
+        val calls = mutableListOf<String>()
+        show(
+            LocalizationUiState(loaded = true, project = project, savedCrs = listOf(savedCrs)),
+            LocalizationActions(onUseCrs = { calls += "use:$it" }, onDeleteCrs = { calls += "delete:$it" }),
+        )
+
+        compose.onNodeWithTag(localizationUseCrsTag("c1")).performScrollTo().shows("Usar en este proyecto").performClick()
+        compose.onNodeWithTag(localizationDeleteCrsTag("c1")).performScrollTo().performClick()
+
+        calls shouldBe listOf("use:c1", "delete:c1")
+    }
+
+    @Test
+    fun `S039 RF-28 con el proyecto en terreno no se puede usar un SC guardado`() {
+        val ground = project.copy(terrain = es.topophone.core.model.project.TerrainPlane(40.4, -3.7, 0.9996))
+        show(LocalizationUiState(loaded = true, project = ground, savedCrs = listOf(savedCrs)))
+
+        compose.onNodeWithTag(localizationUseCrsTag("c1")).performScrollTo().assertIsNotEnabled()
+    }
 }

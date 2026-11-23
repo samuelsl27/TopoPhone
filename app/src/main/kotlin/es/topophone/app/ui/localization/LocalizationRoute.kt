@@ -64,6 +64,12 @@ fun LocalizationRoute(
             onReactivate = viewModel::reactivate,
             onDiscardDraft = viewModel::discardDraft,
             onDismissNotice = viewModel::dismissNotice,
+            onSaveCrs = viewModel::openSaveCrs,
+            onCrsName = viewModel::setCrsName,
+            onConfirmSaveCrs = viewModel::confirmSaveCrs,
+            onCancelSaveCrs = viewModel::closeSaveCrs,
+            onUseCrs = viewModel::useCrs,
+            onDeleteCrs = viewModel::deleteCrs,
             onSaveReport = { save.launch(viewModel.reportFileName(Instant.now(), ZoneId.systemDefault())) },
             onShareReport = {
                 scope.launch {

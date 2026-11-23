@@ -3797,4 +3797,15 @@
     <string name="localization_report_share">Compartir informe</string>
     <string name="localization_notice_report_saved">Informe de la localización guardado.</string>
     <string name="localization_notice_report_failed">No se pudo guardar el informe de la localización.</string>
+    <string name="localization_save_crs">Guardar como SC</string>
+    <string name="localization_crs_name">Nombre del SC</string>
+    <string name="localization_crs_name_empty">Escribe un nombre.</string>
+    <string name="localization_crs_name_taken">Ya hay un SC con ese nombre en Mis SC.</string>
+    <string name="localization_saved_crs_title">SC guardados con localización</string>
+    <string name="localization_saved_crs_item">Base: %1$s</string>
+    <string name="localization_use_crs">Usar en este proyecto</string>
+    <string name="localization_notice_crs_saved">Guardado en Mis SC como «%1$s».</string>
+    <string name="localization_notice_crs_used">SC aplicado: el proyecto queda con la localización activa y han cambiado %1$d puntos GNSS.</string>
+    <string name="localization_notice_crs_other_datum">Ese SC es de otro datum que el del proyecto: no se cambia nada.</string>
+    <string name="my_crs_localized_mark">Localizado</string>
 </resources>

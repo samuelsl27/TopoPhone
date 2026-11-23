@@ -61,7 +61,7 @@
       Hecho cuando: las pruebas de las pantallas de Shapefile y GeoPackage comprueban la opción oculta y el aviso.
 - [x] T24. «Informe»: CSV con los parámetros, los pares y los residuos, para guardar o compartir. (RF-25)
       Hecho cuando: `LocalizationReportCsvTest` comprueba el contenido con `Locale.ROOT` y el botón guarda y comparte.
-- [ ] T25. «Guardar como SC» en «Mis SC» (`localized_crs`) y elegirlo en otro proyecto, que queda con el SC base y la localización activa sin pares. (RF-24, RF-28)
+- [x] T25. «Guardar como SC» en «Mis SC» (`localized_crs`) y elegirlo en otro proyecto, que queda con el SC base y la localización activa sin pares. (RF-24, RF-28)
       Hecho cuando: `LocalizedCrsRepositoryTest` y `LocalizedCrsFlowTest` guardan, listan con la marca «Localizado», eligen en otro proyecto y respetan RF-22 y RF-27.
 
 ## Validación
