@@ -7,7 +7,7 @@
       Hecho cuando: `FieldSheetTest` abre plegada, alterna con el toque y con las acciones semánticas, conserva la altura al recrear la actividad y el estado guardado, y mide el alto plegado.
 - [x] T2. `SettingPill` y `SettingsRow`: 56 dp, nombre y valor en texto, descripción para TalkBack, y dos filas con letra al 130 %. (RF-9, RF-27, RNF-T8)
       Hecho cuando: `SettingsRowTest` comprueba a 360 y 411 dp con letra al 100 % y al 130 % que las cuatro pastillas existen, miden 56 dp y no cortan texto.
-- [ ] T3. `NumericEntryDialog` y `ShortListDialog`: teclado `Decimal` con valor y rango actuales, error junto al campo sin aplicar, dos campos minutos y segundos para el tiempo, y lista corta con la opción vigente marcada; `imePadding`. (RF-7, RF-11, RF-12, RF-13)
+- [x] T3. `NumericEntryDialog` y `ShortListDialog`: teclado `Decimal` con valor y rango actuales, error junto al campo sin aplicar, dos campos minutos y segundos para el tiempo, y lista corta con la opción vigente marcada; `imePadding`. (RF-7, RF-11, RF-12, RF-13)
       Hecho cuando: `FieldDialogsTest` cubre valor válido, fuera de rango, formato «m:ss» armado desde minutos y segundos, la lista con la vigente marcada y que el campo queda sobre el teclado.
 
 ## Recolectar: hoja plegada

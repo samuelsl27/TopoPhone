@@ -3802,4 +3802,8 @@
     <string name="field_sheet_state_folded">Folded</string>
     <string name="field_sheet_state_expanded">Expanded</string>
     <string name="field_pill_description">%1$s, %2$s</string>
+    <string name="field_apply">Apply</string>
+    <string name="field_cancel">Cancel</string>
+    <string name="field_minutes">Minutes</string>
+    <string name="field_seconds">Seconds</string>
 </resources>
