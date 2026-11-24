@@ -17,6 +17,14 @@ internal fun Project.addAndroidUnitTestDependencies() {
     }
 }
 
+/**
+ * Los tests `*PerformanceTest` comprueban requisitos no funcionales de tiempo (RNF) con límites pensados para el equipo de desarrollo. En
+ * el runner compartido del CI (variable `CI`) los tiempos varían demasiado y dan falsos fallos, así que ahí no se ejecutan; en local sí.
+ */
+internal fun Test.excludePerformanceTestsInCi() {
+    if (System.getenv("CI") != null) filter.excludeTestsMatching("*PerformanceTest")
+}
+
 /** Robolectric accede a internals del JDK que el JDK 17+ no exporta por defecto. */
 internal fun Project.configureRobolectricJvm() {
     tasks.withType<Test>().configureEach {
@@ -28,6 +36,7 @@ internal fun Project.configureRobolectricJvm() {
         )
         // 3 GB: el módulo app ya pasa de 3.800 tests con Robolectric y con 2 GB la JVM de tests se quedaba sin memoria (S037/T15), con cientos de OutOfMemoryError.
         maxHeapSize = "3g"
+        excludePerformanceTestsInCi()
         // Hilt (KSP) genera fuentes de test aunque el módulo aún no tenga tests.
         failOnNoDiscoveredTests.set(false)
     }

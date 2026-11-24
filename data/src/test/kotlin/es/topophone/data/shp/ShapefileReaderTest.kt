@@ -6,6 +6,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import java.io.ByteArrayInputStream
 import java.io.File
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -180,7 +181,8 @@ class ShapefileReaderTest {
                     }
                 }
             }
-            job = async(Dispatchers.IO) { reader().extract(listOf(input)) }
+            job = async(Dispatchers.IO, start = CoroutineStart.LAZY) { reader().extract(listOf(input)) }
+            job.start() // con `job` ya asignado: la lectura puede cancelarlo desde la primera llamada
             runCatching { job.await() }.exceptionOrNull()
         }
 
