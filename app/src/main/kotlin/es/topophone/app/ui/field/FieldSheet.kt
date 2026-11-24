@@ -83,6 +83,7 @@ fun FieldSheet(
             Header(isExpanded, onValueChange, onClose, closeTag, header)
             folded()
             if (isExpanded) {
+                Box(Modifier.size(8.dp))
                 Column(
                     modifier = Modifier.heightIn(max = maxExpanded).verticalScroll(rememberScrollState()).testTag(FIELD_SHEET_EXPANDED_TAG),
                 ) { expanded() }
