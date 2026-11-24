@@ -33,11 +33,11 @@
       Hecho cuando: `ActiveItemsTest` cubre cada estado (factor, RMS o «Activa», nombre del punto conocido, nombres, «2 de 3»), el orden y que sin nada activo, o solo con el mapa base, la lista queda vacía.
 - [x] T13. `ProjectInfoViewModel` con los repositorios de localización, base shift, superficies, ejes y capas, y el factor del terreno. (RF-18, RF-19, RF-22)
       Hecho cuando: `ProjectInfoViewModelActiveTest` comprueba, con repositorios falsos, que la lista cambia al activar o desactivar cada elemento sin volver a abrir.
-- [ ] T14. `ActiveSection`: una fila de 56 dp por elemento con su nombre y su estado en texto, puntos suspensivos con el texto entero para TalkBack y filas solo informativas si no tienen destino. (RF-19, RF-19b, RF-20b, RNF-T8)
+- [x] T14. `ActiveSection`: una fila de 56 dp por elemento con su nombre y su estado en texto, puntos suspensivos con el texto entero para TalkBack y filas solo informativas si no tienen destino. (RF-19, RF-19b, RF-20b, RNF-T8)
       Hecho cuando: `ActiveSectionTest` comprueba nombres y estados, el texto largo cortado con su descripción entera, que una fila sin destino no es un botón y que la sección no se pinta vacía.
-- [ ] T15. Navegación de las filas: localización y base shift a sus pantallas, el terreno al formulario con su sección a la vista y la superficie, el eje y las capas a la vista del proyecto con su hoja abierta una sola vez. (RF-20)
+- [x] T15. Navegación de las filas: localización y base shift a sus pantallas, el terreno al formulario con su sección a la vista y la superficie, el eje y las capas a la vista del proyecto con su hoja abierta una sola vez. (RF-20)
       Hecho cuando: `ActiveItemsNavigationTest` pulsa cada fila y comprueba el destino, y que la hoja abierta por `openPanel` no se reabre al girar ni al volver.
-- [ ] T16. La sección en `ProjectInfoScreen` y su actualización con la pantalla abierta. (RF-18, RF-21, RF-22)
+- [x] T16. La sección en `ProjectInfoScreen` y su actualización con la pantalla abierta. (RF-18, RF-21, RF-22)
       Hecho cuando: `ProjectInfoActiveScreenTest` muestra la sección con un terreno y una localización activos, no la muestra sin nada activo y la actualiza al activar un elemento con la pantalla abierta.
 
 ## Cierre

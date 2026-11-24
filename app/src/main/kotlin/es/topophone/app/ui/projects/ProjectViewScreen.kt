@@ -460,6 +460,7 @@ fun ProjectViewRoute(
     stakeoutPointId: String? = null,
     stakeoutQuery: String = "",
     stakeoutLineId: String? = null,
+    openPanel: ProjectPanel? = null,
     viewModel: ProjectViewModel = hiltViewModel(),
     collectorViewModel: CollectorViewModel = hiltViewModel(),
     stakeoutViewModel: StakeoutViewModel = hiltViewModel(),
@@ -629,6 +630,7 @@ fun ProjectViewRoute(
         viewModel::setMapSettings,
         viewModel::onViewportChanged,
         map = { modifier, onReady -> MapLibreMap(environment, onReady, modifier) },
+        openPanel = openPanel,
         design = design,
         onDesignCamera = {
             designViewModel.onCamera(it)
@@ -1064,6 +1066,8 @@ fun ProjectViewScreen(
     onMapSettings: (MapSettings) -> Unit = {},
     onViewportChanged: (MapViewport) -> Unit = {},
     map: MapSlot = { _, _ -> },
+    /** La hoja que se abre al llegar desde «Datos del proyecto», una sola vez por entrada (S059/RF-20). */
+    openPanel: ProjectPanel? = null,
     collector: CollectorUiState? = null,
     collectorStats: AverageStatsUi? = null,
     collectorAutoLive: AutoLive? = null,
@@ -1166,6 +1170,17 @@ fun ProjectViewScreen(
     var convertOpen by rememberSaveable { mutableStateOf(false) }
     var designInfoOpen by rememberSaveable { mutableStateOf(false) } // S026/RF-1
     var alignmentsOpen by rememberSaveable { mutableStateOf(false) }
+    var panelHandled by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(openPanel) {
+        if (openPanel != null && !panelHandled) {
+            panelHandled = true
+            when (openPanel) {
+                ProjectPanel.SURFACES -> surfacesOpen = true
+                ProjectPanel.ALIGNMENTS -> alignmentsOpen = true
+                ProjectPanel.LAYERS -> layersOpen = true
+            }
+        }
+    }
     var bottomInsetPx by remember { mutableIntStateOf(0) }
     // S060/RF-25: con un replanteo abierto el mapa sigue al jalón, orientado por la marcha y con el zoom al destino.
     val stakeoutFollowActive = stakeout != null || lineStakeout != null || axisStakeout?.started == true || slopeStake?.started == true

@@ -120,8 +120,25 @@ fun ProjectInfoRoute(
         ProjectCrsHistoryRoute(projectId, themeState, onToggleSun, onBack = { history = false })
         return
     }
-    ProjectInfoScreen(themeState, onToggleSun, state, navigation.onBack, onOpenCrsHistory = { history = true })
+    ProjectInfoScreen(
+        themeState,
+        onToggleSun,
+        state,
+        navigation.onBack,
+        onOpenCrsHistory = { history = true },
+        activeDestinations = activeDestinations(projectId, navigation),
+    )
 }
+
+/** A dónde lleva cada fila de «Activo en este proyecto»: la pantalla donde el elemento se gestiona hoy (S059/RF-20). */
+internal fun activeDestinations(projectId: String, navigation: SurveyNavigation): Map<ActiveKind, () -> Unit> = mapOf(
+    ActiveKind.TERRAIN to { navigation.onEditProjectTerrain(projectId) },
+    ActiveKind.LOCALIZATION to { navigation.onLocalization(projectId) },
+    ActiveKind.BASE_SHIFT to { navigation.onBaseShift(projectId) },
+    ActiveKind.SURFACE to { navigation.onOpenProjectPanel(projectId, ProjectPanel.SURFACES) },
+    ActiveKind.ALIGNMENT to { navigation.onOpenProjectPanel(projectId, ProjectPanel.ALIGNMENTS) },
+    ActiveKind.LAYERS to { navigation.onOpenProjectPanel(projectId, ProjectPanel.LAYERS) },
+)
 
 /** Datos del proyecto, a un toque desde el mapa (S006/RF-28, RF-31; S009/RF-5). */
 @Composable
@@ -131,6 +148,7 @@ fun ProjectInfoScreen(
     state: ProjectInfoUiState,
     onBack: () -> Unit,
     onOpenCrsHistory: () -> Unit = {},
+    activeDestinations: Map<ActiveKind, () -> Unit> = emptyMap(),
 ) {
     SectionScaffold(
         title = stringResource(R.string.project_info_screen),
@@ -144,6 +162,7 @@ fun ProjectInfoScreen(
         ) {
             state.project?.let { project ->
                 ProjectInfoCard(project, onOpenCrsHistory)
+                ActiveSection(state.active, project.linearUnit, activeDestinations) // S059/RF-18 a RF-22
                 PointsCard(state.pointCount, state.photos)
             }
         }

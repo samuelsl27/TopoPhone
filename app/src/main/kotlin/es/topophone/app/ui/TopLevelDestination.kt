@@ -82,7 +82,12 @@ import kotlinx.serialization.Serializable
 @Serializable data object BackupsDestination
 
 /** Formulario de proyecto en Levantamiento: nuevo si [projectId] es null (S006). */
-@Serializable data class ProjectFormDestination(val projectId: String? = null, val folderId: String? = null)
+@Serializable data class ProjectFormDestination(
+    val projectId: String? = null,
+    val folderId: String? = null,
+    /** Abre el formulario con la sección de terreno a la vista, desde «Activo en este proyecto» (S059/RF-20). */
+    val showTerrain: Boolean = false,
+)
 
 /** Papelera de proyectos (S006/RF-23). */
 @Serializable data object TrashDestination
@@ -97,6 +102,8 @@ import kotlinx.serialization.Serializable
     val stakeoutQuery: String = "",
     /** Abre el replanteo de esta línea del proyecto (S027/RF-1). */
     val stakeoutLineId: String? = null,
+    /** Abre una hoja de la vista al llegar: superficies, ejes o capas, desde «Activo en este proyecto» (S059/RF-20). */
+    val openPanel: String? = null,
 )
 
 /** Datos de un proyecto (S009/RF-5). */

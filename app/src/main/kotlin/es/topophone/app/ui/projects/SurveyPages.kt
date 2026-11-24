@@ -88,12 +88,15 @@ import es.topophone.app.ui.surface.SurfaceImportUiState
 import es.topophone.core.model.preferences.ThemeState
 
 /** Pantallas de la sección Levantamiento (S006). */
+/** Las hojas de la vista del proyecto que «Datos del proyecto» puede abrir al llegar (S059/RF-20). */
+enum class ProjectPanel { SURFACES, ALIGNMENTS, LAYERS }
+
 sealed interface SurveyPage {
     /** Lista de proyectos (S006/RF-1). */
     data object List : SurveyPage
 
     /** Formulario de proyecto: nuevo si [projectId] es null (S006/RF-5, RF-14). */
-    data class Form(val projectId: String?, val folderId: String?) : SurveyPage
+    data class Form(val projectId: String?, val folderId: String?, val showTerrain: Boolean = false) : SurveyPage
 
     /** Vista de un proyecto (S006/RF-28). */
     data class View(
@@ -101,6 +104,7 @@ sealed interface SurveyPage {
         val stakeoutPointId: String? = null,
         val stakeoutQuery: String = "",
         val stakeoutLineId: String? = null,
+        val openPanel: ProjectPanel? = null,
     ) : SurveyPage
 
     /** Datos de un proyecto (S009/RF-5). */
@@ -212,6 +216,10 @@ class SurveyNavigation(
     /** Tras guardar un proyecto nuevo se abre en lugar del formulario (S006/RF-12). */
     val onProjectSaved: (String) -> Unit = {},
     val onEditProject: (String) -> Unit = {},
+    /** El formulario del proyecto con la sección de terreno a la vista (S059/RF-20). */
+    val onEditProjectTerrain: (String) -> Unit = {},
+    /** La vista del proyecto con una de sus hojas abierta (S059/RF-20). */
+    val onOpenProjectPanel: (projectId: String, panel: ProjectPanel) -> Unit = { _, _ -> },
     val onOpenProjectInfo: (String) -> Unit = {},
     /** Los códigos de la biblioteca que lleva el proyecto, solo de consulta (S023/RF-20). */
     val onOpenProjectCodes: (String) -> Unit = {},

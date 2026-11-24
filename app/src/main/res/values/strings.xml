@@ -3915,4 +3915,17 @@
     <string name="objects_tab_points">Puntos (%1$d)</string>
     <string name="objects_tab_lines">Líneas y polígonos (%1$d)</string>
     <string name="objects_lines_empty">Este proyecto no tiene líneas ni polígonos.</string>
+    <string name="active_title">Activo en este proyecto</string>
+    <string name="active_open">Abrir</string>
+    <string name="active_terrain">Terreno</string>
+    <string name="active_localization">Localización</string>
+    <string name="active_base_shift">Base shift</string>
+    <string name="active_surface">Superficie</string>
+    <string name="active_alignment">Eje</string>
+    <string name="active_layers">Capas del mapa</string>
+    <string name="active_status_factor">Factor %1$s</string>
+    <string name="active_status_rms">RMS horizontal %1$s</string>
+    <string name="active_status_active">Activa</string>
+    <string name="active_status_layers">%1$d de %2$d visibles</string>
+    <string name="active_row_description">%1$s, %2$s</string>
 </resources>

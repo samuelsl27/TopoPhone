@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -26,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -556,6 +559,7 @@ fun ProjectFormRoute(
     themeState: ThemeState,
     onToggleSun: () -> Unit,
     navigation: SurveyNavigation,
+    showTerrain: Boolean = false,
     viewModel: ProjectFormViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(Unit) { viewModel.start(projectId, folderId) }
@@ -595,6 +599,7 @@ fun ProjectFormRoute(
         ),
         map = { modifier, onReady -> MapLibreMap(environment, onReady, modifier) },
         library = HiltCrsLibraryHost,
+        showTerrain = showTerrain,
     )
 }
 
@@ -609,6 +614,8 @@ fun ProjectFormScreen(
     map: MapSlot? = null,
     /** La biblioteca de SC (S034): sin ella no se ofrece elegir uno de fuera de España. */
     library: CrsLibraryHost? = null,
+    /** Abre con la sección de terreno a la vista, desde «Activo en este proyecto» (S059/RF-20). */
+    showTerrain: Boolean = false,
 ) {
     val draft = state.draft
     var picking by rememberSaveable { mutableStateOf(false) }
@@ -717,7 +724,21 @@ fun ProjectFormScreen(
                 library = libraryHooks,
                 onCrs = { actions.onChange(draft.withCrs(it)) },
             ) { actions.onChange(draft.copy(heightSystem = it)) } // S006/RF-8, S008/RF-1 a RF-3, RF-11, RF-17, RF-19
-            if (draft.crs.isProjected) TerrainSection(state.terrainForm, actions) // S058/RF-1, RF-2
+            if (draft.crs.isProjected) {
+                // S059/RF-20: desde «Activo en este proyecto» el formulario abre con la sección de terreno a la vista, una sola vez.
+                val requester = remember { BringIntoViewRequester() }
+                var shown by rememberSaveable { mutableStateOf(false) }
+                LaunchedEffect(showTerrain) {
+                    if (showTerrain && !shown) {
+                        shown = true
+                        withFrameNanos { } // espera a que la sección esté colocada
+                        requester.bringIntoView()
+                    }
+                }
+                Column(modifier = Modifier.bringIntoViewRequester(requester), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    TerrainSection(state.terrainForm, actions) // S058/RF-1, RF-2
+                }
+            }
             ChoiceGroup(stringResource(R.string.project_linear_unit), LinearUnit.entries, draft.linearUnit, ::linearOptionTag, {
                 linearUnitLabel(it)
             }) {

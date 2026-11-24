@@ -79,6 +79,7 @@ import es.topophone.app.ui.projects.ProjectFolderRoute
 import es.topophone.app.ui.projects.ProjectFormRoute
 import es.topophone.app.ui.projects.ProjectInfoRoute
 import es.topophone.app.ui.projects.ProjectListRoute
+import es.topophone.app.ui.projects.ProjectPanel
 import es.topophone.app.ui.projects.ProjectViewRoute
 import es.topophone.app.ui.projects.SurveyNavigation
 import es.topophone.app.ui.projects.SurveyPage
@@ -143,6 +144,7 @@ fun TopoPhoneApp(
                     theme,
                     toggleSun,
                     navigation,
+                    showTerrain = page.showTerrain,
                     viewModel = hiltViewModel(owner),
                 )
                 is SurveyPage.View -> ProjectViewRoute(
@@ -153,6 +155,7 @@ fun TopoPhoneApp(
                     stakeoutPointId = page.stakeoutPointId,
                     stakeoutQuery = page.stakeoutQuery,
                     stakeoutLineId = page.stakeoutLineId,
+                    openPanel = page.openPanel,
                     viewModel = hiltViewModel(owner),
                 )
                 is SurveyPage.Info -> ProjectInfoRoute(page.projectId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
@@ -460,6 +463,13 @@ private fun AppNavHost(
                     navController.navigate(ProjectViewDestination(id)) { popUpTo<ProjectFormDestination> { inclusive = true } }
                 },
                 onEditProject = { id -> navController.navigate(ProjectFormDestination(projectId = id)) }, // S006/RF-14
+                // S059/RF-20
+                onEditProjectTerrain = { id ->
+                    navController.navigate(ProjectFormDestination(projectId = id, showTerrain = true))
+                },
+                onOpenProjectPanel = { id, panel ->
+                    navController.navigate(ProjectViewDestination(id, openPanel = panel.name))
+                },
                 onOpenProjectInfo = { id -> navController.navigate(ProjectInfoDestination(id)) }, // S009/RF-5
                 onOpenProjectCodes = { id -> navController.navigate(ProjectCodesDestination(id)) }, // S023/RF-20
                 onNewProjectCode = { id -> navController.navigate(ProjectCodeEditorDestination(id)) }, // S024/RF-5
@@ -549,7 +559,7 @@ private fun AppNavHost(
             composable<ProjectFormDestination> { entry ->
                 val args = entry.toRoute<ProjectFormDestination>()
                 surveySection(
-                    SurveyPage.Form(args.projectId, args.folderId),
+                    SurveyPage.Form(args.projectId, args.folderId, args.showTerrain),
                     uiState.themeState,
                     actions.onToggleSun,
                     surveyNavigation,
@@ -565,7 +575,8 @@ private fun AppNavHost(
             }
             composable<ProjectViewDestination> { entry ->
                 val args = entry.toRoute<ProjectViewDestination>()
-                val page = SurveyPage.View(args.projectId, args.stakeoutPointId, args.stakeoutQuery, args.stakeoutLineId)
+                val panel = args.openPanel?.let { name -> ProjectPanel.entries.firstOrNull { it.name == name } }
+                val page = SurveyPage.View(args.projectId, args.stakeoutPointId, args.stakeoutQuery, args.stakeoutLineId, panel)
                 surveySection(page, uiState.themeState, actions.onToggleSun, surveyNavigation, entry)
             }
             composable<ProjectInfoDestination> { entry ->

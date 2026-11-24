@@ -3903,4 +3903,17 @@
     <string name="objects_tab_points">Points (%1$d)</string>
     <string name="objects_tab_lines">Lines and polygons (%1$d)</string>
     <string name="objects_lines_empty">This project has no lines or polygons.</string>
+    <string name="active_title">Active in this project</string>
+    <string name="active_open">Open</string>
+    <string name="active_terrain">Ground</string>
+    <string name="active_localization">Localization</string>
+    <string name="active_base_shift">Base shift</string>
+    <string name="active_surface">Surface</string>
+    <string name="active_alignment">Alignment</string>
+    <string name="active_layers">Map layers</string>
+    <string name="active_status_factor">Factor %1$s</string>
+    <string name="active_status_rms">Horizontal RMS %1$s</string>
+    <string name="active_status_active">Active</string>
+    <string name="active_status_layers">%1$d of %2$d visible</string>
+    <string name="active_row_description">%1$s, %2$s</string>
 </resources>
