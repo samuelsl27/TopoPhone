@@ -40,6 +40,14 @@ jobs:
       - name: uv
         uses: astral-sh/setup-uv@v10.3.0
 
+      # Robolectric baja android-all de Maven Central y el CI recibe a veces HTTP 429: se guarda en caché.
+      - name: Caché de Robolectric
+        id: robolectric-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/.m2/repository/org/robolectric
+          key: robolectric-${{ hashFiles('gradle/libs.versions.toml') }}
+
       - name: Ficheros prohibidos (S001/RF-29)
         run: uv run --project tools tools/repo/forbidden_files.py
 
@@ -56,6 +64,13 @@ jobs:
 
       - name: Gradle check (tests, Lint, ktlint, reglas de módulos, telemetría, Kover)
         run: ./gradlew check --stacktrace
+
+      - name: Guardar caché de Robolectric
+        if: always() && steps.robolectric-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ~/.m2/repository/org/robolectric
+          key: robolectric-${{ hashFiles('gradle/libs.versions.toml') }}
 
       - name: Informes de fallo
         if: failure()

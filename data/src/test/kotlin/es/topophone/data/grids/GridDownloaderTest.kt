@@ -7,6 +7,7 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -121,7 +122,8 @@ class GridDownloaderTest {
     fun `S034 RF-22 cancelar a mitad borra el fichero a medias`() = runBlocking<Unit> {
         lateinit var download: Deferred<DownloadResult>
         val http = FakeHttp(body = bytes, onRead = { download.cancel() })
-        download = async(Dispatchers.Default) { GridDownloader(store, http).download(entry) }
+        download = async(Dispatchers.Default, start = CoroutineStart.LAZY) { GridDownloader(store, http).download(entry) }
+        download.start() // con `download` ya asignado: onRead puede cancelarlo desde la primera lectura
 
         download.join()
 

@@ -144,6 +144,7 @@ class ReceiverSessionReconnectTest {
 
         first.cut()
         back.send(gga) // queda en la tuberia hasta que el segundo intento la abra
+        runBlocking { withTimeout(5_000) { while (attempts.size < 2) kotlinx.coroutines.delay(10) } }
 
         session.await { it.connection is ConnectionState.Receiving }.connection shouldBe ConnectionState.Receiving("reach-RS3")
         attempts shouldHaveAtLeastSize 2
