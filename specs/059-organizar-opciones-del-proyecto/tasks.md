@@ -7,7 +7,7 @@
       Hecho cuando: `ProjectOptionsTest` comprueba el orden de cada grupo, que ningún menú pasa de 8 filas, que no hay ids repetidos y que están las 21 opciones de hoy, cada una en un solo grupo.
 - [x] T2. Iconos y textos: los vectores propios y las cadenas en español e inglés (nombres de fila, descripciones de «Herramientas» y verbos de TalkBack). (RF-5, RF-8, RNF-T7)
       Hecho cuando: un test comprueba que cada opción de `ProjectOptions` tiene icono, texto y etiqueta en los dos idiomas, y que las filas de «Importar» y «Exportar» no llevan descripción.
-- [ ] T3. `GroupBar`: tres botones de igual ancho con icono y texto, 56 dp, y el texto en dos líneas con la letra al 130 %. (RF-1)
+- [x] T3. `GroupBar`: tres botones de igual ancho con icono y texto, 56 dp, y el texto en dos líneas con la letra al 130 %. (RF-1)
       Hecho cuando: `GroupBarTest` comprueba a 360 y 411 dp, con letra al 100 % y al 130 %, que los tres botones se ven completos, miden 56 dp y no cortan el texto.
 - [ ] T4. `GroupMenu`: el menú de cada botón con icono, nombre, descripción solo en «Herramientas» y etiqueta de TalkBack; cierra al pulsar fuera y con «Atrás». (RF-5, RF-8, RF-9, RF-10)
       Hecho cuando: `GroupMenuTest` abre cada menú a 360×640 con letra al 100 % y comprueba que se ve entero sin desplazar, que cada fila lleva su etiqueta («Importar DXF») y que cerrar no llama a nada.
