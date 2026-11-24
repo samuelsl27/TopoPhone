@@ -6,8 +6,8 @@ import io.kotest.matchers.shouldBe
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
