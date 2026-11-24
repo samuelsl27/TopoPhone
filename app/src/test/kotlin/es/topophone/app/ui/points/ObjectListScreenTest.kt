@@ -38,7 +38,7 @@ import org.robolectric.annotation.Config
 
 /** Pantalla de la lista de objetos y botón "Objetos" del mapa (S011/RF-1 a RF-4, RF-22). Interfaz en es-ES. */
 @RunWith(AndroidJUnit4::class)
-@Config(qualifiers = "es-rES")
+@Config(qualifiers = "es-rES-h800dp")
 class ObjectListScreenTest {
 
     @get:Rule

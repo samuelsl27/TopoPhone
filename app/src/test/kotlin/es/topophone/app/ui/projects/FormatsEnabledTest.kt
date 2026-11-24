@@ -9,7 +9,10 @@ import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.R
-import es.topophone.app.ui.points.OBJECTS_MENU_TAG
+import es.topophone.app.ui.options.OptionGroup
+import es.topophone.app.ui.options.ProjectOptions
+import es.topophone.app.ui.options.groupButtonTag
+import es.topophone.app.ui.options.optionTag
 import es.topophone.app.ui.points.ObjectListActions
 import es.topophone.app.ui.points.ObjectListScreen
 import es.topophone.app.ui.points.ObjectListUiState
@@ -121,17 +124,27 @@ class FormatsEnabledTest {
         (exports + imports).forEach { compose.onNodeWithText(text(it)).assertExists() }
     }
 
-    @Test
-    fun `S057 RF-28 el menu de objetos ofrece los formatos de intercambio`() {
-        compose.setContent {
-            TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                ObjectListScreen(ThemeState.DEFAULT, {}, ObjectListUiState(loaded = true), ObjectListActions(), onBack = {})
-            }
+    private fun showObjects() = compose.setContent {
+        TopoPhoneTheme(EffectiveTheme.LIGHT) {
+            ObjectListScreen(ThemeState.DEFAULT, {}, ObjectListUiState(loaded = true), ObjectListActions(), onBack = {})
         }
+    }
 
-        compose.onNodeWithTag(OBJECTS_MENU_TAG).performClick()
+    @Test
+    fun `S057 RF-28 el menu de Exportar de objetos ofrece los formatos de intercambio`() {
+        showObjects()
 
-        compose.onNodeWithText(text(R.string.export_csv)).assertIsDisplayed()
-        (exports + imports).forEach { compose.onNodeWithText(text(it)).assertExists() }
+        compose.onNodeWithTag(groupButtonTag(OptionGroup.EXPORT)).performClick()
+
+        ProjectOptions.of(OptionGroup.EXPORT).forEach { compose.onNodeWithTag(optionTag(it)).assertExists() }
+    }
+
+    @Test
+    fun `S057 RF-28 el menu de Importar de objetos ofrece los formatos de intercambio`() {
+        showObjects()
+
+        compose.onNodeWithTag(groupButtonTag(OptionGroup.IMPORT)).performClick()
+
+        ProjectOptions.of(OptionGroup.IMPORT).forEach { compose.onNodeWithTag(optionTag(it)).assertExists() }
     }
 }

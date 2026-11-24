@@ -5,7 +5,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import es.topophone.app.ui.points.OBJECTS_MENU_TAG
+import es.topophone.app.ui.options.ProjectOption
+import es.topophone.app.ui.options.chooseOption
 import es.topophone.app.ui.points.ObjectListActions
 import es.topophone.app.ui.points.ObjectListScreen
 import es.topophone.app.ui.points.ObjectListUiState
@@ -93,8 +94,7 @@ class KmlExportEntriesTest {
         }
 
         compose.onNodeWithTag(SELECTION_EXPORT_KML_TAG).performClick()
-        compose.onNodeWithTag(OBJECTS_MENU_TAG).performClick()
-        compose.onNodeWithText("Exportar KML/KMZ").performClick()
+        compose.chooseOption(ProjectOption.EXPORT_KML)
 
         chosen shouldBe listOf("selected", "all")
     }

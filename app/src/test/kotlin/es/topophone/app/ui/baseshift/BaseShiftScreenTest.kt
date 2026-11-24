@@ -4,7 +4,6 @@ import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -14,7 +13,8 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.collector.MeasureProgress
-import es.topophone.app.ui.points.OBJECTS_MENU_TAG
+import es.topophone.app.ui.options.ProjectOption
+import es.topophone.app.ui.options.chooseOption
 import es.topophone.app.ui.points.ObjectListActions
 import es.topophone.app.ui.points.ObjectListScreen
 import es.topophone.app.ui.points.ObjectListUiState
@@ -274,8 +274,7 @@ class BaseShiftScreenTest {
             }
         }
 
-        compose.onNodeWithTag(OBJECTS_MENU_TAG).performClick()
-        compose.onNode(hasText("Base shift")).performScrollTo().assertIsDisplayed().performClick()
+        compose.chooseOption(ProjectOption.BASE_SHIFT)
 
         opened shouldBe 1
     }

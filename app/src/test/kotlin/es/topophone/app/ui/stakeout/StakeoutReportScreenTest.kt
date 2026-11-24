@@ -4,8 +4,6 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -13,7 +11,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.export.ExportResult
-import es.topophone.app.ui.points.OBJECTS_MENU_TAG
+import es.topophone.app.ui.options.ProjectOption
+import es.topophone.app.ui.options.chooseOption
 import es.topophone.app.ui.points.ObjectListActions
 import es.topophone.app.ui.points.ObjectListScreen
 import es.topophone.app.ui.points.ObjectListUiState
@@ -292,11 +291,7 @@ class StakeoutReportScreenTest {
         }
 
         compose.onNodeWithTag(SELECTION_STAKEOUT_REPORT_TAG).performClick()
-        compose.onNodeWithTag(OBJECTS_MENU_TAG).performClick()
-        // La barra de la selección también tiene un botón con ese texto: aquí va el del menú.
-        compose.onNode(
-            hasText("Informe de replanteo").and(hasTestTag(SELECTION_STAKEOUT_REPORT_TAG).not()),
-        ).performScrollTo().performClick()
+        compose.chooseOption(ProjectOption.STAKEOUT_REPORT)
 
         chosen shouldBe listOf("selected", "all")
     }

@@ -64,6 +64,10 @@ import es.topophone.app.ui.export.ExportSelection
 import es.topophone.app.ui.gpkg.rememberImportGpkgLauncher
 import es.topophone.app.ui.gpkg.rememberImportKmlLauncher
 import es.topophone.app.ui.gpkg.rememberImportShpLauncher
+import es.topophone.app.ui.options.GroupBar
+import es.topophone.app.ui.options.GroupMenu
+import es.topophone.app.ui.options.OptionGroup
+import es.topophone.app.ui.options.ProjectOption
 import es.topophone.app.ui.projects.ConfirmDialog
 import es.topophone.app.ui.projects.SurveyNavigation
 import es.topophone.app.ui.raster.rememberImportRasterLauncher
@@ -105,10 +109,6 @@ const val OBJECTS_BUTTON_TAG = "objects_button"
 const val OBJECT_LIST_TAG = "object_list"
 const val ADD_POINT_TAG = "add_point"
 const val OBJECTS_MENU_TAG = "objects_menu"
-const val OBJECTS_LINE_FROM_POINTS_TAG = "objects_line_from_points"
-const val OBJECTS_ANGLE_TAG = "objects_angle"
-const val OBJECTS_LOCALIZATION_TAG = "objects_localization"
-const val OBJECTS_COGO_TAG = "objects_cogo"
 const val OBJECT_SEARCH_TAG = "object_search"
 const val SELECTION_BAR_TAG = "selection_bar"
 const val SELECTION_HIDE_TAG = "selection_hide"
@@ -524,31 +524,7 @@ fun ObjectListScreen(
         themeState = themeState,
         onToggleSun = onToggleSun,
         onNavigateBack = onBack,
-        actions = {
-            ObjectsMenu(
-                actions.onOpenTrash,
-                actions.onExport,
-                actions.onExportGeoPackage,
-                actions.onExportDxf,
-                actions.onExportShp,
-                actions.onExportKml,
-                actions.onExportPhotos,
-                actions.onStakeoutReport,
-                actions.onImportPoints,
-                actions.onImportDxf,
-                actions.onImportSurface,
-                actions.onImportRaster,
-                actions.onImportGpkg,
-                actions.onImportShp,
-                actions.onImportKml,
-                actions.onImportAlignment,
-                actions.onBaseShift,
-                actions.onLocalization,
-                actions.onLineFromPoints,
-                actions.onThreePointAngle,
-                actions.onCogo,
-            )
-        },
+        actions = { ObjectsMenu(actions::run) },
         floatingActionButton = {
             if (state.selected.isEmpty()) {
                 ExtendedFloatingActionButton(
@@ -559,6 +535,8 @@ fun ObjectListScreen(
         },
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
+            // S059/RF-1: los menús de importar, exportar y herramientas, a un toque bajo la barra superior.
+            GroupBar(menu = { group, dismiss -> GroupMenu(group, onSelect = actions::run, onDismiss = dismiss) })
             // Lista perezosa: con miles de puntos solo se pintan los que se ven (RNF de la spec).
             LazyColumn(
                 modifier = Modifier.weight(1f).fillMaxWidth().testTag(OBJECT_LIST_TAG),
@@ -620,207 +598,39 @@ fun ObjectListScreen(
     }
 }
 
-/** Menú "⋮" de la lista de objetos: la papelera de puntos (S011/RF-23). */
+/** El menú «⋮» de la lista de objetos: solo el informe de replanteo y la papelera de puntos (S059/RF-6; S011/RF-23). */
 @Composable
-private fun ObjectsMenu(
-    onOpenTrash: () -> Unit,
-    onExport: () -> Unit,
-    onExportGeoPackage: () -> Unit,
-    onExportDxf: () -> Unit,
-    onExportShp: () -> Unit,
-    onExportKml: () -> Unit,
-    onExportPhotos: () -> Unit,
-    onStakeoutReport: () -> Unit,
-    onImportPoints: () -> Unit,
-    onImportDxf: () -> Unit,
-    onImportSurface: () -> Unit,
-    onImportRaster: () -> Unit,
-    onImportGpkg: () -> Unit,
-    onImportShp: () -> Unit,
-    onImportKml: () -> Unit,
-    onImportAlignment: () -> Unit,
-    onBaseShift: () -> Unit,
-    onLocalization: () -> Unit,
-    onLineFromPoints: () -> Unit,
-    onThreePointAngle: () -> Unit,
-    onCogo: () -> Unit,
-) {
+private fun ObjectsMenu(onSelect: (ProjectOption) -> Unit) {
     var open by remember { mutableStateOf(false) }
     IconButton(onClick = { open = true }, modifier = Modifier.size(MinTouchTarget).testTag(OBJECTS_MENU_TAG)) {
         Icon(painterResource(R.drawable.ic_more_vert), contentDescription = stringResource(R.string.projects_menu))
     }
-    DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.export_csv)) },
-            onClick = {
-                open = false
-                onExport()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget),
-        ) // S012/RF-1
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.gpkg_export_title)) },
-            onClick = {
-                open = false
-                onExportGeoPackage()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget),
-        ) // S053/RF-1
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.dxf_export_title)) },
-            onClick = {
-                open = false
-                onExportDxf()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget),
-        ) // S029/RF-1
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.shp_export_title)) },
-            onClick = {
-                open = false
-                onExportShp()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget),
-        ) // S055/RF-1
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.kml_export_title)) },
-            onClick = {
-                open = false
-                onExportKml()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget),
-        ) // S031/RF-20
+    if (open) GroupMenu(OptionGroup.MORE, onSelect = onSelect, onDismiss = { open = false })
+}
 
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.photo_export_title)) },
-            onClick = {
-                open = false
-                onExportPhotos()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget),
-        ) // S056/RF-1
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.import_title)) },
-            onClick = {
-                open = false
-                onImportPoints()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget),
-        ) // S028/RF-1
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.cad_import_title)) },
-            onClick = {
-                open = false
-                onImportDxf()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget),
-        ) // S040/RF-1
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.surface_import_title)) },
-            onClick = {
-                open = false
-                onImportSurface()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget),
-        ) // S042/RF-1
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.raster_import_title)) },
-            onClick = {
-                open = false
-                onImportRaster()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget),
-        ) // S045/RF-1
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.gpkg_import_title)) },
-            onClick = {
-                open = false
-                onImportGpkg()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget),
-        ) // S048/RF-1
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.shp_import_title)) },
-            onClick = {
-                open = false
-                onImportShp()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget),
-        ) // S030/RF-1
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.kml_import_title)) },
-            onClick = {
-                open = false
-                onImportKml()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget),
-        ) // S031/RF-1
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.alignment_import_title)) },
-            onClick = {
-                open = false
-                onImportAlignment()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget),
-        ) // S049/RF-1
-
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.line_wizard_title)) },
-            onClick = {
-                open = false
-                onLineFromPoints()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(OBJECTS_LINE_FROM_POINTS_TAG),
-        ) // S025/RF-12
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.angle_title)) },
-            onClick = {
-                open = false
-                onThreePointAngle()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(OBJECTS_ANGLE_TAG),
-        ) // S026/RF-13
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.cogo_title)) },
-            onClick = {
-                open = false
-                onCogo()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(OBJECTS_COGO_TAG),
-        ) // S038/RF-1
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.base_shift_title)) },
-            onClick = {
-                open = false
-                onBaseShift()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget),
-        ) // S020/RF-1
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.localization_menu_item)) },
-            onClick = {
-                open = false
-                onLocalization()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(OBJECTS_LOCALIZATION_TAG),
-        ) // S039/RF-1
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.stakeout_report_title)) },
-            onClick = {
-                open = false
-                onStakeoutReport()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget),
-        ) // S019/RF-17
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.point_trash_title)) },
-            onClick = {
-                open = false
-                onOpenTrash()
-            },
-            modifier = Modifier.heightIn(min = MinTouchTarget),
-        )
-    }
+/** Lleva cada opción de los menús a su acción de siempre (S059/RF-7). */
+internal fun ObjectListActions.run(option: ProjectOption) = when (option) {
+    ProjectOption.IMPORT_POINTS -> onImportPoints()
+    ProjectOption.IMPORT_CAD -> onImportDxf()
+    ProjectOption.IMPORT_SURFACE -> onImportSurface()
+    ProjectOption.IMPORT_RASTER -> onImportRaster()
+    ProjectOption.IMPORT_GEOPACKAGE -> onImportGpkg()
+    ProjectOption.IMPORT_SHAPEFILE -> onImportShp()
+    ProjectOption.IMPORT_KML -> onImportKml()
+    ProjectOption.IMPORT_ALIGNMENT -> onImportAlignment()
+    ProjectOption.EXPORT_POINTS -> onExport()
+    ProjectOption.EXPORT_GEOPACKAGE -> onExportGeoPackage()
+    ProjectOption.EXPORT_CAD -> onExportDxf()
+    ProjectOption.EXPORT_SHAPEFILE -> onExportShp()
+    ProjectOption.EXPORT_KML -> onExportKml()
+    ProjectOption.EXPORT_PHOTOS -> onExportPhotos()
+    ProjectOption.LINE_FROM_POINTS -> onLineFromPoints()
+    ProjectOption.THREE_POINT_ANGLE -> onThreePointAngle()
+    ProjectOption.COGO -> onCogo()
+    ProjectOption.BASE_SHIFT -> onBaseShift()
+    ProjectOption.LOCALIZATION -> onLocalization()
+    ProjectOption.STAKEOUT_REPORT -> onStakeoutReport()
+    ProjectOption.POINT_TRASH -> onOpenTrash()
 }
 
 /** Un punto: nombre, origen y descripción, sus marcas con icono y texto (S011/RF-3) y el ojo del mapa (S011/RF-4). */

@@ -7,12 +7,13 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.export.ExportSelection
 import es.topophone.app.ui.map.FakePointRepository
+import es.topophone.app.ui.options.ProjectOption
+import es.topophone.app.ui.options.chooseOption
 import es.topophone.app.ui.points.PointFixtures.manual
 import es.topophone.app.ui.points.PointFixtures.measured
 import es.topophone.app.ui.projects.CONFIRM_TAG
@@ -284,8 +285,7 @@ class ObjectListLinesTest {
     fun `S025 RF-12 el menu de la lista ofrece Linea desde puntos`() {
         show(uiState)
 
-        compose.onNodeWithTag(OBJECTS_MENU_TAG).performClick()
-        compose.onNodeWithTag(OBJECTS_LINE_FROM_POINTS_TAG).performScrollTo().performClick()
+        compose.chooseOption(ProjectOption.LINE_FROM_POINTS)
 
         calls shouldBe listOf("wizard")
     }
@@ -294,8 +294,7 @@ class ObjectListLinesTest {
     fun `S026 RF-13 el menu de la lista ofrece Angulo entre tres puntos`() {
         show(uiState)
 
-        compose.onNodeWithTag(OBJECTS_MENU_TAG).performClick()
-        compose.onNodeWithTag(OBJECTS_ANGLE_TAG).performScrollTo().performClick()
+        compose.chooseOption(ProjectOption.THREE_POINT_ANGLE)
 
         calls shouldBe listOf("angle")
     }
@@ -304,8 +303,7 @@ class ObjectListLinesTest {
     fun `S038 RF-1 el menu de la lista ofrece COGO`() {
         show(uiState)
 
-        compose.onNodeWithTag(OBJECTS_MENU_TAG).performClick()
-        compose.onNodeWithTag(OBJECTS_COGO_TAG).performScrollTo().performClick()
+        compose.chooseOption(ProjectOption.COGO)
 
         calls shouldBe listOf("cogo")
     }
@@ -314,8 +312,7 @@ class ObjectListLinesTest {
     fun `S039 RF-1 el menu de la lista ofrece Localizacion`() {
         show(uiState)
 
-        compose.onNodeWithTag(OBJECTS_MENU_TAG).performClick()
-        compose.onNodeWithTag(OBJECTS_LOCALIZATION_TAG).performScrollTo().performClick()
+        compose.chooseOption(ProjectOption.LOCALIZATION)
 
         calls shouldBe listOf("localization")
     }

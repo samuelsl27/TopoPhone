@@ -11,9 +11,9 @@
       Hecho cuando: `GroupBarTest` comprueba a 360 y 411 dp, con letra al 100 % y al 130 %, que los tres botones se ven completos, miden 56 dp y no cortan el texto.
 - [x] T4. `GroupMenu`: el menú de cada botón con icono, nombre, descripción solo en «Herramientas» y etiqueta de TalkBack; cierra al pulsar fuera y con «Atrás». (RF-5, RF-8, RF-9, RF-10)
       Hecho cuando: `GroupMenuTest` abre cada menú a 360×640 con letra al 100 % y comprueba que se ve entero sin desplazar, que cada fila lleva su etiqueta («Importar DXF») y que cerrar no llama a nada.
-- [ ] T5. El «⋮» de Objetos con solo «Informe de replanteo» y «Papelera de puntos». (RF-6, RF-7, RF-10b)
+- [x] T5. El «⋮» de Objetos con solo «Informe de replanteo» y «Papelera de puntos». (RF-6, RF-7, RF-10b)
       Hecho cuando: `ObjectsMenuTest` comprueba las dos filas, sus acciones y que una opción que hoy avisa al abrirse sigue visible y con el mismo comportamiento.
-- [ ] T6. Integración en `ObjectListScreen`: la barra de grupos bajo la barra superior, los menús conectados a las acciones de siempre y migración de los tests que abrían el menú plano. (RF-1, RF-2, RF-3, RF-4, RF-7, RF-10b)
+- [x] T6. Integración en `ObjectListScreen`: la barra de grupos bajo la barra superior, los menús conectados a las acciones de siempre y migración de los tests que abrían el menú plano. (RF-1, RF-2, RF-3, RF-4, RF-7, RF-10b)
       Hecho cuando: `ObjectListMenusTest` pulsa cada una de las filas de los tres menús y comprueba que llega a la acción de su spec de origen; los tests antiguos del menú pasan migrados.
 
 ## Pestañas de Objetos

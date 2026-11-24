@@ -3704,7 +3704,6 @@
     <string name="localization_pairs_empty">There are no pairs yet. Add a point measured with GNSS and the known coordinates it has in the site system.</string>
     <string name="localization_pair_known">Known: Easting %1$s · Northing %2$s · height %3$s</string>
     <string name="localization_no_height">no height</string>
-    <string name="localization_menu_item">Localization</string>
     <string name="localization_add_pair">Add pair</string>
     <string name="localization_add_gnss">GNSS point</string>
     <string name="localization_add_gnss_none">There are no GNSS-measured points available.</string>

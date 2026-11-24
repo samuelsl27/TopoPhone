@@ -27,7 +27,7 @@ import org.robolectric.annotation.Config
 
 /** Los puntos importados se ven con el origen "Importado" en la lista, la ficha y el mapa (S028/RF-31). Interfaz en es-ES. */
 @RunWith(AndroidJUnit4::class)
-@Config(qualifiers = "es-rES")
+@Config(qualifiers = "es-rES-h800dp")
 class ImportedPointsTest {
 
     @get:Rule
@@ -105,7 +105,7 @@ class ImportedPointsTest {
     }
 
     @Test
-    @Config(qualifiers = "en")
+    @Config(qualifiers = "en-h800dp")
     fun `S028 RF-31 el origen Importado tambien esta en ingles`() {
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {

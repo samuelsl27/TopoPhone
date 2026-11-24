@@ -3716,7 +3716,6 @@
     <string name="localization_pairs_empty">Todavía no hay pares. Añade un punto medido con GNSS y las coordenadas conocidas que le corresponden en el sistema de la obra.</string>
     <string name="localization_pair_known">Conocidas: Este %1$s · Norte %2$s · cota %3$s</string>
     <string name="localization_no_height">sin cota</string>
-    <string name="localization_menu_item">Localización</string>
     <string name="localization_add_pair">Añadir par</string>
     <string name="localization_add_gnss">Punto GNSS</string>
     <string name="localization_add_gnss_none">No hay puntos medidos con GNSS disponibles.</string>

@@ -13,7 +13,8 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.map.FakePointRepository
-import es.topophone.app.ui.points.OBJECTS_MENU_TAG
+import es.topophone.app.ui.options.ProjectOption
+import es.topophone.app.ui.options.chooseOption
 import es.topophone.app.ui.points.ObjectListActions
 import es.topophone.app.ui.points.ObjectListScreen
 import es.topophone.app.ui.points.ObjectListUiState
@@ -225,8 +226,7 @@ class ExportScreenTest {
         }
 
         compose.onNodeWithTag(SELECTION_EXPORT_TAG).performClick()
-        compose.onNodeWithTag(OBJECTS_MENU_TAG).performClick()
-        compose.onNodeWithText("Exportar CSV").performClick()
+        compose.chooseOption(ProjectOption.EXPORT_POINTS)
 
         chosen shouldBe listOf("selected", "all")
     }
