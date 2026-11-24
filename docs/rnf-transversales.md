@@ -75,3 +75,12 @@ Toda spec los cumple. Las specs los citan por su id (`RNF-T4`) en lugar de repet
 - El repositorio no contiene documentos de terceros con derechos reservados (manuales, PDF de Emlid): se guardan solo en local y en el repositorio se enlazan.
 - Atribución visible de los datos (IGN/CNIG CC-BY 4.0, Catastro, OSM ODbL).
 - Ningún recurso, icono, texto ni marca de Emlid. La app no lleva "Emlid" en el nombre.
+
+## RNF-T15 · Presentación de opciones
+- Un menú desplegable tiene como máximo 8 filas y se ve entero, sin desplazamiento, en una pantalla de 640 dp de alto con la letra al 100 %.
+- Cada fila lleva icono y texto, una zona táctil de 56 dp y una etiqueta de TalkBack con el verbo y el objeto completos.
+- Una opción aparece en un solo menú de opciones de una pantalla (no cuentan las acciones sobre una selección ni los ajustes rápidos de una hoja de campo que repiten un ajuste de otra pantalla).
+- Una opción que no se puede usar en ese momento sigue visible y dice por qué; no se oculta.
+- Las opciones se agrupan por lo que hacen (importar, exportar, calcular) y cada grupo tiene su propia entrada; un menú no sustituye a la navegación principal ni esconde lo que se usa a menudo.
+- Una función que no se entiende por su nombre lleva una descripción de una línea; las filas que se explican solas no la llevan.
+- Un menú que supere el límite se divide en grupos antes de aceptarse la spec que lo añade.

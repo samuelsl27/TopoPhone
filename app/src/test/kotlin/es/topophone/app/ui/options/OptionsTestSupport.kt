@@ -9,9 +9,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
@@ -35,13 +36,31 @@ internal fun walkSemantics(node: SemanticsNode, visit: (SemanticsNode) -> Unit) 
 
 /** Ningún texto se elide ni se sale de sus límites (S059/RNF específicos). */
 internal fun ComposeContentTestRule.assertNoClippedText() {
-    walkSemantics(onRoot(useUnmergedTree = true).fetchSemanticsNode()) { node ->
+    // Con un menú abierto hay dos raíces: la pantalla y la ventana del menú.
+    onAllNodes(isRoot(), useUnmergedTree = true).fetchSemanticsNodes().forEach { root -> assertNoClippedText(root) }
+}
+
+private fun assertNoClippedText(root: SemanticsNode) {
+    walkSemantics(root) { node ->
         val results = mutableListOf<TextLayoutResult>()
         node.config.getOrNull(SemanticsActions.GetTextLayoutResult)?.action?.invoke(results)
         results.forEach { result ->
             (0 until result.lineCount).none { result.isLineEllipsized(it) } shouldBe true
             (result.size.width <= result.layoutInput.constraints.maxWidth) shouldBe true
             (result.size.height <= result.layoutInput.constraints.maxHeight) shouldBe true
+        }
+    }
+}
+
+/** Cada control que se toca tiene un texto o una descripción para TalkBack (S059/RNF-T8). */
+internal fun ComposeContentTestRule.assertTalkBackLabels() {
+    onAllNodes(isRoot()).fetchSemanticsNodes().forEach { root ->
+        walkSemantics(root) { node ->
+            if (node.config.getOrNull(SemanticsActions.OnClick) != null) {
+                val text = node.config.getOrNull(SemanticsProperties.Text).orEmpty().joinToString("")
+                val description = node.config.getOrNull(SemanticsProperties.ContentDescription).orEmpty().joinToString("")
+                (text.isNotBlank() || description.isNotBlank()) shouldBe true
+            }
         }
     }
 }

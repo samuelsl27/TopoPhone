@@ -294,3 +294,5 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Pastilla | `SettingPill` | Control de 56 dp con el nombre de un ajuste y su valor en texto; al tocarla se abre su selector (S060) |
 | Placa de guiado | `GuidancePlate` | Zona de la hoja de replanteo con la flecha, la distancia, los desplazamientos y la diferencia de cota; en verde con «En el punto» dentro de las tolerancias (S060) |
 | Motivo de bloqueo | `MeasureReason` | Línea que dice por qué «Medir» no se puede pulsar y la acción que lo resuelve con un toque (S060) |
+| Barra de grupos | `GroupBar` | Fila de tres botones de igual ancho («Importar», «Exportar» y «Herramientas») bajo la barra superior de la lista de Objetos; cada uno abre su menú de grupo (S059) |
+| Menú de grupo | `GroupMenu` | Menú corto, con una fila por opción (icono y nombre, y descripción en «Herramientas»), que abre cada botón de la barra de grupos (S059) |

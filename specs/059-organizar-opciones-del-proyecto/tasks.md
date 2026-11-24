@@ -41,9 +41,9 @@
       Hecho cuando: `ProjectInfoActiveScreenTest` muestra la sección con un terreno y una localización activos, no la muestra sin nada activo y la actualiza al activar un elemento con la pantalla abierta.
 
 ## Cierre
-- [ ] T17. Matriz de tamaño y accesibilidad de menús, pestañas y sección: 360 y 411 dp, letra al 100 % y al 130 %. (RNF-T8, RNF específicos)
+- [x] T17. Matriz de tamaño y accesibilidad de menús, pestañas y sección: 360 y 411 dp, letra al 100 % y al 130 %. (RNF-T8, RNF específicos)
       Hecho cuando: `OptionsAccessibilityMatrixTest` comprueba en las cuatro combinaciones zonas de 56 dp, ningún texto cortado ni fuera del ancho, nombre para TalkBack y que con la letra al 130 % los menús se pueden desplazar.
-- [ ] T18. Documentos: RNF-T15 en `docs/rnf-transversales.md`, «Barra de grupos» y «Menú de grupo» en `docs/glosario.md`, la hoja de ruta con la spec implementada y la corrección de S025/RF-21 en «Cambios en documentos anteriores» de la spec. (RNF-T15)
+- [x] T18. Documentos: RNF-T15 en `docs/rnf-transversales.md`, «Barra de grupos» y «Menú de grupo» en `docs/glosario.md`, la hoja de ruta con la spec implementada y la corrección de S025/RF-21 en «Cambios en documentos anteriores» de la spec. (RNF-T15)
       Hecho cuando: los tres documentos están actualizados y `uv run --project tools pytest tools` y `forbidden_files` pasan.
 - [ ] T19. Demo en el emulador con capturas de antes y después: la lista de Objetos, cada menú de grupo y «Datos del proyecto» con terreno o localización activos y sin nada activo.
       Hecho cuando: están las capturas en el directorio temporal y lo visto cuadra con los RF, y se anota en `plan.md` lo que no.

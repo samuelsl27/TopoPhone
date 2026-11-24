@@ -109,6 +109,7 @@ Ninguna. Las suposiciones de la entrevista quedan decididas así: «Informe de r
 - `docs/glosario.md`: «Barra de grupos» y «Menú de grupo».
 - `docs/hoja-de-ruta.md`: sección «H9 · Interfaz» con esta spec.
 - S011: la lista de Objetos pasa a tener pestañas y sus acciones de menú pasan a los menús de grupo (el comportamiento no cambia).
+- S025/RF-21: la búsqueda deja de filtrar las líneas y los polígonos, porque el buscador y los filtros por código viven solo en la pestaña «Puntos» (RF-14); la pestaña «Líneas y polígonos» muestra todas.
 - S006: «Datos del proyecto» gana la sección «Activo en este proyecto».
 
 - `docs/rnf-transversales.md` es un documento transversal: RNF-T15 solo se añade cuando el usuario aprueba esta spec y lo confirma (AGENTS.md).
