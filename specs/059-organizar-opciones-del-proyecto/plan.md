@@ -48,7 +48,24 @@ Tres botones `OutlinedButton` de 56 dp con icono y texto; cada uno abre su `Drop
 - El rendimiento al cambiar de pestaña con 50 000 puntos: cada pestaña es un `LazyColumn` y la otra no se compone (T11).
 
 ## Cambios al implementar
-(Se rellena al cerrar.)
+Cambios de la spec aprobados durante la implementación: ninguno nuevo; la corrección de S025/RF-21 (la búsqueda ya no filtra las líneas) estaba en D3 y queda escrita en «Cambios en documentos anteriores» de la spec.
+
+Lo que se decidió o se encontró al construir y no estaba en el plan:
+- **T5 y T6 juntas.** Quitar el menú plano rompía 19 ficheros de tests que lo abrían, así que se hicieron en un solo commit con el `check` en verde. Los tests pasan a `chooseOption(ProjectOption.X)`, que abre el menú de la opción y la elige.
+- **T8 a T10 juntas.** Las dos pestañas y sus contenidos tocan la misma función de la pantalla.
+- **Sin `lineTotal`.** Con las líneas sin filtrar, `lines.size` ya es el total (T7); no hizo falta el campo.
+- **Filtros por código.** Eran un `FlowRow` que se partía en varias filas; pasan a una `Row` con desplazamiento lateral (RF-14).
+- **Fila de una línea (RF-15).** El nombre y el código (punto de color y «Código: X») van en la primera fila, y el tipo, los vértices y el estado en la segunda.
+- **Descripciones de «Herramientas» (RF-5).** Son una frase corta; en el menú anclado a la derecha del emulador (1080×2400) ocupan dos líneas de pantalla. Se tomó «de una línea» como «una sola frase».
+- **«Atrás» y pulsar fuera (RF-9).** Robolectric no entrega esos eventos a la ventana emergente: el test comprueba que la barra cierra el menú al descartarlo y el cierre en sí es el estándar de Material (`onDismissRequest`).
+- **Lo activo.** `ActiveSources` (un puerto con la implementación `RepositoryActiveSources`, `ProjectInfoModule` en Hilt) saca el estado de los repositorios de localización, base shift, superficies, ejes y capas; el terreno sale del propio proyecto. La función pura `ActiveItems.of` fija el orden y qué cuenta como activo (las capas solo si el proyecto añadió alguna).
+- **Navegación (RF-20).** Terreno: `ProjectFormDestination(showTerrain)`, que lleva el formulario hasta la sección de terreno una sola vez (`BringIntoViewRequester`). Superficie, eje y capas: `ProjectViewDestination(openPanel)`, que abre la hoja una sola vez por entrada. No hizo falta ninguna pantalla nueva.
+- **Cadenas.** Se quitaron `localization_menu_item` y `objects_lines_title`, que dejaron de usarse (lint de recursos sin usar); la descripción de TalkBack de cada fila de lo activo va en un recurso, porque `checkHardcodedUiText` prohíbe texto escrito en el código.
+- **Tests de tamaño.** `ObjectListScreenTest`, `ImportedPointsTest` e `ImportedPointsTest` (en inglés) pasan a `h800dp`: la barra de grupos y las pestañas ocupan sitio en la pantalla pequeña de Robolectric y empujaban los puntos fuera de la vista.
 
 ## Validación
-(Se rellena al cerrar.)
+- `rf_report`: 22 RF, 22 con test, 0 pendientes. `./gradlew check`, `uv run --project tools pytest tools`, `forbidden_files` y `assembleDebug` en verde (24/11/2026). Con el emulador abierto fallan los tests de rendimiento y de ViewModel de otras specs; con el emulador cerrado pasan.
+- Matriz de tamaño y accesibilidad (`OptionsAccessibilityMatrixTest`): la lista de Objetos, los menús de Importar y de Herramientas y la sección de lo activo, a 360 y 411 dp y con la letra al 100 % y al 130 %: controles de 56 dp, dentro del ancho, sin texto cortado y con nombre para TalkBack.
+- Rendimiento (`ObjectTabsTest`): cambiar de pestaña con 50 000 puntos y 5 000 líneas, por debajo de 300 ms en Robolectric (un indicador, no los 16 ms de un móvil real).
+- Demo en el emulador (24/11/2026, 1080×2400): la lista de Objetos con la barra de grupos y las pestañas «Puntos (14)» y «Líneas y polígonos (4)», los menús de Importar (8 filas, enteras) y de Herramientas (con descripciones), la pestaña de líneas con dos filas de texto por línea y «Datos del proyecto» de un proyecto sin nada activo (sin la sección). Las capturas están en el directorio temporal de la sesión (no se versionan).
+- **No visto en el emulador:** la sección «Activo en este proyecto» con algo activo (el proyecto de la demo no tenía terreno, localización ni capas); la cubren `ActiveSectionTest`, `ProjectInfoActiveScreenTest` y `ActiveItemsNavigationTest`. Queda para que lo mires en un proyecto real.

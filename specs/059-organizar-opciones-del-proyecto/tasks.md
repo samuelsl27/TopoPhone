@@ -45,7 +45,7 @@
       Hecho cuando: `OptionsAccessibilityMatrixTest` comprueba en las cuatro combinaciones zonas de 56 dp, ningún texto cortado ni fuera del ancho, nombre para TalkBack y que con la letra al 130 % los menús se pueden desplazar.
 - [x] T18. Documentos: RNF-T15 en `docs/rnf-transversales.md`, «Barra de grupos» y «Menú de grupo» en `docs/glosario.md`, la hoja de ruta con la spec implementada y la corrección de S025/RF-21 en «Cambios en documentos anteriores» de la spec. (RNF-T15)
       Hecho cuando: los tres documentos están actualizados y `uv run --project tools pytest tools` y `forbidden_files` pasan.
-- [ ] T19. Demo en el emulador con capturas de antes y después: la lista de Objetos, cada menú de grupo y «Datos del proyecto» con terreno o localización activos y sin nada activo.
+- [x] T19. Demo en el emulador con capturas de antes y después: la lista de Objetos, cada menú de grupo y «Datos del proyecto» con terreno o localización activos y sin nada activo.
       Hecho cuando: están las capturas en el directorio temporal y lo visto cuadra con los RF, y se anota en `plan.md` lo que no.
-- [ ] T20. Validación final: `rf_report` sin RF huérfanos, `./gradlew check`, `uv run --project tools pytest tools`, `forbidden_files` y `assembleDebug` en verde; `plan.md` con «Cambios al implementar» y «Validación», y la nota de memoria. (todos los RF)
+- [x] T20. Validación final: `rf_report` sin RF huérfanos, `./gradlew check`, `uv run --project tools pytest tools`, `forbidden_files` y `assembleDebug` en verde; `plan.md` con «Cambios al implementar» y «Validación», y la nota de memoria. (todos los RF)
       Hecho cuando: todo lo anterior pasa y la spec queda con el estado «implementada».
