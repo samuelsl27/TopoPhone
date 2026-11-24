@@ -57,7 +57,7 @@
       Hecho cuando: `StakeoutFollowScreenTest` comprueba que sigue, que un gesto muestra «Recentrar», que al pulsarlo vuelve a seguir y que al cerrar el replanteo se restaura.
 
 ## Validación y cierre
-- [ ] T23. Matriz de accesibilidad y tamaño: recolectar y los cuatro replanteos a 360 y 411 dp, con letra al 100 % y al 130 %, y etiquetas de TalkBack en todos los controles. (RNF-T8 y los dos específicos)
+- [x] T23. Matriz de accesibilidad y tamaño: recolectar y los cuatro replanteos a 360 y 411 dp, con letra al 100 % y al 130 %, y etiquetas de TalkBack en todos los controles. (RNF-T8 y los dos específicos)
       Hecho cuando: `FieldAccessibilityMatrixTest` comprueba que cada pastilla, motivo y botón existe, es alcanzable y mide 56 dp, y que ningún texto queda cortado.
 - [ ] T24. Rendimiento: la línea de estado, la placa y el seguimiento del jalón a 5 Hz con el hilo principal libre, y demo en el emulador con el receptor simulado y capturas de antes y después. (RNF-T13, criterios de finalización)
       Hecho cuando: `FieldSheetPerformanceTest` comprueba 5 Hz sin bloquear más de 16 ms, y las capturas muestran recolectar plegado y expandido, el cambio de jalón y tiempo, un motivo de bloqueo, replantear cerca y lejos y las tolerancias.
