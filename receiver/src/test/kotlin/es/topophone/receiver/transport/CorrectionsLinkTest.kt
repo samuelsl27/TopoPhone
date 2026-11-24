@@ -99,6 +99,7 @@ class CorrectionsLinkTest {
         val link = link(corrections.host, corrections.port)
         link.start()
         link.await { it == CorrectionsLinkStatus.Ready }
+        awaitConnections(corrections, 1) // el servidor ya cuenta el socket: dropClients() lo corta
 
         corrections.dropClients() // sin escribir nada: el corte se nota leyendo el socket y se vuelve a abrir
         awaitConnections(corrections, 2)
@@ -115,6 +116,7 @@ class CorrectionsLinkTest {
         val link = link(corrections.host, corrections.port)
         link.start()
         link.await { it == CorrectionsLinkStatus.Ready }
+        awaitConnections(corrections, 1) // el servidor ya cuenta el socket: dropClients() lo corta
 
         corrections.dropClients()
         repeat(20) { link.write(rtcm) } // alguna de estas escrituras falla en mitad: ninguna lanza

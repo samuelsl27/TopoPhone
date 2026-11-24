@@ -47,8 +47,8 @@ class FakeTcpReceiver(
                 } catch (_: Exception) {
                     break
                 }
+                clients += client // antes de contarla: con connections >= n, dropClients() ya la corta
                 accepted.incrementAndGet()
-                clients += client
                 serve(client)
             }
         }

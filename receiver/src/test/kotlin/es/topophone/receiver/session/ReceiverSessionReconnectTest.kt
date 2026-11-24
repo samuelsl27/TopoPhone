@@ -143,8 +143,7 @@ class ReceiverSessionReconnectTest {
         session.connected(first, reopen(LinkTransport(failOpen = true), back))
 
         first.cut()
-        session.await { (it.connection as? ConnectionState.Reconnecting)?.attempt == 2 }
-        back.send(gga)
+        back.send(gga) // queda en la tuberia hasta que el segundo intento la abra
 
         session.await { it.connection is ConnectionState.Receiving }.connection shouldBe ConnectionState.Receiving("reach-RS3")
         attempts shouldHaveAtLeastSize 2
