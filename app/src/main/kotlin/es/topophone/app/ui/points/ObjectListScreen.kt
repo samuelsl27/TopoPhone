@@ -74,7 +74,6 @@ import es.topophone.app.ui.raster.rememberImportRasterLauncher
 import es.topophone.app.ui.surface.rememberImportSurfaceLauncher
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.codes.CodeKey
-import es.topophone.core.model.line.LineSearch
 import es.topophone.core.model.line.LineSummary
 import es.topophone.core.model.point.PointChange
 import es.topophone.core.model.point.PointCodeFilter
@@ -297,7 +296,8 @@ class ObjectListViewModel @Inject constructor(
                 codes = PointCodeFilter.codesOf(all),
                 hasUncoded = all.any { it.code == null },
                 codeFilter = code,
-                lines = if (text.isBlank()) extra.lines else extra.lines.filter { LineSearch.matches(it, text) }, // S025/RF-21
+                // S059/RF-14: la búsqueda y el filtro por código son de la pestaña «Puntos»; la de líneas las da todas.
+                lines = extra.lines,
                 selectedInLines = extra.selectedInLines,
             )
         }

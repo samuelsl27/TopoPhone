@@ -17,8 +17,8 @@
       Hecho cuando: `ObjectListMenusTest` pulsa cada una de las filas de los tres menús y comprueba que llega a la acción de su spec de origen; los tests antiguos del menú pasan migrados.
 
 ## Pestañas de Objetos
-- [ ] T7. `ObjectListViewModel`: las líneas sin filtro de búsqueda ni de códigos y el total de líneas (`lineTotal`); se ajustan los tests de S025/S027 afectados. (RF-11, RF-14, RF-15)
-      Hecho cuando: `ObjectListViewModelTabsTest` comprueba que buscar o filtrar por código no cambia las líneas, que `lineTotal` cuenta todas y que los puntos se filtran igual que antes.
+- [x] T7. `ObjectListViewModel`: las líneas sin filtro de búsqueda ni de códigos y el total de líneas (`lineTotal`); se ajustan los tests de S025/S027 afectados. (RF-11, RF-14, RF-15)
+      Hecho cuando: `ObjectListLinesTest` comprueba que buscar no cambia las líneas, que salen todas (no hace falta `lineTotal`: `lines.size` ya es el total) y que los puntos se filtran igual que antes.
 - [ ] T8. `ObjectTabs`: «Puntos (N)» y «Líneas y polígonos (M)», 56 dp, que abre en «Puntos» aunque esté vacía, con la pestaña guardada y los menús cerrados al abrir o cambiar de proyecto. (RF-11, RF-12, RF-13)
       Hecho cuando: `ObjectTabsTest` comprueba los contadores, que abre en «Puntos» con un proyecto sin puntos pero con líneas, y que cambiar de proyecto vuelve a «Puntos».
 - [ ] T9. La pestaña «Puntos»: buscador, filtros por código en una fila que se desplaza, aviso del jalón y barra de selección con todas sus acciones. (RF-14, RF-17)

@@ -167,15 +167,13 @@ class ObjectListLinesTest {
     }
 
     @Test
-    fun `S025 RF-21 la busqueda encuentra las lineas por nombre o por codigo`() {
+    fun `S059 RF-14 la busqueda y el filtro por codigo no cambian las lineas, que salen todas`() {
         await { it.lines.size == 2 }
 
         vm.search("parc")
-        await { it.query == "parc" }.lines.map { it.name } shouldBe listOf("PARC_1")
-        vm.search("bordillo")
-        await { it.query == "bordillo" }.lines shouldBe emptyList()
-        vm.search("bord")
-        await { it.query == "bord" }.lines.map { it.name } shouldBe listOf("BORD_1")
+        await { it.query == "parc" }.lines.map { it.name } shouldBe listOf("BORD_1", "PARC_1")
+        vm.search("sin-coincidencias")
+        await { it.query == "sin-coincidencias" }.lines.map { it.name } shouldBe listOf("BORD_1", "PARC_1")
     }
 
     @Test
