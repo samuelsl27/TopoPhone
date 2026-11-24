@@ -61,5 +61,5 @@
       Hecho cuando: `FieldAccessibilityMatrixTest` comprueba que cada pastilla, motivo y botón existe, es alcanzable y mide 56 dp, y que ningún texto queda cortado.
 - [x] T24. Rendimiento: la línea de estado, la placa y el seguimiento del jalón a 5 Hz con el hilo principal libre, y demo en el emulador con el receptor simulado y capturas de antes y después. (RNF-T13, criterios de finalización)
       Hecho cuando: `FieldSheetPerformanceTest` comprueba 5 Hz sin bloquear más de 16 ms, y las capturas muestran recolectar plegado y expandido, el cambio de jalón y tiempo, un motivo de bloqueo, replantear cerca y lejos y las tolerancias.
-- [ ] T25. Cierre: `rf_report` con los 32 RF cubiertos, `check`, `pytest tools`, `forbidden_files` y `assembleDebug`; el plan con los cambios al implementar y la validación; hoja de ruta con la 060 implementada; glosario (hoja de campo, pastilla, placa de guiado). (todos)
+- [x] T25. Cierre: `rf_report` con los 32 RF cubiertos, `check`, `pytest tools`, `forbidden_files` y `assembleDebug`; el plan con los cambios al implementar y la validación; hoja de ruta con la 060 implementada; glosario (hoja de campo, pastilla, placa de guiado). (todos)
       Hecho cuando: el informe de trazabilidad no tiene RF huérfanos y todo pasa.

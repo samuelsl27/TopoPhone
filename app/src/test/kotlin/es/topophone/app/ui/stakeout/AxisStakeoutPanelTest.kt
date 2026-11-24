@@ -486,4 +486,24 @@ class AxisStakeoutPanelTest {
         // El aviso de la medida cancelada no se apila al motivo (S060/RF-22).
         compose.onNodeWithTag(es.topophone.app.ui.collector.COLLECTOR_ERROR_TAG).assertDoesNotExist()
     }
+
+    @Test
+    fun `S060 RF-29 del replanteo por eje la placa lleva lo propio con el diseno de la placa de un punto`() {
+        show(started())
+
+        compose.onNode(
+            androidx.compose.ui.test.hasTestTag(AXIS_ALONG_TAG) and
+                androidx.compose.ui.test.hasAnyAncestor(
+                    androidx.compose.ui.test.hasTestTag(es.topophone.app.ui.stakeout.STAKEOUT_PLATE_TAG),
+                ),
+            useUnmergedTree = true,
+        ).assertExists()
+        compose.onNode(
+            androidx.compose.ui.test.hasTestTag(AXIS_ACROSS_TAG) and
+                androidx.compose.ui.test.hasAnyAncestor(
+                    androidx.compose.ui.test.hasTestTag(es.topophone.app.ui.stakeout.STAKEOUT_PLATE_TAG),
+                ),
+            useUnmergedTree = true,
+        ).assertExists()
+    }
 }

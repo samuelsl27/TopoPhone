@@ -290,3 +290,7 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Coordenadas de cuadrícula | `GridCoordinates` | Las de la proyección del SC del proyecto, tal cual (S058) |
 | Coordenadas de terreno | `GroundCoordinates` | Las de cuadrícula escaladas respecto a un origen con un factor único, para que las distancias sean las del terreno (S058) |
 | Plano de terreno | `TerrainPlane` | El origen y el factor de un proyecto en coordenadas de terreno (S058) |
+| Hoja de campo | `FieldSheet` | Hoja inferior no modal sobre el mapa, con dos alturas (plegada y expandida), que lleva los controles de recolectar o de replantear (S060) |
+| Pastilla | `SettingPill` | Control de 56 dp con el nombre de un ajuste y su valor en texto; al tocarla se abre su selector (S060) |
+| Placa de guiado | `GuidancePlate` | Zona de la hoja de replanteo con la flecha, la distancia, los desplazamientos y la diferencia de cota; en verde con «En el punto» dentro de las tolerancias (S060) |
+| Motivo de bloqueo | `MeasureReason` | Línea que dice por qué «Medir» no se puede pulsar y la acción que lo resuelve con un toque (S060) |

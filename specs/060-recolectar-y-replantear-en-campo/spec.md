@@ -1,6 +1,6 @@
 # Spec 060 — Recolectar y replantear en campo
 
-> Hito: H9 · Depende de: S010, S017, S016, S046, S047, S018, S019, S020, S024, S025, S027, S039, S041, S051, S054 · Estado: aprobada (plan y tareas aprobados 23/11/2026)
+> Hito: H9 · Depende de: S010, S017, S016, S046, S047, S018, S019, S020, S024, S025, S027, S039, S041, S051, S054 · Estado: implementada (24/11/2026)
 
 ## Contexto y objetivo
 Medir un punto y replantearlo son lo que el topógrafo hace todo el día, de pie, con el móvil en una mano, al sol y a menudo con guantes. Hoy las dos pantallas se ven mal:
