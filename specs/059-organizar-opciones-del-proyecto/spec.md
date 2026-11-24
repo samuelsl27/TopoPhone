@@ -1,6 +1,6 @@
 # Spec 059 — Organizar las opciones del proyecto
 
-> Hito: H9 · Depende de: S011, S006, S005, S012, S020, S025, S038, S039, S042, S049, S058 · Estado: aprobada (24/11/2026; plan y tareas pendientes)
+> Hito: H9 · Depende de: S011, S006, S005, S012, S020, S025, S038, S039, S042, S049, S058 · Estado: aprobada (24/11/2026; plan y tareas aprobados 24/11/2026)
 
 ## Contexto y objetivo
 Cada spec que añadió una función al proyecto (exportar, importar, COGO, base shift, localización…) la puso en el menú «⋮» de la lista de Objetos. Hoy ese menú es una lista plana de 21 opciones que no cabe en la pantalla (hay que desplazarla para llegar a COGO, Base shift, Localización, el informe de replanteo o la papelera), mezcla cinco tipos de cosas sin orden de uso y no explica las funciones que no se entienden por su nombre. La propia lista de Objetos pone las líneas y polígonos, con tres filas de texto cada una, delante de los puntos, y «Datos del proyecto» solo informa del sistema de coordenadas y de los recuentos: no dice qué está activo (terreno, localización, base shift, superficie, eje, capas) ni deja llegar a ello.

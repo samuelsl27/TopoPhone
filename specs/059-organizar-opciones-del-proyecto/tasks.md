@@ -3,7 +3,7 @@
 > Cada tarea dura 30 min como máximo, sigue el orden de dependencias y se implementa con los tests primero. Cada tarea cierra con `./gradlew check` en verde (con el emulador cerrado y, si falla un test ajeno intermitente, tras `./gradlew --stop`), la casilla marcada y un commit `S059 Tn: …`.
 
 ## Menús de grupo
-- [ ] T1. `ProjectOptions`: la lista declarativa de opciones por grupo, en el orden de RF-2 a RF-6, con su verbo para TalkBack. (RF-2, RF-3, RF-4, RF-6, RF-7, RF-8)
+- [x] T1. `ProjectOptions`: la lista declarativa de opciones por grupo, en el orden de RF-2 a RF-6, con su verbo para TalkBack. (RF-2, RF-3, RF-4, RF-6, RF-7, RF-8)
       Hecho cuando: `ProjectOptionsTest` comprueba el orden de cada grupo, que ningún menú pasa de 8 filas, que no hay ids repetidos y que están las 21 opciones de hoy, cada una en un solo grupo.
 - [ ] T2. Iconos y textos: los vectores propios y las cadenas en español e inglés (nombres de fila, descripciones de «Herramientas» y verbos de TalkBack). (RF-5, RF-8, RNF-T7)
       Hecho cuando: un test comprueba que cada opción de `ProjectOptions` tiene icono, texto y etiqueta en los dos idiomas, y que las filas de «Importar» y «Exportar» no llevan descripción.
