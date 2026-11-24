@@ -120,7 +120,7 @@ internal fun StakeoutSheet(
             StatusLine(live, unit, collector?.settings?.precision ?: es.topophone.core.model.point.PrecisionControl())
         },
         folded = {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 plate()
                 pills()
                 collector?.let { Slot(it, collectorActions, result) { value = FieldSheetValue.Expanded } }

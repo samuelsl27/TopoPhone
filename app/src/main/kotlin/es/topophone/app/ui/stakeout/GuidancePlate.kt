@@ -93,7 +93,7 @@ private fun PlateContent(
         shape = MaterialTheme.shapes.medium,
         modifier = modifier.fillMaxWidth().testTag(STAKEOUT_PLATE_TAG),
     ) {
-        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (byDirection && ahead != null && right != null) StakeoutArrow(ahead, right, Modifier.size(ARROW_SIZE))
                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -153,4 +153,4 @@ private fun Offsets(mode: StakeMode, ui: GuidanceUi, numbers: Numbers) {
     }
 }
 
-private val ARROW_SIZE = 72.dp
+private val ARROW_SIZE = 56.dp
