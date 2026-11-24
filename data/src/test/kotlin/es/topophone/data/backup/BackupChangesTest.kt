@@ -20,7 +20,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -62,20 +62,28 @@ class BackupChangesTest {
 
     private fun pending() = runBlocking { preferences.state.first().pendingChanges }
 
-    private fun awaitPending() = runBlocking { withTimeout(20_000) { preferences.state.first { it.pendingChanges } } }
+    /** Repite el cambio hasta ver el aviso: si el oyente de Room o de DataStore aun no estaba suscrito, el primero se pierde. */
+    private fun awaitPendingAfter(change: suspend (Int) -> Unit): AutoBackupState = runBlocking {
+        repeat(10) { n ->
+            change(n)
+            withTimeoutOrNull(2_000) { preferences.state.first { it.pendingChanges } }?.let { return@runBlocking it }
+        }
+        error("el cambio no dejo cambios sin copiar")
+    }
 
     @Test
     fun `S013 RF-18 un proyecto nuevo deja cambios sin copiar`() {
-        runBlocking { RoomProjectRepository(db).create(ProjectDefaults().toDraft().copy(name = "Puerto")) }
+        val state = awaitPendingAfter { n -> RoomProjectRepository(db).create(ProjectDefaults().toDraft().copy(name = "Puerto $n")) }
 
-        awaitPending().pendingChanges shouldBe true
+        state.pendingChanges shouldBe true
     }
 
     @Test
     fun `S013 RF-18 un ajuste cambiado deja cambios sin copiar`() {
-        runBlocking { settings.stores.getValue("collector").edit { it[intPreferencesKey("collector_averaging_seconds")] = 30 } }
+        val collector = settings.stores.getValue("collector")
+        val state = awaitPendingAfter { n -> collector.edit { it[intPreferencesKey("collector_averaging_seconds")] = 30 + n } }
 
-        awaitPending().pendingChanges shouldBe true
+        state.pendingChanges shouldBe true
     }
 
     @Test
