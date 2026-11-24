@@ -5,7 +5,7 @@
 ## Menús de grupo
 - [x] T1. `ProjectOptions`: la lista declarativa de opciones por grupo, en el orden de RF-2 a RF-6, con su verbo para TalkBack. (RF-2, RF-3, RF-4, RF-6, RF-7, RF-8)
       Hecho cuando: `ProjectOptionsTest` comprueba el orden de cada grupo, que ningún menú pasa de 8 filas, que no hay ids repetidos y que están las 21 opciones de hoy, cada una en un solo grupo.
-- [ ] T2. Iconos y textos: los vectores propios y las cadenas en español e inglés (nombres de fila, descripciones de «Herramientas» y verbos de TalkBack). (RF-5, RF-8, RNF-T7)
+- [x] T2. Iconos y textos: los vectores propios y las cadenas en español e inglés (nombres de fila, descripciones de «Herramientas» y verbos de TalkBack). (RF-5, RF-8, RNF-T7)
       Hecho cuando: un test comprueba que cada opción de `ProjectOptions` tiene icono, texto y etiqueta en los dos idiomas, y que las filas de «Importar» y «Exportar» no llevan descripción.
 - [ ] T3. `GroupBar`: tres botones de igual ancho con icono y texto, 56 dp, y el texto en dos líneas con la letra al 130 %. (RF-1)
       Hecho cuando: `GroupBarTest` comprueba a 360 y 411 dp, con letra al 100 % y al 130 %, que los tres botones se ven completos, miden 56 dp y no cortan el texto.

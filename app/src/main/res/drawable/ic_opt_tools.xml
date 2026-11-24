@@ -1,0 +1,4 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+    <!-- Herramientas: una regla con marcas (S059). -->
+    <path android:strokeColor="#FF000000" android:strokeWidth="2" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M3,15L15,3L21,9L9,21Z M7,13L9,15 M10,10L12,12 M13,7L15,9" />
+</vector>

@@ -1,0 +1,4 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+    <!-- GeoPackage: una caja (S059). -->
+    <path android:strokeColor="#FF000000" android:strokeWidth="2" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M3,8L12,4L21,8L21,17L12,21L3,17Z M3,8L12,12L21,8 M12,12L12,21" />
+</vector>
