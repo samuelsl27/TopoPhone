@@ -29,9 +29,9 @@
       Hecho cuando: `ObjectTabsRestoreTest` recrea la actividad y el estado guardado y conserva la pestaña, y `ObjectTabsPerformanceTest` mide por debajo de 16 ms el cambio con 50 000 puntos y 5 000 líneas.
 
 ## Lo activo en «Datos del proyecto»
-- [ ] T12. `ActiveItems` (puro): el orden terreno, localización, base shift, superficie, eje y capas, el texto de estado de cada uno, las capas solo si hay propias y la lista vacía. (RF-18, RF-19, RF-21)
+- [x] T12. `ActiveItems` (puro): el orden terreno, localización, base shift, superficie, eje y capas, el texto de estado de cada uno, las capas solo si hay propias y la lista vacía. (RF-18, RF-19, RF-21)
       Hecho cuando: `ActiveItemsTest` cubre cada estado (factor, RMS o «Activa», nombre del punto conocido, nombres, «2 de 3»), el orden y que sin nada activo, o solo con el mapa base, la lista queda vacía.
-- [ ] T13. `ProjectInfoViewModel` con los repositorios de localización, base shift, superficies, ejes y capas, y el factor del terreno. (RF-18, RF-19, RF-22)
+- [x] T13. `ProjectInfoViewModel` con los repositorios de localización, base shift, superficies, ejes y capas, y el factor del terreno. (RF-18, RF-19, RF-22)
       Hecho cuando: `ProjectInfoViewModelActiveTest` comprueba, con repositorios falsos, que la lista cambia al activar o desactivar cada elemento sin volver a abrir.
 - [ ] T14. `ActiveSection`: una fila de 56 dp por elemento con su nombre y su estado en texto, puntos suspensivos con el texto entero para TalkBack y filas solo informativas si no tienen destino. (RF-19, RF-19b, RF-20b, RNF-T8)
       Hecho cuando: `ActiveSectionTest` comprueba nombres y estados, el texto largo cortado con su descripción entera, que una fila sin destino no es un botón y que la sección no se pinta vacía.

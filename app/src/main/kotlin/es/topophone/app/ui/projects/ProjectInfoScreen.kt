@@ -60,6 +60,8 @@ data class ProjectInfoUiState(
     val pointCount: Int = 0,
     /** Cuántas fotos tiene el proyecto y cuánto ocupan (S017b/RF-27). */
     val photos: PhotoStats = PhotoStats.NONE,
+    /** Lo que el proyecto tiene activo: terreno, localización, base shift, superficie, eje y capas (S059/RF-18). */
+    val active: List<ActiveItem> = emptyList(),
 )
 
 /** El proyecto cuyos datos se ven, al día si se edita (S009/RF-5). */
@@ -69,6 +71,7 @@ class ProjectInfoViewModel @Inject constructor(
     repository: ProjectRepository,
     points: PointRepository,
     photos: PhotoRepository = PhotoRepository.NONE,
+    activeSources: ActiveSources = ActiveSources.NONE,
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
 
@@ -79,8 +82,14 @@ class ProjectInfoViewModel @Inject constructor(
             ) {
                 flowOf(ProjectInfoUiState())
             } else {
-                combine(repository.observe(id), points.count(id), photos.stats(id)) { project, count, stats ->
-                    ProjectInfoUiState(project, count, stats)
+                combine(repository.observe(id), points.count(id), photos.stats(id), activeSources.inputs(id)) {
+                        project,
+                        count,
+                        stats,
+                        inputs,
+                    ->
+                    val active = ActiveItems.of(inputs.copy(terrainFactor = project?.terrain?.factor))
+                    ProjectInfoUiState(project, count, stats, active)
                 }
             }
         }
