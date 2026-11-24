@@ -3055,7 +3055,6 @@
     <string name="line_change_vertices">Vértices</string>
     <string name="line_change_closed">Cierre</string>
     <string name="line_change_removed">Punto borrado</string>
-    <string name="objects_lines_title">Líneas y polígonos</string>
     <string name="objects_line_row">%1$s · %2$s</string>
     <string name="objects_hide_line">Ocultar la línea %1$s</string>
     <string name="objects_show_line">Mostrar la línea %1$s</string>
@@ -3913,4 +3912,7 @@
     <string name="option_stakeout_report_a11y">Abrir el informe de replanteo</string>
     <string name="option_point_trash">Papelera de puntos</string>
     <string name="option_point_trash_a11y">Abrir la papelera de puntos</string>
+    <string name="objects_tab_points">Puntos (%1$d)</string>
+    <string name="objects_tab_lines">Líneas y polígonos (%1$d)</string>
+    <string name="objects_lines_empty">Este proyecto no tiene líneas ni polígonos.</string>
 </resources>

@@ -3043,7 +3043,6 @@
     <string name="line_change_vertices">Vertices</string>
     <string name="line_change_closed">Closing</string>
     <string name="line_change_removed">Point deleted</string>
-    <string name="objects_lines_title">Lines and polygons</string>
     <string name="objects_line_row">%1$s · %2$s</string>
     <string name="objects_hide_line">Hide line %1$s</string>
     <string name="objects_show_line">Show line %1$s</string>
@@ -3901,4 +3900,7 @@
     <string name="option_stakeout_report_a11y">Open the stakeout report</string>
     <string name="option_point_trash">Point trash</string>
     <string name="option_point_trash_a11y">Open the point trash</string>
+    <string name="objects_tab_points">Points (%1$d)</string>
+    <string name="objects_tab_lines">Lines and polygons (%1$d)</string>
+    <string name="objects_lines_empty">This project has no lines or polygons.</string>
 </resources>

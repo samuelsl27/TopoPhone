@@ -241,6 +241,7 @@ class ObjectListLinesTest {
     @Test
     fun `S025 RF-21 cada linea dice si esta abierta o es poligono y si esta activa, con texto`() {
         show(uiState)
+        compose.onNodeWithTag(OBJECTS_TAB_LINES_TAG).performClick() // S059/RF-11: las líneas están en su pestaña
 
         compose.onNodeWithTag(objectLineRowTag("l1")).assertIsDisplayed()
         compose.onNodeWithText("Abierta · 3 vértices · Activa").assertExists()
@@ -251,6 +252,7 @@ class ObjectListLinesTest {
     @Test
     fun `S025 RF-22 tocar una linea abre su ficha y el ojo la oculta o la muestra`() {
         show(uiState)
+        compose.onNodeWithTag(OBJECTS_TAB_LINES_TAG).performClick() // S059/RF-11: las líneas están en su pestaña
 
         compose.onNodeWithTag(objectLineRowTag("l1")).performClick()
         compose.onNodeWithTag(objectLineVisibilityTag("l1")).performClick()
@@ -318,6 +320,7 @@ class ObjectListLinesTest {
     @Test
     fun `S027 RF-1 el menu de la fila de una linea ofrece Replantear`() {
         show(uiState)
+        compose.onNodeWithTag(OBJECTS_TAB_LINES_TAG).performClick() // S059/RF-11: las líneas están en su pestaña
 
         compose.onNodeWithTag(objectLineMenuTag("l1")).performClick()
         compose.onNodeWithTag(objectLineStakeoutTag("l1")).performClick()

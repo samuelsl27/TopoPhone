@@ -19,13 +19,13 @@
 ## Pestañas de Objetos
 - [x] T7. `ObjectListViewModel`: las líneas sin filtro de búsqueda ni de códigos y el total de líneas (`lineTotal`); se ajustan los tests de S025/S027 afectados. (RF-11, RF-14, RF-15)
       Hecho cuando: `ObjectListLinesTest` comprueba que buscar no cambia las líneas, que salen todas (no hace falta `lineTotal`: `lines.size` ya es el total) y que los puntos se filtran igual que antes.
-- [ ] T8. `ObjectTabs`: «Puntos (N)» y «Líneas y polígonos (M)», 56 dp, que abre en «Puntos» aunque esté vacía, con la pestaña guardada y los menús cerrados al abrir o cambiar de proyecto. (RF-11, RF-12, RF-13)
+- [x] T8. `ObjectTabs`: «Puntos (N)» y «Líneas y polígonos (M)», 56 dp, que abre en «Puntos» aunque esté vacía, con la pestaña guardada y los menús cerrados al abrir o cambiar de proyecto. (RF-11, RF-12, RF-13)
       Hecho cuando: `ObjectTabsTest` comprueba los contadores, que abre en «Puntos» con un proyecto sin puntos pero con líneas, y que cambiar de proyecto vuelve a «Puntos».
-- [ ] T9. La pestaña «Puntos»: buscador, filtros por código en una fila que se desplaza, aviso del jalón y barra de selección con todas sus acciones. (RF-14, RF-17)
+- [x] T9. La pestaña «Puntos»: buscador, filtros por código en una fila que se desplaza, aviso del jalón y barra de selección con todas sus acciones. (RF-14, RF-17)
       Hecho cuando: `ObjectPointsTabTest` comprueba que buscador y filtros solo están en «Puntos», que la selección ofrece ocultar, mostrar, borrar, exportar la selección, corregir el jalón y cambiar el código, y que los filtros no hacen crecer la pantalla.
-- [ ] T10. La pestaña «Líneas y polígonos»: cada línea con dos filas de texto, el texto de que no hay ninguna y las acciones por fila. (RF-15, RF-16, RF-17)
+- [x] T10. La pestaña «Líneas y polígonos»: cada línea con dos filas de texto, el texto de que no hay ninguna y las acciones por fila. (RF-15, RF-16, RF-17)
       Hecho cuando: `ObjectLinesTabTest` comprueba las dos filas (nombre; tipo, vértices y código), el texto sin líneas, y mostrar u ocultar, abrir, replantear y borrar.
-- [ ] T11. Pestaña elegida al girar y al restaurar el proceso, y rendimiento de cambiar de pestaña. (RF-13, RNF-T13)
+- [x] T11. Pestaña elegida al girar y al restaurar el proceso, y rendimiento de cambiar de pestaña. (RF-13, RNF-T13)
       Hecho cuando: `ObjectTabsRestoreTest` recrea la actividad y el estado guardado y conserva la pestaña, y `ObjectTabsPerformanceTest` mide por debajo de 16 ms el cambio con 50 000 puntos y 5 000 líneas.
 
 ## Lo activo en «Datos del proyecto»

@@ -6,6 +6,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -40,6 +42,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +50,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -108,6 +112,7 @@ const val OBJECTS_BUTTON_TAG = "objects_button"
 const val OBJECT_LIST_TAG = "object_list"
 const val ADD_POINT_TAG = "add_point"
 const val OBJECTS_MENU_TAG = "objects_menu"
+const val OBJECT_LINES_LIST_TAG = "object_lines_list"
 const val OBJECT_SEARCH_TAG = "object_search"
 const val SELECTION_BAR_TAG = "selection_bar"
 const val SELECTION_HIDE_TAG = "selection_hide"
@@ -537,56 +542,14 @@ fun ObjectListScreen(
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
             // S059/RF-1: los menús de importar, exportar y herramientas, a un toque bajo la barra superior.
             GroupBar(menu = { group, dismiss -> GroupMenu(group, onSelect = actions::run, onDismiss = dismiss) })
-            // Lista perezosa: con miles de puntos solo se pintan los que se ven (RNF de la spec).
-            LazyColumn(
-                modifier = Modifier.weight(1f).fillMaxWidth().testTag(OBJECT_LIST_TAG),
-                contentPadding = PaddingValues(16.dp),
-            ) {
-                if (state.loaded && state.total == 0) {
-                    item { Text(stringResource(R.string.objects_empty), style = MaterialTheme.typography.bodyLarge) } // S011/RF-1
-                    return@LazyColumn
-                }
-                item {
-                    OutlinedTextField(
-                        value = state.query,
-                        onValueChange = actions.onQueryChange,
-                        label = { Text(stringResource(R.string.objects_search)) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp).testTag(OBJECT_SEARCH_TAG),
-                    ) // S011/RF-2
-                }
-                if (state.codes.isNotEmpty()) item { CodeFilter(state, actions.onCodeFilter) } // S024/RF-18
-                state.poleOutcome?.let { outcome -> item { PoleOutcomeNotice(outcome, actions.onDismissPoleOutcome) } }
-                if (state.points.isEmpty() && state.lines.isEmpty()) {
-                    item { Text(stringResource(R.string.objects_search_empty, state.query)) }
-                }
-                if (state.lines.isNotEmpty()) {
-                    item(key = "lines-title") {
-                        Text(stringResource(R.string.objects_lines_title), style = MaterialTheme.typography.titleSmall)
-                    }
-                    items(state.lines, key = { "line-" + it.id }) { line ->
-                        LineRow(
-                            line,
-                            onClick = { actions.onOpenLine(line.id) },
-                            onToggleHidden = { actions.onSetLineHidden(line.id, !line.hidden) },
-                            onStakeout = { actions.onStakeoutLine(line.id) },
-                        )
-                        HorizontalDivider()
-                    }
-                }
-                items(state.points, key = { it.id }) { point ->
-                    val selecting = state.selected.isNotEmpty()
-                    PointRow(
-                        point = point,
-                        selected = point.id in state.selected,
-                        onClick = { if (selecting) actions.onToggleSelection(point.id) else actions.onOpen(point.id) },
-                        onLongClick = { actions.onToggleSelection(point.id) },
-                        onToggleHidden = { actions.onSetHidden(point.id, !point.hidden) },
-                    )
-                    HorizontalDivider()
-                }
+            // S059/RF-11, RF-12, RF-13: dos pestañas con su número de elementos; abre en «Puntos» y recuerda la elegida al girar y al restaurar.
+            var tab by rememberSaveable { mutableStateOf(ObjectTab.POINTS) }
+            ObjectTabs(tab, { tab = it }, pointCount = state.total, lineCount = state.lines.size)
+            when (tab) {
+                ObjectTab.POINTS -> ObjectPointsTab(state, actions, Modifier.weight(1f))
+                ObjectTab.LINES -> ObjectLinesTab(state, actions, Modifier.weight(1f))
             }
-            if (state.selected.isNotEmpty()) {
+            if (tab == ObjectTab.POINTS && state.selected.isNotEmpty()) {
                 SelectionBar(
                     state.selected.size,
                     state.selected.singleOrNull(),
@@ -594,6 +557,62 @@ fun ObjectListScreen(
                     actions,
                 )
             }
+        }
+    }
+}
+
+/** La pestaña «Puntos»: buscador, filtros por código, aviso del jalón y los puntos (S059/RF-14; S011/RF-1 a RF-4; S024/RF-18). */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun ObjectPointsTab(state: ObjectListUiState, actions: ObjectListActions, modifier: Modifier) {
+    // Lista perezosa: con miles de puntos solo se pintan los que se ven (RNF de la spec).
+    LazyColumn(modifier = modifier.fillMaxWidth().testTag(OBJECT_LIST_TAG), contentPadding = PaddingValues(16.dp)) {
+        if (state.loaded && state.total == 0) {
+            item { Text(stringResource(R.string.objects_empty), style = MaterialTheme.typography.bodyLarge) } // S011/RF-1
+            return@LazyColumn
+        }
+        item {
+            OutlinedTextField(
+                value = state.query,
+                onValueChange = actions.onQueryChange,
+                label = { Text(stringResource(R.string.objects_search)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp).testTag(OBJECT_SEARCH_TAG),
+            ) // S011/RF-2
+        }
+        if (state.codes.isNotEmpty()) item { CodeFilter(state, actions.onCodeFilter) } // S024/RF-18
+        state.poleOutcome?.let { outcome -> item { PoleOutcomeNotice(outcome, actions.onDismissPoleOutcome) } }
+        if (state.points.isEmpty()) item { Text(stringResource(R.string.objects_search_empty, state.query)) }
+        items(state.points, key = { it.id }) { point ->
+            val selecting = state.selected.isNotEmpty()
+            PointRow(
+                point = point,
+                selected = point.id in state.selected,
+                onClick = { if (selecting) actions.onToggleSelection(point.id) else actions.onOpen(point.id) },
+                onLongClick = { actions.onToggleSelection(point.id) },
+                onToggleHidden = { actions.onSetHidden(point.id, !point.hidden) },
+            )
+            HorizontalDivider()
+        }
+    }
+}
+
+/** La pestaña «Líneas y polígonos»: cada línea con sus acciones, o el texto de que no hay ninguna (S059/RF-15 a RF-17; S025/RF-21). */
+@Composable
+private fun ObjectLinesTab(state: ObjectListUiState, actions: ObjectListActions, modifier: Modifier) {
+    LazyColumn(modifier = modifier.fillMaxWidth().testTag(OBJECT_LINES_LIST_TAG), contentPadding = PaddingValues(16.dp)) {
+        if (state.lines.isEmpty()) {
+            item { Text(stringResource(R.string.objects_lines_empty), style = MaterialTheme.typography.bodyLarge) } // S059/RF-16
+            return@LazyColumn
+        }
+        items(state.lines, key = { "line-" + it.id }) { line ->
+            LineRow(
+                line,
+                onClick = { actions.onOpenLine(line.id) },
+                onToggleHidden = { actions.onSetLineHidden(line.id, !line.hidden) },
+                onStakeout = { actions.onStakeoutLine(line.id) },
+            )
+            HorizontalDivider()
         }
     }
 }
@@ -702,12 +721,14 @@ private fun LineRow(line: LineSummary, onClick: () -> Unit, onToggleHidden: () -
     val shape = stringResource(if (line.closed) R.string.line_state_polygon else R.string.line_state_open)
     val vertices = pluralStringResource(R.plurals.collector_line_vertices, line.vertexCount, line.vertexCount)
     ListItem(
-        headlineContent = { Text(line.name, style = MaterialTheme.typography.titleMedium) },
-        supportingContent = {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        headlineContent = {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    stringResource(R.string.objects_line_row, shape, vertices) +
-                        if (line.active) " · " + stringResource(R.string.line_state_active) else "",
+                    line.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
                 )
                 line.code?.let { code ->
                     Row(
@@ -716,10 +737,20 @@ private fun LineRow(line: LineSummary, onClick: () -> Unit, onToggleHidden: () -
                         modifier = Modifier.testTag(objectLineCodeTag(line.id)),
                     ) {
                         Box(modifier = Modifier.size(12.dp).background(rgbColor(code.color), CircleShape))
-                        Text(stringResource(R.string.objects_code_row, code.code), style = MaterialTheme.typography.labelLarge)
+                        Text(
+                            stringResource(R.string.objects_code_row, code.code),
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1,
+                        )
                     }
                 }
             }
+        },
+        supportingContent = {
+            Text(
+                stringResource(R.string.objects_line_row, shape, vertices) +
+                    if (line.active) " · " + stringResource(R.string.line_state_active) else "",
+            )
         },
         trailingContent = {
             val description = stringResource(if (line.hidden) R.string.objects_show_line else R.string.objects_hide_line, line.name)
@@ -757,7 +788,11 @@ private fun LineRow(line: LineSummary, onClick: () -> Unit, onToggleHidden: () -
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun CodeFilter(state: ObjectListUiState, onFilter: (String?) -> Unit) {
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 12.dp)) {
+    // S059/RF-14: una sola fila que se desplaza de lado, para que los filtros no hagan crecer la pantalla.
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.horizontalScroll(rememberScrollState()).padding(bottom = 12.dp),
+    ) {
         FilterChip(
             selected = state.codeFilter == null,
             onClick = { onFilter(null) },
