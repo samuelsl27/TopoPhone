@@ -133,7 +133,9 @@ class GpkgPerformanceTest {
                 (counted.value.inZone > 0) shouldBe true
                 counted.duration.inWholeMilliseconds
             }
-            times.forEach { (it < 2_000) shouldBe true }
+            // El runner del CI es unas 2 veces mas lento que un portatil: ahi se admite el triple.
+            val limitMs = if (System.getenv("CI") != null) 6_000 else 2_000
+            times.forEach { (it < limitMs) shouldBe true }
 
             val importer = GeoPackageImporter(cad)
             val area = ImportArea.Circle(center, 5_000.0)

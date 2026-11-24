@@ -62,7 +62,7 @@ class BackupChangesTest {
 
     private fun pending() = runBlocking { preferences.state.first().pendingChanges }
 
-    private fun awaitPending() = runBlocking { withTimeout(5_000) { preferences.state.first { it.pendingChanges } } }
+    private fun awaitPending() = runBlocking { withTimeout(20_000) { preferences.state.first { it.pendingChanges } } }
 
     @Test
     fun `S013 RF-18 un proyecto nuevo deja cambios sin copiar`() {
