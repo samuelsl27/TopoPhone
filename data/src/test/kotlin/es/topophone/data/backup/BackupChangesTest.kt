@@ -50,7 +50,7 @@ class BackupChangesTest {
         preferences = DataStoreAutoBackupPreferences(SettingsDataStore.create(scope) { java.io.File(folder.root, "backup.preferences_pb") })
         changes = BackupChanges(db, settings.stores.values, preferences)
         changes.start(scope)
-        delay(300) // Que empiece a escuchar antes de cambiar nada.
+        delay(if (System.getenv("CI") != null) 3_000 else 300) // Que empiece a escuchar antes de cambiar nada (el runner del CI tarda mas).
     }
 
     @After
