@@ -71,13 +71,14 @@ class RasterElevation(
     /** Metros por unidad de la malla de un SC proyectado de la biblioteca; el resto de ráster va en metros (S045, S057/RF-15). */
     private val gridUnitMetres = (source as? CadSourceCrs.Library)?.takeIf { it.definition.projected }?.definition?.unitMetres ?: 1.0
 
-    override fun heightAt(easting: Double, northing: Double): SurfaceHeight {
-        if (!easting.isFinite() || !northing.isFinite()) return SurfaceHeight.Outside
+    /** El paso 1 y el 2 de [heightAt]: la posición del proyecto en el SC del ráster y su latitud y longitud ETRS89; null fuera del ámbito. */
+    private fun locate(easting: Double, northing: Double): Located? {
+        if (!easting.isFinite() || !northing.isFinite()) return null
         // 1. De Este y Norte del proyecto a latitud y longitud, y al ETRS89 que usan el geoide y los cambios de datum.
         val datumLat: Double
         val datumLon: Double
         if (crs is LibraryCrs) {
-            val ground = GroundPosition.of(crs, easting, northing) ?: return SurfaceHeight.Outside
+            val ground = GroundPosition.of(crs, easting, northing) ?: return null
             datumLat = ground.first
             datumLon = ground.second
         } else if (crs.utmZone == null) {
@@ -91,7 +92,7 @@ class RasterElevation(
         val etrs = if (crs.datum ==
             GeodeticDatum.ED50
         ) {
-            Ed50.toEtrs89(datumLat, datumLon) ?: return SurfaceHeight.Outside
+            Ed50.toEtrs89(datumLat, datumLon) ?: return null
         } else {
             datumLat to datumLon
         }
@@ -106,23 +107,40 @@ class RasterElevation(
                 y = ground.northing
             }
             is CadSourceCrs.Utm -> {
-                val (lat, lon) = latLonIn(s.datum, datumLat, datumLon, etrs) ?: return SurfaceHeight.Outside
+                val (lat, lon) = latLonIn(s.datum, datumLat, datumLon, etrs) ?: return null
                 val utm = Utm.forward(lat, lon, s.zone, ellipsoidOf(s.datum))
                 x = utm.easting
                 y = utm.northing
             }
             is CadSourceCrs.Geographic -> {
-                val (lat, lon) = latLonIn(s.datum, datumLat, datumLon, etrs) ?: return SurfaceHeight.Outside
+                val (lat, lon) = latLonIn(s.datum, datumLat, datumLon, etrs) ?: return null
                 x = lon
                 y = lat
             }
             is CadSourceCrs.Library -> {
                 val point =
-                    requireNotNull(librarySource).fromGround(etrs.first, etrs.second, gridUnitMetres) ?: return SurfaceHeight.Outside
+                    requireNotNull(librarySource).fromGround(etrs.first, etrs.second, gridUnitMetres) ?: return null
                 x = point.first
                 y = point.second
             }
         }
+        return Located(x, y, etrs.first, etrs.second)
+    }
+
+    private class Located(val x: Double, val y: Double, val latitudeDeg: Double, val longitudeDeg: Double)
+
+    /**
+     * La posición ([easting], [northing]) del proyecto en el sistema de coordenadas del ráster, como `[x, y]`, con el mismo cálculo
+     * que la cota; null si cae fuera del ámbito del sistema o de la rejilla. Sirve para saber qué celdas caen en la vista del mapa
+     * (S061/RF-8, RF-9).
+     */
+    fun rasterPosition(easting: Double, northing: Double): DoubleArray? = locate(easting, northing)?.let { doubleArrayOf(it.x, it.y) }
+
+    override fun heightAt(easting: Double, northing: Double): SurfaceHeight {
+        val located = locate(easting, northing) ?: return SurfaceHeight.Outside
+        val x = located.x
+        val y = located.y
+        val etrs = located.latitudeDeg to located.longitudeDeg
 
         // 3. A coordenadas de celda, con la media celda del borde fuera y 1 mm de tolerancia.
         val stepXMetres = if (degrees) {

@@ -170,6 +170,8 @@ import es.topophone.app.ui.stakeout.StakeoutPanel
 import es.topophone.app.ui.stakeout.StakeoutUiState
 import es.topophone.app.ui.stakeout.StakeoutViewModel
 import es.topophone.app.ui.surface.SURFACES_BUTTON_TAG
+import es.topophone.app.ui.surface.SurfaceMapViewModel
+import es.topophone.app.ui.surface.SurfaceScene
 import es.topophone.app.ui.surface.SurfacesActions
 import es.topophone.app.ui.surface.SurfacesSheet
 import es.topophone.app.ui.surface.SurfacesUiState
@@ -473,6 +475,7 @@ fun ProjectViewRoute(
     axisAnalysisViewModel: AxisAnalysisViewModel = hiltViewModel(),
     designViewModel: DesignMapViewModel = hiltViewModel(),
     surfacesViewModel: SurfacesViewModel = hiltViewModel(),
+    surfaceMapViewModel: SurfaceMapViewModel = hiltViewModel(),
     alignmentFromDrawingViewModel: AlignmentFromDrawingViewModel = hiltViewModel(),
     alignmentsViewModel: AlignmentsViewModel = hiltViewModel(),
     alignmentMapViewModel: AlignmentMapViewModel = hiltViewModel(),
@@ -485,6 +488,7 @@ fun ProjectViewRoute(
         collectorViewModel.start(projectId)
         designViewModel.start(projectId) // S040/RF-24
         surfacesViewModel.start(projectId) // S042/RF-16
+        surfaceMapViewModel.start(projectId) // S061/RF-6
         alignmentsViewModel.start(projectId) // S049/RF-14
         alignmentMapViewModel.start(projectId) // S049/RF-17
         projectLayersViewModel.start(projectId) // S036/RF-24
@@ -593,6 +597,7 @@ fun ProjectViewRoute(
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val design by designViewModel.scene.collectAsStateWithLifecycle()
+    val surfaceScene by surfaceMapViewModel.scene.collectAsStateWithLifecycle()
     val drawings by designViewModel.drawings.collectAsStateWithLifecycle()
     val surfaces by surfacesViewModel.state.collectAsStateWithLifecycle()
     val designSelection by designViewModel.selected.collectAsStateWithLifecycle()
@@ -632,8 +637,10 @@ fun ProjectViewRoute(
         map = { modifier, onReady -> MapLibreMap(environment, onReady, modifier) },
         openPanel = openPanel,
         design = design,
+        surfaceScene = surfaceScene,
         onDesignCamera = {
             designViewModel.onCamera(it)
+            surfaceMapViewModel.onView(it.bounds) // S061/RF-6
             alignmentMapViewModel.onCamera(it) // S049/RF-17
             offlineCoverageViewModel.onCamera(it) // S037/RF-20, RF-21
         },
@@ -1118,6 +1125,7 @@ fun ProjectViewScreen(
     onAnalyzeAxis: (String) -> Unit = {},
     /** El dibujo importado de un DXF en la vista de ahora y el aviso de que la cámara se ha parado (S040/RF-24). */
     design: DesignScene? = null,
+    surfaceScene: SurfaceScene? = null,
     onDesignCamera: (MapCamera) -> Unit = {},
     /** Los dibujos importados con sus capas, para el panel «Dibujos» (S040/RF-26 a RF-30). */
     drawings: List<CadDrawingWithLayers> = emptyList(),
@@ -1427,6 +1435,7 @@ fun ProjectViewScreen(
         state,
         stakeout,
         design,
+        surfaceScene,
         onDesignCamera,
         lineStakeout,
         lineHighlight,
@@ -1815,6 +1824,7 @@ private fun BindMap(
     state: ProjectViewUiState,
     stakeout: StakeoutUiState?,
     design: DesignScene?,
+    surfaceScene: SurfaceScene?,
     onDesignCamera: (MapCamera) -> Unit,
     lineStakeout: LineStakeoutUiState?,
     lineHighlight: List<GeoPoint>,
@@ -1833,6 +1843,7 @@ private fun BindMap(
     LaunchedEffect(controller, state.lineScene) { controller?.showLines(state.lineScene) } // S025/RF-22
     LaunchedEffect(controller, wmsPlan) { controller?.showWmsLayers(wmsPlan) } // S036/RF-22, RF-29
     LaunchedEffect(controller, design) { controller?.showDesign(design) } // S040/RF-24
+    LaunchedEffect(controller, surfaceScene) { controller?.showSurfaces(surfaceScene) } // S061/RF-6 a RF-13
     LaunchedEffect(controller, alignmentScene) { controller?.showAlignments(alignmentScene) } // S049/RF-17
     LaunchedEffect(controller) {
         // S040/RF-24: el dibujo se vuelve a cargar cuando la cámara lleva 150 ms quieta.
