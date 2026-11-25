@@ -11,8 +11,13 @@ import es.topophone.core.model.surface.RasterValueType
 import es.topophone.core.model.surface.Surface
 import es.topophone.core.model.surface.SurfaceExtent
 import es.topophone.core.model.surface.SurfaceKind
+import es.topophone.core.model.surface.SurfaceNames
+import es.topophone.core.model.surface.SurfaceOutline
+import es.topophone.core.model.surface.SurfaceOutlineCodec
 import es.topophone.core.model.surface.SurfaceTile
 import es.topophone.core.model.surface.SurfaceTileCodec
+import es.topophone.core.survey.TileMerger
+import es.topophone.core.survey.TinOutline
 import es.topophone.data.db.TopoPhoneDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -133,6 +138,18 @@ interface SurfaceRepository {
 
     /** La tesela [tileId] decodificada; null si no existe. */
     suspend fun tile(tileId: Long): SurfaceTile?
+
+    /** Muestra u oculta la superficie en el mapa (S061/RF-3). */
+    suspend fun setVisible(surfaceId: String, visible: Boolean)
+
+    /**
+     * El contorno de una superficie TIN (S061/RF-6). Si no está guardado (una superficie importada antes de S061 o restaurada de una
+     * copia), lo calcula con sus teselas y lo guarda para la siguiente vez. Null si no existe o es un ráster.
+     */
+    suspend fun outline(surfaceId: String): SurfaceOutline?
+
+    /** Guarda el contorno de una superficie, en lugar del que tuviera. */
+    suspend fun saveOutline(surfaceId: String, outline: SurfaceOutline)
 }
 
 class RoomSurfaceRepository(private val database: TopoPhoneDatabase) : SurfaceRepository {
@@ -293,6 +310,25 @@ class RoomSurfaceRepository(private val database: TopoPhoneDatabase) : SurfaceRe
 
     override suspend fun tile(tileId: Long): SurfaceTile? = dao.tile(tileId)?.let { SurfaceTileCodec.decode(it.data) }
 
+    override suspend fun setVisible(surfaceId: String, visible: Boolean) = dao.setVisible(surfaceId, visible)
+
+    override suspend fun outline(surfaceId: String): SurfaceOutline? {
+        val surface = dao.readySurface(surfaceId) ?: return null
+        if (surface.kind != SurfaceKind.TIN.name) return null
+        val stored = dao.outlineParts(surfaceId)
+        if (stored.isNotEmpty()) return SurfaceOutlineCodec.decode(stored)
+        // S061 plan A2: se une la malla de sus teselas (los triángulos repetidos entre teselas quedan una vez) y se calcula.
+        val merged = TileMerger.merge(dao.cells(surfaceId).mapNotNull { tile(it.id) })
+        val outline = TinOutline.rings(merged.easting, merged.northing, merged.triangles)
+        saveOutline(surfaceId, outline)
+        return outline
+    }
+
+    override suspend fun saveOutline(surfaceId: String, outline: SurfaceOutline) = database.withTransaction {
+        dao.deleteOutline(surfaceId)
+        dao.insertOutline(SurfaceOutlineCodec.encode(outline).mapIndexed { part, bytes -> SurfaceOutlineEntity(surfaceId, part, bytes) })
+    }
+
     private companion object {
         const val IMPORTING = "IMPORTING"
     }
@@ -301,7 +337,7 @@ class RoomSurfaceRepository(private val database: TopoPhoneDatabase) : SurfaceRe
 private fun SurfaceEntity.toModel() = Surface(
     id = id,
     projectId = projectId,
-    name = name,
+    name = SurfaceNames.display(name, fileName), // S061/RF-1, RF-2
     fileName = fileName,
     importedAtMs = importedAtMs,
     source = CadSourceCrs.decode(sourceCrs),
@@ -314,6 +350,7 @@ private fun SurfaceEntity.toModel() = Surface(
     holeCount = holeCount,
     kind = SurfaceKind.valueOf(kind),
     raster = rasterInfo(),
+    visible = visible,
 )
 
 /** La malla del ráster de la fila, o null si es un TIN (S045). */

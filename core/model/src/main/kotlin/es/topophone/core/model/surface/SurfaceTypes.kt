@@ -40,6 +40,8 @@ data class Surface(
     val holeCount: Int,
     val kind: SurfaceKind = SurfaceKind.TIN,
     val raster: RasterInfo? = null,
+    /** Se dibuja en el mapa (S061/RF-3), independiente de cuál sea la activa. */
+    val visible: Boolean = false,
 )
 
 /** Qué clase de superficie es (S045/RF-17): un modelo de triángulos de un LandXML (S042) o un ráster de cotas. */
