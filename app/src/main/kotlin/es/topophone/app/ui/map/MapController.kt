@@ -2,6 +2,7 @@ package es.topophone.app.ui.map
 
 import es.topophone.app.ui.alignment.AlignmentScene
 import es.topophone.app.ui.cad.DesignScene
+import es.topophone.app.ui.surface.SurfaceScene
 import es.topophone.core.geodesy.GeoBox
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.model.map.MapSettings
@@ -41,6 +42,12 @@ interface MapController {
 
     /** El dibujo importado de un DXF en la vista de ahora; nada sin dibujo (S040/RF-24). */
     fun showDesign(scene: DesignScene?)
+
+    /**
+     * Las superficies visibles en la vista de ahora: contornos, malla coloreada y la imagen de los rásteres, encima del mapa base y
+     * de las capas WMS y debajo de dibujos, líneas, puntos y jalón; nada sin superficies visibles (S061/RF-6 a RF-13).
+     */
+    fun showSurfaces(scene: SurfaceScene?)
 
     /** Los ejes visibles con el activo destacado y sus marcas de PK en la vista de ahora; nada sin ejes (S049/RF-17). */
     fun showAlignments(scene: AlignmentScene?)
@@ -117,7 +124,13 @@ data class StakeoutMarker(val design: GeoPoint?, val tip: GeoPoint?, val line: B
 data class MapTap(val latitudeDeg: Double, val longitudeDeg: Double, val toleranceM: Double)
 
 /** Centro del mapa en geográficas y zoom de MapLibre (teselas de 512 dp). */
-data class MapCamera(val latitudeDeg: Double, val longitudeDeg: Double, val zoom: Double)
+data class MapCamera(
+    val latitudeDeg: Double,
+    val longitudeDeg: Double,
+    val zoom: Double,
+    /** Lo que se ve con esta cámara, en grados; null si no se sabe (S061/RF-6: los triángulos «dentro de la vista»). */
+    val bounds: GeoBox? = null,
+)
 
 /** Ancho máximo de la barra de escala (S009/RF-10). */
 const val SCALE_BAR_MAX_DP = 100f

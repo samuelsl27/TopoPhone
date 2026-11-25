@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import es.topophone.app.ui.alignment.AlignmentScene
 import es.topophone.app.ui.cad.DesignScene
 import es.topophone.app.ui.projects.MapSlot
+import es.topophone.app.ui.surface.SurfaceScene
 import es.topophone.core.geodesy.GeoBox
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.model.codes.AttributeCarryOver
@@ -124,6 +125,14 @@ class FakeMapController : MapController {
     override fun showDesign(scene: DesignScene?) {
         design = scene
         designCalls++
+    }
+
+    var surfaces: SurfaceScene? = null
+    var surfaceCalls = 0
+
+    override fun showSurfaces(scene: SurfaceScene?) {
+        surfaces = scene
+        surfaceCalls++
     }
 
     override fun showAlignments(scene: AlignmentScene?) {

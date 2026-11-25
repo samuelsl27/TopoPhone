@@ -22,7 +22,7 @@
       Hecho cuando: `SurfaceImporterNameTest` y `SurfaceBackupVisibleTest` en verde.
 - [x] T10. `app`: la pantalla de importación y el resumen con el nombre por defecto; `SurfacesSheet` con el interruptor «Ver en el mapa». (RF-1, RF-3)
       Hecho cuando: `SurfacesSheetVisibilityTest` y el test de la pantalla de importación con `name=""` en verde.
-- [ ] T11. `app`: `SurfaceScene`, `MapController.showSurfaces` y su implementación en `MapLibreMapController` (malla, aristas, contorno con la activa más gruesa, imagen del ráster y orden de las capas). (RF-6 a RF-9, RF-12, RF-13)
+- [x] T11. `app`: `SurfaceScene`, `MapController.showSurfaces` y su implementación en `MapLibreMapController` (malla, aristas, contorno con la activa más gruesa, imagen del ráster y orden de las capas). (RF-6 a RF-9, RF-12, RF-13)
       Hecho cuando: el test del controlador falso en verde y el mapa del emulador muestra las capas en su orden.
 - [ ] T12. `app`: `SurfaceSceneBuilder` al pararse la cámara, con la rampa común de las visibles. (RF-6 a RF-10)
       Hecho cuando: `SurfaceSceneBuilderTest` en verde: contorno de lejos, malla de cerca, ráster y rampa común de dos superficies.

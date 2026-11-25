@@ -12,6 +12,8 @@ import android.os.Handler
 import android.os.Looper
 import es.topophone.app.ui.alignment.AlignmentScene
 import es.topophone.app.ui.cad.DesignScene
+import es.topophone.app.ui.surface.SurfaceGeoJson
+import es.topophone.app.ui.surface.SurfaceScene
 import es.topophone.core.formats.wms.WmsRequests
 import es.topophone.core.geodesy.AccuracyCircle
 import es.topophone.core.geodesy.GeoBox
@@ -84,6 +86,10 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private val wmsImages =
         WmsOneImageLoader<Bitmap>(client, HandlerWmsScheduler(handler), { BitmapFactory.decodeStream(it) }) { showWmsImage(it) }
     private var design: DesignScene? = null
+    private var surfaceScene: SurfaceScene? = null
+
+    /** Las superficies con imagen (rásteres) que tiene el estilo de ahora; un estilo nuevo no trae ninguna. */
+    private val surfaceImageIds = mutableSetOf<String>()
     private var alignmentScene: AlignmentScene? = null
     private var stakeout: StakeoutMarker? = null
     private var bottomInsetPx = 0
@@ -174,7 +180,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private fun publishCamera() {
         val position = map.cameraPosition
         val target = position.target ?: return
-        cameraFlow.value = MapCamera(target.latitude, target.longitude, position.zoom)
+        cameraFlow.value = MapCamera(target.latitude, target.longitude, position.zoom, visibleBounds())
     }
 
     override fun setSettings(settings: MapSettings) {
@@ -189,6 +195,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
             map.setStyle(builder) { style ->
                 addBackground(style)
                 addWmsAnchor(style)
+                addSurfaceLayers(style)
                 addPointLayers(style)
                 addLineLayers(style)
                 addDesignLayers(style)
@@ -199,6 +206,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
                 addPressLayer(style)
                 addRoverLayers(style)
                 drawWms()
+                drawSurfaces()
                 drawDesign()
                 drawAlignments()
                 drawPoints()
@@ -447,6 +455,84 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     override fun showDesign(scene: DesignScene?) {
         design = scene
         drawDesign()
+    }
+
+    override fun showSurfaces(scene: SurfaceScene?) {
+        surfaceScene = scene
+        drawSurfaces()
+    }
+
+    /**
+     * Las capas de las superficies, todas justo encima del ancla de las WMS y por tanto debajo de líneas, dibujos y puntos, que se
+     * añaden después (S061/RF-12). Cada una se pone justo encima del ancla, así que van de la de arriba a la de abajo: el contorno,
+     * las aristas y el relleno; las imágenes de los rásteres, que llegan después, quedan debajo del relleno.
+     */
+    private fun addSurfaceLayers(style: Style) {
+        surfaceImageIds.clear()
+        style.addSource(GeoJsonSource(SURFACE_MESH_SOURCE))
+        style.addSource(GeoJsonSource(SURFACE_OUTLINE_SOURCE))
+        style.addLayerAbove(
+            LineLayer(SURFACE_OUTLINE_LAYER, SURFACE_OUTLINE_SOURCE).withProperties(
+                PropertyFactory.lineColor(SURFACE_OUTLINE_COLOR),
+                PropertyFactory.lineWidth(
+                    Expression.switchCase(
+                        Expression.get(SurfaceGeoJson.ACTIVE),
+                        Expression.literal(SURFACE_ACTIVE_OUTLINE_DP),
+                        Expression.literal(SURFACE_OUTLINE_DP),
+                    ),
+                ),
+            ),
+            WMS_ANCHOR_LAYER,
+        ) // RF-13: la activa, más gruesa
+        style.addLayerAbove(
+            LineLayer(SURFACE_EDGES_LAYER, SURFACE_MESH_SOURCE).withProperties(
+                PropertyFactory.lineColor(SURFACE_EDGE_COLOR),
+                PropertyFactory.lineWidth(SURFACE_EDGE_DP),
+                PropertyFactory.lineOpacity(SURFACE_EDGE_OPACITY),
+            ),
+            WMS_ANCHOR_LAYER,
+        )
+        style.addLayerAbove(
+            FillLayer(SURFACE_FILL_LAYER, SURFACE_MESH_SOURCE).withProperties(
+                PropertyFactory.fillColor(Expression.toColor(Expression.get(SurfaceGeoJson.COLOR))),
+                PropertyFactory.fillOpacity(SURFACE_FILL_OPACITY),
+            ),
+            WMS_ANCHOR_LAYER,
+        ) // RF-10: semitransparente para ver el mapa base
+    }
+
+    /** La escena de las superficies en las fuentes del estilo; las imágenes de rásteres se añaden, se cambian o se quitan (S061, A5). */
+    private fun drawSurfaces() {
+        val style = map.style?.takeIf { it.isFullyLoaded } ?: return
+        val scene = surfaceScene
+        style.getSourceAs<GeoJsonSource>(SURFACE_MESH_SOURCE)?.setGeoJson(SurfaceGeoJson.mesh(scene?.meshes.orEmpty()))
+        style.getSourceAs<GeoJsonSource>(SURFACE_OUTLINE_SOURCE)?.setGeoJson(SurfaceGeoJson.outlines(scene?.outlines.orEmpty()))
+        val wanted = scene?.images.orEmpty().associateBy { it.surfaceId }
+        (surfaceImageIds - wanted.keys).forEach { id ->
+            style.removeLayer(SURFACE_IMAGE_LAYER_PREFIX + id)
+            style.removeSource(SURFACE_IMAGE_SOURCE_PREFIX + id)
+            surfaceImageIds -= id
+        }
+        for ((id, image) in wanted) {
+            val c = image.cornersLonLat
+            val quad = LatLngQuad(LatLng(c[1], c[0]), LatLng(c[3], c[2]), LatLng(c[5], c[4]), LatLng(c[7], c[6]))
+            val bitmap = Bitmap.createBitmap(image.argb, image.width, image.height, Bitmap.Config.ARGB_8888)
+            val source = style.getSourceAs<ImageSource>(SURFACE_IMAGE_SOURCE_PREFIX + id)
+            if (source == null) {
+                style.addSource(ImageSource(SURFACE_IMAGE_SOURCE_PREFIX + id, quad, bitmap))
+                style.addLayerAbove(
+                    RasterLayer(SURFACE_IMAGE_LAYER_PREFIX + id, SURFACE_IMAGE_SOURCE_PREFIX + id).withProperties(
+                        PropertyFactory.rasterOpacity(SURFACE_FILL_OPACITY),
+                        PropertyFactory.rasterResampling(Property.RASTER_RESAMPLING_NEAREST),
+                    ),
+                    WMS_ANCHOR_LAYER,
+                ) // RF-9: una celda por píxel, sin suavizar
+                surfaceImageIds += id
+            } else {
+                source.setCoordinates(quad)
+                source.setImage(bitmap)
+            }
+        }
     }
 
     /**
@@ -1238,6 +1324,20 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val PRESS_STROKE_DP = 3f
         const val PRESS_FILL_OPACITY = 0.3f
         const val WMS_ANCHOR_LAYER = "topophone-wms-anchor"
+        const val SURFACE_MESH_SOURCE = "topophone-surface-mesh"
+        const val SURFACE_OUTLINE_SOURCE = "topophone-surface-outline"
+        const val SURFACE_FILL_LAYER = "topophone-surface-fill"
+        const val SURFACE_EDGES_LAYER = "topophone-surface-edges"
+        const val SURFACE_OUTLINE_LAYER = "topophone-surface-outline"
+        const val SURFACE_IMAGE_SOURCE_PREFIX = "topophone-surface-image-source-"
+        const val SURFACE_IMAGE_LAYER_PREFIX = "topophone-surface-image-layer-"
+        const val SURFACE_OUTLINE_COLOR = "#4A148C"
+        const val SURFACE_EDGE_COLOR = "#424242"
+        const val SURFACE_OUTLINE_DP = 1.5f
+        const val SURFACE_ACTIVE_OUTLINE_DP = 3f
+        const val SURFACE_EDGE_DP = 0.5f
+        const val SURFACE_EDGE_OPACITY = 0.6f
+        const val SURFACE_FILL_OPACITY = 0.55f
         const val WMS_SOURCE_PREFIX = "topophone-wms-source-"
         const val WMS_LAYER_PREFIX = "topophone-wms-layer-"
         const val TILEJSON_VERSION = "2.1.0"
