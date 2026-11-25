@@ -87,7 +87,7 @@ Términos de esta spec (los de S042 más):
 | Sin geoide en la zona | RF-22 |
 
 ## Fuera de alcance
-- Dibujar el ráster, sus curvas de nivel o su sombreado en el mapa → no previsto.
+- Dibujar el ráster en el mapa → S061; sus curvas de nivel o su sombreado → no previsto.
 - Rásteres de colores, ortofotos y varias bandas a la vez → no previsto.
 - Otros formatos (ERDAS, DEM de USGS, NetCDF, Cloud Optimized con otra compresión) → no previsto.
 - Un ZIP o varios ficheros con la georreferencia aparte (`.prj`, `.tfw`) → no previsto.

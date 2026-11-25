@@ -110,7 +110,8 @@ Términos de esta spec:
 
 ## Fuera de alcance
 - Ráster de cotas (GeoTIFF y ASCII Grid) → S045.
-- Dibujar la superficie, sus curvas de nivel o su contorno en el mapa → no previsto.
+- Dibujar la superficie en el mapa → S061; sus curvas de nivel → no previsto.
+- Replantear la superficie solo en cota, sin punto de diseño → S062.
 - Superficies definidas por malla regular (`GridSurface`) o por curvas de nivel sin triángulos en el LandXML → no previsto.
 - Alineaciones, perfiles longitudinales y secciones de un LandXML → no previsto.
 - Crear o editar superficies en el móvil, o calcular volúmenes entre dos superficies → no previsto.

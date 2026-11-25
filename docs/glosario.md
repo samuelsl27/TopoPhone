@@ -210,6 +210,8 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Cota de la superficie | `SurfaceElevation` | Cota de la superficie en una posición Este y Norte, interpolada en su triángulo (S042) |
 | Fuera de la superficie | `OutsideSurface` | Posición sin triángulo: fuera del contorno o en un hueco; no tiene cota (S042) |
 | Origen de la cota | `ElevationSource` | `POINT` («Cota del punto») o `SURFACE` («Superficie») (S042) |
+| Superficie visible | `visibleOnMap` | La que se dibuja en el mapa, con su interruptor propio e independiente de la activa (S061) |
+| Replanteo de la superficie | `SurfaceStakeout` | Replanteo solo en cota contra una superficie, sin objetivo en planta; sus puntos se llaman SUP1, SUP2… (S062) |
 | Dibujo CAD | `CadDrawing` | Un DXF importado en un proyecto; un proyecto puede tener varios (S040) |
 | Capa de diseño | `DesignLayer` | Una capa del DXF separada por tipo (puntos o líneas), con su color y su interruptor (S040) |
 | Elemento del dibujo | `CadEntity` | Un punto o una línea (polilínea, arco, círculo, spline) del dibujo, con los bloques ya desplegados (S040) |
