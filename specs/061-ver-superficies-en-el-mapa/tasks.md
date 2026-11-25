@@ -10,7 +10,7 @@
       Hecho cuando: `SurfaceOutlineCodecTest` en verde: ida y vuelta sin pérdida y un contorno que ocupa varios trozos.
 - [x] T4. `core:survey`: `TinOutline.rings` (aristas de borde, encadenado, exterior y huecos, islas y vértices de dos anillos). (RF-6)
       Hecho cuando: `TinOutlineTest` en verde con los casos de T1 y `TinOutlinePerfTest` con 1.000.000 de triángulos en menos de 2 s en la JVM.
-- [ ] T5. `core:survey`: `SurfaceViewSelector` para TIN (suma del índice, recuento en la vista, contorno o malla, triángulos sin repetir y color por cota media). (RF-6, RF-7, RF-10)
+- [x] T5. `core:survey`: `SurfaceViewSelector` para TIN (suma del índice, recuento en la vista, contorno o malla, triángulos sin repetir y color por cota media). (RF-6, RF-7, RF-10)
       Hecho cuando: `SurfaceViewSelectorTest` en verde a los dos lados de 20.000 triángulos y con la suma por encima de 60.000.
 - [ ] T6. `core:survey`: `SurfaceViewSelector` para ráster (celdas de la vista por aritmética, recuadro densificado o la imagen de celdas con su color y transparente sin dato). (RF-8, RF-9, RF-10)
       Hecho cuando: `SurfaceViewSelectorRasterTest` en verde a los dos lados de 1.000.000 de celdas y con celdas sin dato.
