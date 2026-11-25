@@ -285,6 +285,8 @@ class LineStakeoutSaveTest {
 
         // Al reabrir una linea el objetivo pasa por null: el recolector olvida el proveedor y la pantalla debe darlo otra vez.
         vm.setStakeTarget(null)
+        // Se espera al nombre normal: si no, el estado viejo («BORD_1_1_stkd») daba por hecho el segundo `stake` y se medía con «2».
+        await(vm) { it.name == "2" }
         stake(vm, lineTarget(measured.coordinates), provider, "BORD_1_1_stkd")
 
         val ref = measureStaked(vm, "BORD_1_1_stkd").staked.shouldNotBeNull()

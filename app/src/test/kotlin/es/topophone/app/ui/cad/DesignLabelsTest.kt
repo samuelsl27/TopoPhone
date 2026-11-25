@@ -35,8 +35,10 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldNotContain
 import io.kotest.matchers.types.shouldBeInstanceOf
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -61,7 +63,9 @@ class DesignLabelsTest {
     private val cad = RoomCadRepository(db)
     private val dispatcher = UnconfinedTestDispatcher()
     private val crs = ProjectCrs.ETRS89_UTM30
-    private val logged = mutableListOf<String>()
+
+    // El ViewModel anota desde su hilo de E/S: lista segura entre hilos.
+    private val logged = CopyOnWriteArrayList<String>()
     private val log = object : AppLog {
         override fun record(level: LogLevel, category: LogCategory, message: String) {
             logged += "$level $category $message"
@@ -236,7 +240,13 @@ class DesignLabelsTest {
 
         viewModel.deleteDrawing("g1")
 
-        runBlocking { withTimeout(5_000) { viewModel.drawings.first { it.isEmpty() } } }
+        // La anotación llega después del borrado, en el hilo de E/S: se espera a las dos cosas.
+        runBlocking {
+            withTimeout(5_000) {
+                viewModel.drawings.first { it.isEmpty() }
+                while (logged.none { it.contains("borrado") }) delay(10)
+            }
+        }
         val line = logged.single { it.contains("borrado") }
         line shouldBe "INFO APP Dibujo borrado (geopackage)"
         for (secret in listOf("capas.gpkg", "capa", "Farola", "440")) line shouldNotContain secret

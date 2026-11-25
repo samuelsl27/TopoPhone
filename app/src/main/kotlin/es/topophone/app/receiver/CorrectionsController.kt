@@ -112,8 +112,10 @@ class CorrectionsController(
             LogCategory.NTRIP,
             "Perfil «${draft.name}»: ${draft.host}:${draft.port}${if (draft.useTls) " con TLS" else ""}, punto de montaje ${draft.mountpoint}",
         )
-        session.startNtrip(profile.toConfig(secret)) // la sesión cierra antes la conexión en curso (S007/RF-22)
+        // S007/RF-24: se anota como abierta ANTES de empezar. Si el caster rechaza enseguida, el rechazo (watchRejections) la anota
+        // como cerrada; anotada después, la apertura pisaba ese rechazo y la conexión se volvía a abrir sola la próxima vez.
         preferences.saveNtripSession(profileId, active = true)
+        session.startNtrip(profile.toConfig(secret)) // la sesión cierra antes la conexión en curso (S007/RF-22)
         return ConnectResult.Started
     }
 

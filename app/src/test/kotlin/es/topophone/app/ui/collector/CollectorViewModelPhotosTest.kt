@@ -309,7 +309,8 @@ class CollectorViewModelPhotosTest {
 
         vm.confirmCancelWithPhotos()
 
-        vm.state.value.measuring shouldBe false
+        // `state` junta varios flujos y llega un poco después: se espera, no se lee al momento (en un runner lento fallaba).
+        await(vm) { !it.measuring }.measuring shouldBe false
         vm.photos.ui.value.destination shouldBe PhotoDestination.None
         pendingFiles() shouldBe emptyList()
         runBlocking { points.points(id).first() } shouldBe emptyList()

@@ -62,8 +62,13 @@ jobs:
       - name: Trazabilidad RF y tests (S001/RF-26, S001/RF-35)
         run: uv run --project tools tools/trazabilidad/rf_report.py
 
+      # Los tests de app (miles con Robolectric) van en el job app-tests, uno por variante y cada uno en su runner:
+      # todos en el mismo runner lo dejaban sin memoria y perdía la comunicación.
       - name: Gradle check (tests, Lint, ktlint, reglas de módulos, telemetría, Kover)
-        run: ./gradlew check --stacktrace --continue --no-parallel
+        run: >-
+          ./gradlew check --stacktrace --continue --no-parallel
+          -x :app:testStandardDebugUnitTest
+          -x :app:testStandardReleaseUnitTest
 
       - name: Guardar caché de Robolectric
         if: always() && steps.robolectric-cache.outputs.cache-hit != 'true'
@@ -80,4 +85,50 @@ jobs:
           path: |
             **/build/reports/
             **/build/test-results/
+          retention-days: 7
+
+  app-tests:
+    name: Tests de app (${{ matrix.variant }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [StandardDebug, StandardRelease]
+    steps:
+      - name: Código (con etiquetas, para la versión)
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: JDK 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Caché de Robolectric
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/.m2/repository/org/robolectric
+          key: robolectric-${{ hashFiles('gradle/libs.versions.toml') }}
+
+      # La memoria usada se anota cada 2 minutos: si el runner vuelve a caerse, el log dice si fue por memoria.
+      - name: Gradle test de app (${{ matrix.variant }})
+        run: |
+          ( while sleep 120; do free -m | awk '/^Mem/ {print "Memoria usada: " $3 " de " $2 " MB"}'; done ) &
+          ./gradlew ":app:test${{ matrix.variant }}UnitTest" --stacktrace --continue --no-parallel
+
+      - name: Informes de fallo
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: informes-app-${{ matrix.variant }}
+          path: |
+            app/build/reports/
+            app/build/test-results/
           retention-days: 7

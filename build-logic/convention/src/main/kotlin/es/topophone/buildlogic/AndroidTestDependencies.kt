@@ -39,6 +39,9 @@ internal fun Project.configureRobolectricJvm() {
         )
         // 3 GB: el módulo app ya pasa de 3.800 tests con Robolectric y con 2 GB la JVM de tests se quedaba sin memoria (S037/T15), con cientos de OutOfMemoryError.
         maxHeapSize = "3g"
+        // En el CI (16 GB para todo el runner), una sola JVM con miles de tests de Robolectric acumula memoria nativa (SQLite, gráficos)
+        // hasta que el runner se queda sin memoria y pierde la comunicación. Una JVM nueva cada 150 clases de test la libera.
+        if (System.getenv("CI") != null) forkEvery = 150
         excludePerformanceTestsInCi()
         // Hilt (KSP) genera fuentes de test aunque el módulo aún no tenga tests.
         failOnNoDiscoveredTests.set(false)

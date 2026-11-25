@@ -492,6 +492,9 @@ class CollectorViewModelAdvancedTest {
         val projectId = project()
         val vm = averagedViewModel(seconds = 600, projectId = projectId)
         receiving(vm)
+        // La época 1 se completa por silencio antes de empezar, para que no cuente: así las cuatro épocas son siempre la 2 a la 5,
+        // y cuando hay cuatro ya no queda ninguna pendiente que el silencio pueda sumar antes de Terminar (en un runner lento pasaba).
+        runBlocking { withTimeout(5_000) { session.state.first { it.epoch?.utcMillisOfDay == EPOCH_1_UTC_MS } } }
         startMeasuring(vm)
         sendEpoch(2, lat = "4025.0080000")
         sendEpoch(3, lat = "4025.0080054") // 1 cm al norte

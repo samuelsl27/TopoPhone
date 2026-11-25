@@ -82,3 +82,16 @@ def test_s001_rf28_las_comprobaciones_rapidas_van_antes_que_gradle(workflow: dic
     gradle = next(i for i, c in enumerate(commands) if "./gradlew check" in c)
 
     assert forbidden < gradle
+
+
+def test_s001_rf25_los_tests_que_check_salta_se_ejecutan_en_otro_job(workflow: dict) -> None:
+    """S001/RF-25: los tests de app van en su propio job (por memoria del runner), pero ninguno se queda sin ejecutar."""
+    check = next(step["run"] for step in all_steps(workflow) if "./gradlew check" in step.get("run", ""))
+    skipped = [token for i, token in enumerate(check.split()[1:]) if check.split()[i] == "-x"]
+    matrix = workflow["jobs"]["app-tests"]["strategy"]["matrix"]["variant"]
+    run_by_matrix = {f":app:test{variant}UnitTest" for variant in matrix}
+
+    assert skipped
+    assert set(skipped) == run_by_matrix
+    assert ":app:test${{ matrix.variant }}UnitTest" in run_commands(workflow)
+    assert not workflow["jobs"]["app-tests"]["strategy"]["fail-fast"]
