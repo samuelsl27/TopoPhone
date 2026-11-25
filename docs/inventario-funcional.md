@@ -1,6 +1,6 @@
 # Inventario funcional: Emlid Flow + Reach RS3 → TopoPhone
 
-Recopilado en octubre de 2026 a partir de la documentación oficial (Emlid Flow 15.11, firmware Reach 33.1), del manual en PDF (`docs/referencias/emlid/`) y de la especificación ETC_rev_3. Es una referencia de **qué** hace la app de referencia, no un requisito: lo que se construye lo deciden las specs.
+Recopilado en octubre de 2026 a partir de la documentación oficial (Emlid Flow 15.11, firmware Reach 33.1), del manual en PDF (copia local fuera del repositorio) y de la especificación ETC_rev_3. Es una referencia de **qué** hace la app de referencia, no un requisito: lo que se construye lo deciden las specs.
 
 La columna **TopoPhone** indica cómo se cubre cada función:
 - `S0NN`: la spec que la implementa.
@@ -118,8 +118,8 @@ Las claves de fuente se resuelven al final.
 ## Claves de fuente
 | Clave | URL |
 |---|---|
-| Manual | `docs/referencias/emlid/Espanol_Emlid_Flow_Emlid_Flow_360_Documentacion_del-usuario.pdf` (Flow 8.1, FW 30, 2023) |
-| ETC_rev_3 | `docs/referencias/emlid/ETC_rev_3.pdf` — https://files.emlid.com/docs/ETC_rev_3.pdf |
+| Manual | `Espanol_Emlid_Flow_Emlid_Flow_360_Documentacion_del-usuario.pdf`, copia local fuera del repositorio (Flow 8.1, FW 30, 2023) |
+| ETC_rev_3 | `ETC_rev_3.pdf` — https://files.emlid.com/docs/ETC_rev_3.pdf |
 | R-conn | https://docs.emlid.com/reachrs3/before-you-start/connecting-to-reach/ |
 | R-pwr | https://docs.emlid.com/reachrs3/before-you-start/power-supply/ |
 | R-ntrip | https://docs.emlid.com/reachrs3/rtk-quickstart/reachrs3-as-rover/rtk-over-ntrip-service/ |
