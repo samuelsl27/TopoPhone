@@ -12,7 +12,7 @@
       Hecho cuando: `TinOutlineTest` en verde con los casos de T1 y `TinOutlinePerfTest` con 1.000.000 de triángulos en menos de 2 s en la JVM.
 - [x] T5. `core:survey`: `SurfaceViewSelector` para TIN (suma del índice, recuento en la vista, contorno o malla, triángulos sin repetir y color por cota media). (RF-6, RF-7, RF-10)
       Hecho cuando: `SurfaceViewSelectorTest` en verde a los dos lados de 20.000 triángulos y con la suma por encima de 60.000.
-- [ ] T6. `core:survey`: `SurfaceViewSelector` para ráster (celdas de la vista por aritmética, recuadro densificado o la imagen de celdas con su color y transparente sin dato). (RF-8, RF-9, RF-10)
+- [x] T6. `core:survey`: `SurfaceViewSelector` para ráster (celdas de la vista por aritmética, recuadro densificado o la imagen de celdas con su color y transparente sin dato). (RF-8, RF-9, RF-10)
       Hecho cuando: `SurfaceViewSelectorRasterTest` en verde a los dos lados de 1.000.000 de celdas y con celdas sin dato.
 - [ ] T7. `data`: Room v41 (`surfaces.visible`, `surface_outlines`), su DAO, `AutoMigration(40, 41)` con la `AutoMigrationSpec` y el esquema 41 en `data/schemas/`. (RNF-T6, RF-3, RF-5)
       Hecho cuando: `TopoPhoneDatabaseTest` 40 → 41 en verde: la superficie activa queda visible, las demás ocultas, y nada más cambia.
