@@ -4,7 +4,7 @@
 
 - [x] T1. `tools/superficies`: casos de contorno (cuadrado de dos triángulos, malla con un hueco, dos islas, dos anillos que se tocan en un vértice) con el contorno esperado calculado aparte en Python puro, y los colores de referencia de la rampa de siete paradas. (Constitución nº 2, RF-6, RF-10)
       Hecho cuando: el generador escribe los casos en `fixtures/superficies/` y su test de `tools` está en verde.
-- [ ] T2. `core:model`: `SurfaceNames.display` y `ElevationRamp`. (RF-1, RF-10)
+- [x] T2. `core:model`: `SurfaceNames.display` y `ElevationRamp`. (RF-1, RF-10)
       Hecho cuando: `SurfaceNamesTest` y `ElevationRampTest` en verde contra los valores de T1.
 - [ ] T3. `core:model`: `SurfaceOutline` (anillos exteriores y huecos) y `SurfaceOutlineCodec`, partido en trozos de ≤ 256 kB. (RF-6)
       Hecho cuando: `SurfaceOutlineCodecTest` en verde: ida y vuelta sin pérdida y un contorno que ocupa varios trozos.
