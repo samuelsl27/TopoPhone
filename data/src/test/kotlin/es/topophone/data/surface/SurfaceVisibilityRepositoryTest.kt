@@ -81,13 +81,13 @@ class SurfaceVisibilityRepositoryTest {
     @Test
     fun `S061 RF-3 la visibilidad se cambia y se lee con la superficie`() = runBlocking<Unit> {
         write("s1", "terreno", "obra.xml")
+        repository.surfaces(project).first().single().visible shouldBe true // S061/RF-4: una superficie nueva se ve
+
+        repository.setVisible("s1", false)
         repository.surfaces(project).first().single().visible shouldBe false
 
         repository.setVisible("s1", true)
         repository.surfaces(project).first().single().visible shouldBe true
-
-        repository.setVisible("s1", false)
-        repository.surfaces(project).first().single().visible shouldBe false
     }
 
     @Test

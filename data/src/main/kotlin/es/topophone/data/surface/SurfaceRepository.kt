@@ -174,6 +174,7 @@ class RoomSurfaceRepository(private val database: TopoPhoneDatabase) : SurfaceRe
             vertexCount = 0,
             triangleCount = 0,
             holeCount = 0,
+            visible = true, // S061/RF-4
         ),
     )
 
@@ -239,6 +240,7 @@ class RoomSurfaceRepository(private val database: TopoPhoneDatabase) : SurfaceRe
             originY = draft.grid.originY,
             stepX = draft.grid.stepX,
             stepY = draft.grid.stepY,
+            visible = true, // S061/RF-4
         ),
     )
 

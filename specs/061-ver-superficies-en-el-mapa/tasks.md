@@ -18,7 +18,7 @@
       Hecho cuando: `TopoPhoneDatabaseTest` 40 → 41 en verde: la superficie activa queda visible, las demás ocultas, y nada más cambia.
 - [x] T8. `data`: `SurfaceRepository` con el nombre por defecto al leer, `setVisible`, `outline` (calcula y guarda el que falta), `tilesIn` y `heightAt` de cualquier superficie. (RF-2, RF-3, RF-6, RF-16, RF-18)
       Hecho cuando: `SurfaceRepositoryNameTest`, `SurfaceOutlineRepositoryTest` y `SurfaceHeightAtTest` en verde (TIN y ráster, ≤ 1 mm frente a `ActiveSurface`).
-- [ ] T9. `data`: `SurfaceImporter` guarda el nombre de RF-1, el contorno y `visible = 1`; la copia de seguridad conserva `visible` y no lleva `surface_outlines`. (RF-1, RF-4, RF-5)
+- [x] T9. `data`: `SurfaceImporter` guarda el nombre de RF-1, el contorno y `visible = 1`; la copia de seguridad conserva `visible` y no lleva `surface_outlines`. (RF-1, RF-4, RF-5)
       Hecho cuando: `SurfaceImporterNameTest` y `SurfaceBackupVisibleTest` en verde.
 - [ ] T10. `app`: la pantalla de importación y el resumen con el nombre por defecto; `SurfacesSheet` con el interruptor «Ver en el mapa». (RF-1, RF-3)
       Hecho cuando: `SurfacesSheetVisibilityTest` y el test de la pantalla de importación con `name=""` en verde.

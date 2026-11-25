@@ -11,10 +11,12 @@ import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.TerrainPlane
 import es.topophone.core.model.surface.SurfaceExtent
+import es.topophone.core.model.surface.SurfaceNames
 import es.topophone.core.model.surface.SurfaceTileCodec
 import es.topophone.core.survey.SurfaceProjection
 import es.topophone.core.survey.SurfaceProjector
 import es.topophone.core.survey.TerrainView
+import es.topophone.core.survey.TinOutline
 import es.topophone.core.survey.TinTiler
 import es.topophone.data.io.CountingInputStream
 import java.io.InputStream
@@ -122,7 +124,12 @@ class SurfaceImporter(
             if (cells.isEmpty()) return@withContext SurfaceImportResult.Failed(SurfaceImportFailure.NO_SURFACE)
             job.ensureActive()
 
-            writing { repository.begin(SurfaceDraft(surfaceId, projectId, read.name, fileName, clock(), source, unit)) }
+            // S061/RF-1: sin nombre en el fichero, la superficie se llama como él.
+            val name = SurfaceNames.display(read.name, fileName)
+            // S061 plan A2: el contorno se calcula ahora, con la malla entera, y se guarda con la superficie.
+            val outline = TinOutline.rings(converted.easting, converted.northing, read.triangles)
+            job.ensureActive()
+            writing { repository.begin(SurfaceDraft(surfaceId, projectId, name, fileName, clock(), source, unit)) }
             begun = true
             for (batch in cells.chunked(TILES_PER_BATCH)) {
                 job.ensureActive()
@@ -133,6 +140,7 @@ class SurfaceImporter(
                     )
                 }
             }
+            writing { repository.saveOutline(surfaceId, outline) }
             val used = usedExtent(converted.easting, converted.northing, converted.height, read.triangles)
             val summary = SurfaceSummary(
                 extent = used.extent,
@@ -144,7 +152,7 @@ class SurfaceImporter(
             )
             job.ensureActive()
             val activated = writing { repository.finish(surfaceId, summary) }
-            SurfaceImportResult.Imported(surfaceId, SurfaceImportSummary(read.name, summary, read.droppedFaceCount, activated))
+            SurfaceImportResult.Imported(surfaceId, SurfaceImportSummary(name, summary, read.droppedFaceCount, activated))
         } catch (e: CancellationException) {
             if (begun) withContext(NonCancellable) { runCatching { repository.abort(surfaceId) } }
             throw e

@@ -1031,6 +1031,8 @@ class BackupRepository(
             db.runInTransaction(
                 Runnable {
                     val sink = db.openHelper.writableDatabase
+                    // S061: los contornos no viajan en la copia (se recalculan) y no deben quedar los de las superficies de antes.
+                    sink.execSQL("DELETE FROM surface_outlines")
                     DatabaseSnapshot.TABLES.asReversed().forEach { sink.execSQL("DELETE FROM ${it.name}") }
                     DatabaseSnapshot.TABLES.forEach { DatabaseSnapshot.copyRows(from, sink, it.name) }
                     secrets.forEach { (id, secret) ->
