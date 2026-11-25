@@ -13,6 +13,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import java.io.ByteArrayOutputStream
 import java.io.File
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -55,6 +56,7 @@ class GearBackupTest {
         gear = RoomGearRepository(db)
         profileId = (gear.saveProfile(null, "Mi antena", "0.12", "0.06") as GearResult.Saved).id
         poleId = (gear.savePole(null, "Jalón estándar", PoleKind.VERTICAL, "1.8") as GearResult.Saved).id
+        delay(5) // el orden de los jalones es por created_ms: en el mismo milisegundo decidiria el id aleatorio
         gear.savePole(null, "Inclinado", PoleKind.SLANT, "1.9500000000001")
         gear.setProfile("AA:BB:CC", "own:$profileId")
         gear.setActivePole("AA:BB:CC", poleId)

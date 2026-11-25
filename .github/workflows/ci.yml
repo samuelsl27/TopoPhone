@@ -63,7 +63,7 @@ jobs:
         run: uv run --project tools tools/trazabilidad/rf_report.py
 
       - name: Gradle check (tests, Lint, ktlint, reglas de módulos, telemetría, Kover)
-        run: ./gradlew check --stacktrace
+        run: ./gradlew check --stacktrace --continue
 
       - name: Guardar caché de Robolectric
         if: always() && steps.robolectric-cache.outputs.cache-hit != 'true'
