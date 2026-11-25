@@ -32,9 +32,19 @@ interface LibraryResources {
     fun isInstalled(name: String): Boolean = grids.read(name) != null
 
     companion object {
-        /** Lo que usa el cálculo: lo pone la app al arrancar y al instalar o borrar rejillas. */
         @Volatile
-        var current: LibraryResources = BundledLibraryResources
+        private var installed: LibraryResources? = null
+
+        /**
+         * Lo que usa el cálculo: lo pone la app al arrancar y al instalar o borrar rejillas. Sin inicializador estático: si
+         * [BundledLibraryResources] se inicializa antes que este `companion` (lo hace al implementar una interfaz con métodos por
+         * defecto), un valor inicial `= BundledLibraryResources` quedaría en null para siempre y fallaría según el orden de uso.
+         */
+        var current: LibraryResources
+            get() = installed ?: BundledLibraryResources
+            set(value) {
+                installed = value
+            }
     }
 }
 
