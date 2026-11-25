@@ -36,7 +36,6 @@ import es.topophone.data.point.RoomPointRepository
 import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.project.SaveResult
 import es.topophone.receiver.platform.Alerts
-import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.transport.StreamTransport
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -89,8 +88,11 @@ class CollectorViewModelTest {
         watchdogPeriodMs = 1_000,
     )
     private val toApp = PipedOutputStream()
-    private var saved = 0
-    private var lost = 0
+
+    // Los sonidos llegan desde el hilo de la sesión.
+    @Volatile private var saved = 0
+
+    @Volatile private var lost = 0
     private val alerts = object : Alerts {
         override fun tiltLost() = Unit
 
@@ -181,7 +183,7 @@ class CollectorViewModelTest {
         connect()
         sendEpoch(0, status)
         sendEpoch(1, status)
-        runBlocking { withTimeout(5_000) { session.state.first { it.connection is ConnectionState.Receiving && it.epoch != null } } }
+        awaitReceiving(session, vm)
         await(vm) { it.live != null }
     }
 
@@ -322,6 +324,7 @@ class CollectorViewModelTest {
         val projectId = project()
         val vm = viewModel(projectId)
         receiving(vm)
+        await(vm) { it.blocker == null } // `measure()` mira el estado, que llega un poco después: con NO_POSITION no mediría
         vm.measure()
         sendEpoch(2)
         sendEpoch(3)
@@ -340,6 +343,7 @@ class CollectorViewModelTest {
         val projectId = project()
         val vm = viewModel(projectId)
         receiving(vm)
+        await(vm) { it.blocker == null } // `measure()` mira el estado, que llega un poco después
 
         vm.measure()
         sendEpoch(2) // FIX
@@ -641,7 +645,7 @@ class CollectorViewModelTest {
         receiving(vm) // épocas de 10:15:30 y 10:15:31 con GGA y GST
         toApp.write(nmea("GNGGA,101531.20,4025.0080000,N,00342.2228000,W,4,24,0.6,650.123,M,51.234,M,1.0,0001").toByteArray())
         toApp.flush()
-        runBlocking { withTimeout(5_000) { session.state.first { it.epoch?.utcMillisOfDay == 36_931_000 } } }
+        awaitEpoch(session, vm, 36_931_000)
         await(vm) { it.blocker == null }
 
         vm.measure()

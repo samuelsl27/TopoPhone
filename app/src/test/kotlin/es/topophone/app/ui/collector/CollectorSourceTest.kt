@@ -190,7 +190,7 @@ class CollectorSourceTest {
         phoneReceiving(vm)
 
         emit(2)
-        runBlocking { withTimeout(5_000) { session.state.first { it.epoch?.utcMillisOfDay == 36_001_000 } } }
+        awaitEpoch(session, vm, 36_001_000)
         startMeasuring(vm)
         emit(3)
 
@@ -205,7 +205,7 @@ class CollectorSourceTest {
         val vm = viewModel(CollectorSettings(), projectId)
         phoneReceiving(vm)
         emit(2)
-        runBlocking { withTimeout(5_000) { session.state.first { it.epoch?.utcMillisOfDay == 36_001_000 } } }
+        awaitEpoch(session, vm, 36_001_000)
         startMeasuring(vm)
         emit(3)
         await(vm) { it.pending != null && !it.measuring }
@@ -230,7 +230,7 @@ class CollectorSourceTest {
         val vm = viewModel(CollectorSettings(precision = PrecisionControl(admitted = admitted)), projectId)
         phoneReceiving(vm)
         emit(2)
-        runBlocking { withTimeout(5_000) { session.state.first { it.epoch?.utcMillisOfDay == 36_001_000 } } }
+        awaitEpoch(session, vm, 36_001_000)
         startMeasuring(vm)
         emit(3)
         await(vm) { it.savedName == "1" }
@@ -247,7 +247,7 @@ class CollectorSourceTest {
         val vm = viewModel(CollectorSettings(precision = PrecisionControl(admitted = admitted)), projectId)
         phoneReceiving(vm, mock = true)
         emit(2, mock = true)
-        runBlocking { withTimeout(5_000) { session.state.first { it.epoch?.utcMillisOfDay == 36_001_000 } } }
+        awaitEpoch(session, vm, 36_001_000)
         startMeasuring(vm)
         emit(3, mock = true)
         await(vm) { it.savedName == "1" }

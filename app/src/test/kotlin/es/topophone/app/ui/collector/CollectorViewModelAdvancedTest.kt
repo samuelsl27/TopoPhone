@@ -25,7 +25,6 @@ import es.topophone.data.point.RoomPointRepository
 import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.project.SaveResult
 import es.topophone.receiver.platform.Alerts
-import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.transport.StreamTransport
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -84,8 +83,11 @@ class CollectorViewModelAdvancedTest {
     )
     private val toApp = PipedOutputStream()
     private val log = RecordingLog()
-    private var saved = 0
-    private var lost = 0
+
+    // Los sonidos llegan desde el hilo de la sesión.
+    @Volatile private var saved = 0
+
+    @Volatile private var lost = 0
     private var pausedAlerts = 0
     private var omittedAlerts = 0
     private var restartedAlerts = 0
@@ -223,7 +225,7 @@ class CollectorViewModelAdvancedTest {
         session.connect(StreamTransport("reach-RS3", PipedInputStream(toApp, 64 * 1024), ByteArrayOutputStream()))
         sendEpoch(0)
         sendEpoch(1)
-        runBlocking { withTimeout(5_000) { session.state.first { it.connection is ConnectionState.Receiving && it.epoch != null } } }
+        awaitReceiving(session, vm)
         await(vm) { it.live != null && (!ready || it.blocker == null) }
     }
 
@@ -332,9 +334,9 @@ class CollectorViewModelAdvancedTest {
         val projectId = project()
         val vm = averagedViewModel(seconds = 600, projectId = projectId)
         receiving(vm)
-        // La época 1 sigue pendiente y es FIX: se completa con la 2, antes de empezar, para que no cuente.
+        // La época 2 se completa por silencio antes de empezar, para que no cuente: así las descartadas son la 3 y la 4, y el 2 se queda.
         sendEpoch(2, status = 5)
-        runBlocking { withTimeout(5_000) { session.state.first { it.epoch?.utcMillisOfDay == EPOCH_1_UTC_MS } } }
+        awaitEpoch(session, vm, EPOCH_1_UTC_MS + 1_000)
 
         startMeasuring(vm)
         sendEpoch(3, status = 5) // FLOAT con "solo FIX": se descarta
@@ -366,7 +368,7 @@ class CollectorViewModelAdvancedTest {
     private fun measuringTwoEpochs(projectId: String = project()): CollectorViewModel {
         val vm = averagedViewModel(seconds = 60, projectId = projectId)
         receiving(vm)
-        runBlocking { withTimeout(5_000) { session.state.first { it.epoch?.utcMillisOfDay == EPOCH_1_UTC_MS } } }
+        awaitEpoch(session, vm, EPOCH_1_UTC_MS)
         startMeasuring(vm)
         sendEpoch(2)
         sendEpoch(3)
@@ -479,13 +481,14 @@ class CollectorViewModelAdvancedTest {
         sendEpoch(2, baseLat = baseA)
         sendEpoch(3, baseLat = baseA)
         sendEpoch(4, baseLat = baseA)
-        await(vm) { it.progress?.epochsUsed == 3 }
-        sendEpoch(5, baseLat = baseB) // cambia la base
-        sendEpoch(6, baseLat = baseB) // completa la época 5
+        sendEpoch(5, baseLat = baseA)
+        await(vm) { it.progress?.epochsUsed == 4 }
+        sendEpoch(6, baseLat = baseB) // cambia la base
+        sendEpoch(7, baseLat = baseB) // completa la época 6
 
         val state = await(vm) { it.restarted }
 
-        // Cuatro épocas de 1 s: la 5, que ya trae la base nueva, es la que empieza de nuevo.
+        // Cuatro épocas de 1 s, de la 2 a la 5 (la 1 ya estaba completa al empezar): la 6, que trae la base nueva, empieza de nuevo.
         state.restartedDiscardedS.shouldNotBeNull() shouldBe (4.0 plusOrMinus 1e-9)
         restartedAlerts shouldBe 1
         log.messages shouldContain "Medida de 1: se descartan 0:04 de promediado"
@@ -499,7 +502,7 @@ class CollectorViewModelAdvancedTest {
         receiving(vm)
         // La época 1 se completa por silencio antes de empezar, para que no cuente: así las cuatro épocas son siempre la 2 a la 5,
         // y cuando hay cuatro ya no queda ninguna pendiente que el silencio pueda sumar antes de Terminar (en un runner lento pasaba).
-        runBlocking { withTimeout(5_000) { session.state.first { it.epoch?.utcMillisOfDay == EPOCH_1_UTC_MS } } }
+        awaitEpoch(session, vm, EPOCH_1_UTC_MS)
         startMeasuring(vm)
         sendEpoch(2, lat = "4025.0080000")
         sendEpoch(3, lat = "4025.0080054") // 1 cm al norte
@@ -591,8 +594,19 @@ class CollectorViewModelAdvancedTest {
         startAuto(vm)
         (2..10).forEach { sendEpoch(it) }
         await(vm) { it.auto.saved >= 3 }
+        vm.stopAuto() // para que no siga guardando mientras se comprueba
 
-        val saved = runBlocking { points.points(projectId).first() }.sortedBy { it.name }
+        // El contador del modo automático va por delante de Room y del sonido: se espera a que los tres coincidan.
+        val saved = runBlocking {
+            withTimeout(10_000) {
+                var stored = points.points(projectId).first()
+                while (stored.size < 3 || stored.size != this@CollectorViewModelAdvancedTest.saved) {
+                    kotlinx.coroutines.delay(20)
+                    stored = points.points(projectId).first()
+                }
+                stored
+            }
+        }.sortedBy { it.name }
         saved shouldHaveAtLeastSize 3
         saved.take(3).map { it.name } shouldBe listOf("1", "2", "3")
         saved.all { it.measurement.shouldNotBeNull().quality.auto == true } shouldBe true
@@ -754,7 +768,7 @@ class CollectorViewModelAdvancedTest {
         await(vm) { it.savedName == "3" }
         vm.setName("2")
         collectorPreferences.settings.value = CollectorSettings(autoTrigger = AutoTrigger.TIME, autoIntervalS = 2)
-        await(vm) { it.settings.autoIntervalS == 2 && it.blocker == null }
+        await(vm) { it.settings.autoIntervalS == 2 && it.name == "2" && it.blocker == null }
         vm.setAutoEnabled(true)
         await(vm) { it.autoEnabled }
 
@@ -762,7 +776,7 @@ class CollectorViewModelAdvancedTest {
         (4..9).forEach { sendEpoch(it) }
         await(vm) { it.auto.saved >= 2 }
 
-        val names = runBlocking { points.points(projectId).first() }.map { it.name }.toSet()
+        val names = runBlocking { withTimeout(10_000) { points.points(projectId).first { it.size >= 4 } } }.map { it.name }.toSet()
         names shouldContain "2"
         names shouldContain "4" // el 3 ya estaba
     }

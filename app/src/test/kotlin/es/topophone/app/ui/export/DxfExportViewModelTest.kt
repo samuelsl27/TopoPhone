@@ -251,6 +251,7 @@ class DxfExportViewModelTest {
         val vm = viewModel()
         vm.await { it.loaded }
         vm.setTextHeight("0")
+        vm.await { !it.heightValid } // `writeTo` mira el estado, que llega un poco después
         val out = ByteArrayOutputStream()
 
         runBlocking { vm.writeTo(out, work()) } shouldBe false

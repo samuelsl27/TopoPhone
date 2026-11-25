@@ -29,7 +29,6 @@ import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.project.SaveResult
 import es.topophone.data.receiver.ReceiverTiltSettings
 import es.topophone.receiver.platform.Alerts
-import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.transport.StreamTransport
 import io.kotest.matchers.collections.shouldContain
@@ -166,7 +165,7 @@ class CollectorTiltTest {
         session.connect(StreamTransport("reach-RS3", PipedInputStream(toApp, 64 * 1024), ByteArrayOutputStream()))
         sendEpoch(0, etc)
         sendEpoch(1, etc)
-        runBlocking { withTimeout(5_000) { session.state.first { it.connection is ConnectionState.Receiving && it.epoch != null } } }
+        awaitReceiving(session, vm)
         await(vm) { it.live != null }
     }
 

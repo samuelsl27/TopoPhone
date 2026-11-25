@@ -24,7 +24,6 @@ import es.topophone.data.point.RoomPointRepository
 import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.project.SaveResult
 import es.topophone.receiver.platform.Alerts
-import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.transport.StreamTransport
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -159,7 +158,7 @@ class CollectorViewModelAdmittedTest {
         session.connect(StreamTransport("reach-RS3", PipedInputStream(toApp, 64 * 1024), ByteArrayOutputStream()))
         sendEpoch(0)
         sendEpoch(1)
-        runBlocking { withTimeout(5_000) { session.state.first { it.connection is ConnectionState.Receiving && it.epoch != null } } }
+        awaitReceiving(session, vm)
         await(vm) { it.live != null && it.blocker == null }
     }
 
@@ -167,9 +166,9 @@ class CollectorViewModelAdmittedTest {
      * Manda la época [second] en [status] y espera a que la anterior esté completa: la medida que empiece después usará la [second],
      * y no la última de `receiving`, que sigue abierta hasta que llegue otra.
      */
-    private fun sendThenSettle(second: Int, status: Int) {
+    private fun sendThenSettle(vm: CollectorViewModel, second: Int, status: Int) {
         sendEpoch(second, status)
-        runBlocking { withTimeout(5_000) { session.state.first { it.epoch?.utcMillisOfDay == (36_930 + second - 1) * 1_000 } } }
+        awaitEpoch(session, vm, (36_930 + second - 1) * 1_000)
     }
 
     private fun startMeasuring(vm: CollectorViewModel) = runBlocking {
@@ -202,7 +201,7 @@ class CollectorViewModelAdmittedTest {
         val vm = viewModel(CollectorSettings(precision = PrecisionControl(admitted = admitted)), projectId)
         receiving(vm)
 
-        sendThenSettle(2, status = 5)
+        sendThenSettle(vm, 2, status = 5)
         startMeasuring(vm)
         sendEpoch(3, status = 5)
         await(vm) { it.savedName == "1" }
@@ -220,7 +219,7 @@ class CollectorViewModelAdmittedTest {
         val vm = viewModel(CollectorSettings(), projectId)
         receiving(vm)
 
-        sendThenSettle(2, status = 5)
+        sendThenSettle(vm, 2, status = 5)
         startMeasuring(vm)
         sendEpoch(3, status = 5)
         val pending = await(vm) { it.pending != null && !it.measuring }.pending.shouldNotBeNull()
@@ -256,7 +255,7 @@ class CollectorViewModelAdmittedTest {
         vm.setAutoEnabled(true)
         await(vm) { it.autoEnabled }
         receiving(vm)
-        sendThenSettle(2, status = 5)
+        sendThenSettle(vm, 2, status = 5)
 
         runBlocking {
             withTimeout(10_000) {

@@ -357,7 +357,8 @@ class StakeoutViewModelTest {
         listOf("1", "2").forEach { addPoint(it) }
         val vm = viewModel()
         vm.open(projectId, "id-1")
-        await(vm) { it.target?.name == "1" }
+        // La lista de puntos llega de Room aparte del punto: sin ella, "Siguiente" no tiene adónde ir.
+        await(vm) { it.target?.name == "1" && it.hasNext }
 
         inProgress.set(true)
         await(vm) { it.measuring }
