@@ -40,3 +40,6 @@ __pycache__/
 
 # Documentos de terceros con derechos reservados: solo en local (RNF-T14)
 docs/referencias/**/*.pdf
+
+# QGIS (fichero de trabajo que deja al ejecutar scripts en el directorio actual)
+symbology-style.db
