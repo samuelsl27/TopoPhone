@@ -22,7 +22,10 @@ internal fun Project.addAndroidUnitTestDependencies() {
  * el runner compartido del CI (variable `CI`) los tiempos varían demasiado y dan falsos fallos, así que ahí no se ejecutan; en local sí.
  */
 internal fun Test.excludePerformanceTestsInCi() {
-    if (System.getenv("CI") != null) filter.excludeTestsMatching("*PerformanceTest")
+    if (System.getenv("CI") != null) {
+        filter.excludeTestsMatching("*PerformanceTest")
+        filter.excludeTestsMatching("*PerfTest")
+    }
 }
 
 /** Robolectric accede a internals del JDK que el JDK 17+ no exporta por defecto. */
