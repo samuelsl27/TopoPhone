@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. `tools/superficies`: casos de contorno (cuadrado de dos triángulos, malla con un hueco, dos islas, dos anillos que se tocan en un vértice) con el contorno esperado calculado aparte en Python puro, y los colores de referencia de la rampa de siete paradas. (Constitución nº 2, RF-6, RF-10)
+- [x] T1. `tools/superficies`: casos de contorno (cuadrado de dos triángulos, malla con un hueco, dos islas, dos anillos que se tocan en un vértice) con el contorno esperado calculado aparte en Python puro, y los colores de referencia de la rampa de siete paradas. (Constitución nº 2, RF-6, RF-10)
       Hecho cuando: el generador escribe los casos en `fixtures/superficies/` y su test de `tools` está en verde.
 - [ ] T2. `core:model`: `SurfaceNames.display` y `ElevationRamp`. (RF-1, RF-10)
       Hecho cuando: `SurfaceNamesTest` y `ElevationRampTest` en verde contra los valores de T1.

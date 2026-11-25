@@ -53,8 +53,8 @@ Cabecera con el número de formato y el de anillos; por anillo, si es exterior o
 
 ### A2. El contorno de un TIN (RF-6, RF-13)
 1. Cada triángulo aporta sus tres aristas como pares de vértices ordenados (menor, mayor). Una arista que aparece **una sola vez** es de borde (exterior o hueco); las que aparecen dos veces son interiores. Los triángulos invisibles ya no están (S042/RF-12), así que sus aristas quedan como borde del hueco.
-2. Se encadenan las aristas de borde por sus vértices en anillos cerrados. En un vértice con más de dos aristas de borde (dos anillos que se tocan en un punto) se toma la arista que gira más a la derecha, para que los anillos no se crucen.
-3. El anillo de mayor área absoluta es el exterior; los demás son huecos (una superficie de varias islas tiene varios exteriores: todo anillo que no esté dentro de otro es exterior).
+2. Cada arista de borde se dirige con el interior a su izquierda (la dirección que tiene en su triángulo, todos orientados antihorarios). Se encadenan en anillos cerrados; en un vértice con varias salidas (dos anillos que se tocan en un punto) se toma la que gira más a la izquierda respecto de la llegada, para que cada anillo rodee solo su interior y no se crucen.
+3. Así los exteriores salen antihorarios (área con signo positiva) y los huecos horarios (negativa); una superficie de varias islas tiene varios exteriores.
 4. Coste lineal con un mapa abierto de `Long` (par de índices) a recuento: con 1.000.000 de triángulos, unos 3 millones de aristas, menos de 2 s en el móvil.
 - Al importar se calcula con los arrays completos, antes de teselar. Para una superficie sin filas en `surface_outlines`, `SurfaceRepository.outline` lee todas sus teselas en segundo plano, une los vértices repetidos entre teselas por sus coordenadas exactas (un mismo vértice tiene el mismo `Double` en todas) y quita los triángulos repetidos, y después aplica 1 a 3; lo guarda para la siguiente vez.
 
