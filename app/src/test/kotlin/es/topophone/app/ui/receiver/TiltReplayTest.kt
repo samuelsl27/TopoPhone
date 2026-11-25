@@ -41,6 +41,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
+import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -106,6 +107,15 @@ class TiltReplayTest {
         toApp.flush()
     }
 
+    /** La hora UTC (ms del día) del GGA con que empieza un grupo: `$GNGGA,hhmmss.ss,...`. */
+    private fun utcMillisOf(group: String): Int {
+        val time = group.substringAfter(",").substringBefore(",")
+        val h = time.substring(0, 2).toInt()
+        val m = time.substring(2, 4).toInt()
+        val sMs = (time.substring(4).toDouble() * 1_000).roundToInt()
+        return (h * 3_600 + m * 60) * 1_000 + sMs
+    }
+
     private fun wizardProposes(name: String): WizardState.Proposed {
         val tilt = currentTilt(scope, MemoryTiltPreferences(), replaying = true)
         runBlocking { withTimeout(5_000) { tilt.state.first { it.key == TiltPreferences.REPLAY } } }
@@ -116,6 +126,10 @@ class TiltReplayTest {
         connect()
         send(groups.take(3)) // dos épocas completas: ya no falta nada
         runBlocking { withTimeout(5_000) { vm.state.first { it.wizard == WizardState.Ready(emptySet()) } } }
+        // La tercera se completa por silencio en el hilo de la sesión: se espera a ella antes de empezar, porque con Main sin confinar
+        // el asistente (que no es seguro entre hilos) recibía esa época a la vez que `startTest()` y perdía el inicio de la prueba.
+        val third = utcMillisOf(groups[2])
+        runBlocking { withTimeout(5_000) { session.state.first { it.epoch?.utcMillisOfDay == third } } }
         vm.startTest()
         send(groups.drop(3))
         return runBlocking { withTimeout(10_000) { vm.state.first { it.wizard is WizardState.Proposed } } }.wizard

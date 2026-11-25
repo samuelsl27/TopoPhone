@@ -455,7 +455,8 @@ class CollectorCodeViewModelTest {
         }
         choice.key.value = "val"
 
-        val ui = await(vm) { it.code.selected?.code == "VAL" && it.description == "Valla" }
+        // Los códigos propios llegan de otro flujo que el elegido: se esperan los dos (en el runner llegaba antes el elegido).
+        val ui = await(vm) { it.code.selected?.code == "VAL" && it.description == "Valla" && it.code.ownIds.isNotEmpty() }
         ui.description shouldBe "Valla"
         ui.code.selected?.symbol shouldBe CodeSymbol.STAR
         ui.code.ownIds.size shouldBe 1

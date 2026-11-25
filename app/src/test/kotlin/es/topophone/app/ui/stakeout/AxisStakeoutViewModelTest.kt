@@ -55,6 +55,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -532,7 +533,25 @@ class AxisStakeoutViewModelTest {
         return start()
     }
 
-    private fun AxisStakeoutViewModel.pair() = state.value.let { it.target?.chainageM?.let(Math::round) to it.code }
+    private fun AxisStakeoutViewModel.pair() = settled().let { it.target?.chainageM?.let(Math::round) to it.code }
+
+    /**
+     * `state` junta el modelo con otros flujos y llega un poco después de `next()` o `previous()`: se espera a que deje de cambiar
+     * (100 ms igual) en vez de leerlo al momento. En el runner del CI llegó a leerse el estado de antes de empezar.
+     */
+    private fun AxisStakeoutViewModel.settled(): AxisStakeoutUiState = runBlocking {
+        withTimeout(10_000) {
+            var last = state.value
+            var stable = 0
+            while (stable < 5) {
+                delay(20)
+                val now = state.value
+                if (now == last) stable++ else stable = 0
+                last = now
+            }
+            last
+        }
+    }
 
     private fun AxisStakeoutViewModel.walk(steps: Int): List<Pair<Long?, String?>> {
         val seen = mutableListOf(pair())

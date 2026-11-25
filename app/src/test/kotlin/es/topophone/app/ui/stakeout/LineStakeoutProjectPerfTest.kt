@@ -1,7 +1,6 @@
 package es.topophone.app.ui.stakeout
 
 import android.content.Context
-import androidx.lifecycle.viewModelScope
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -62,7 +61,7 @@ class LineStakeoutProjectPerfTest {
 
     @After
     fun tearDown() {
-        viewModels.forEach { it.viewModelScope.cancel() }
+        LineStakeoutTestSupport.cancelAndWait(viewModels)
         session.disconnect()
         sessionScope.cancel()
         db.close()

@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.lifecycle.viewModelScope
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -92,7 +91,7 @@ class LineStakeoutSegmentsTest {
 
     @After
     fun tearDown() {
-        viewModels.forEach { it.viewModelScope.cancel() }
+        LineStakeoutTestSupport.cancelAndWait(viewModels)
         session.disconnect()
         sessionScope.cancel()
         db.close()

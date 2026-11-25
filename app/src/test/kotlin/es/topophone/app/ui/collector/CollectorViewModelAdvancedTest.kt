@@ -358,10 +358,15 @@ class CollectorViewModelAdvancedTest {
     /** La hora del móvil [afterMs] después de ahora: para el reloj de la medida, que en los tests no avanza solo. */
     private fun later(afterMs: Long) = System.currentTimeMillis() + afterMs
 
-    /** Un promediado de 60 s con dos épocas usadas (la 1 y la 2), listo para que se corte. */
+    /**
+     * Un promediado de 60 s con dos épocas usadas (la 2 y la 3), listo para que se corte. La época 1 se completa por silencio antes de
+     * empezar y la 3 también al poco: así 2 es un estado estable. Antes contaban la 1 o la 3 según los tiempos, y en el runner del CI
+     * el recolector pasaba de 1 a 4 épocas sin llegar a verse 2.
+     */
     private fun measuringTwoEpochs(projectId: String = project()): CollectorViewModel {
         val vm = averagedViewModel(seconds = 60, projectId = projectId)
         receiving(vm)
+        runBlocking { withTimeout(5_000) { session.state.first { it.epoch?.utcMillisOfDay == EPOCH_1_UTC_MS } } }
         startMeasuring(vm)
         sendEpoch(2)
         sendEpoch(3)

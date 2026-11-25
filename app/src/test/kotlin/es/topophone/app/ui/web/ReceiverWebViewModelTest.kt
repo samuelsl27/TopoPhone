@@ -200,7 +200,7 @@ class ReceiverWebViewModelTest {
     fun `S043 RF-16 si la pagina termina de cargar se queda cargada y el temporizador no la rompe`() {
         runBlocking { equipment.saveWebAddress("AA:BB", "192.168.1.5") }
         val vm = viewModel()
-        vm.await { it.phase == WebPhase.LOADING }
+        vm.await { it.phase == WebPhase.LOADING && it.loadId > 0 } // la carga 0 es la inicial: se espera a la que empieza con la dirección
 
         vm.onPageFinished()
         scheduler.advanceTimeBy(60_000)
@@ -213,7 +213,7 @@ class ReceiverWebViewModelTest {
     fun `S043 RF-16 a los 10 segundos sin carga sale el fallo con sus causas`() {
         runBlocking { equipment.saveWebAddress("AA:BB", "192.168.1.5") }
         val vm = viewModel()
-        vm.await { it.phase == WebPhase.LOADING }
+        vm.await { it.phase == WebPhase.LOADING && it.loadId > 0 } // la carga 0 es la inicial: se espera a la que empieza con la dirección
 
         scheduler.advanceTimeBy(9_999)
         scheduler.runCurrent()
@@ -230,7 +230,7 @@ class ReceiverWebViewModelTest {
     fun `S043 RF-16 un error de la pagina principal tambien da el fallo`() {
         runBlocking { equipment.saveWebAddress("AA:BB", "192.168.1.5") }
         val vm = viewModel()
-        vm.await { it.phase == WebPhase.LOADING }
+        vm.await { it.phase == WebPhase.LOADING && it.loadId > 0 } // la carga 0 es la inicial: se espera a la que empieza con la dirección
 
         vm.onLoadError()
 
@@ -241,7 +241,7 @@ class ReceiverWebViewModelTest {
     fun `S043 RF-16 Reintentar vuelve a cargar con un temporizador nuevo y Abrir en el navegador da la misma URL`() {
         runBlocking { equipment.saveWebAddress("AA:BB", "192.168.1.5") }
         val vm = viewModel()
-        vm.await { it.phase == WebPhase.LOADING }
+        vm.await { it.phase == WebPhase.LOADING && it.loadId > 0 } // la carga 0 es la inicial: se espera a la que empieza con la dirección
         scheduler.advanceTimeBy(10_001)
         scheduler.runCurrent()
         val first = vm.await { it.phase == WebPhase.FAILED }

@@ -232,7 +232,8 @@ class CogoSaveTest {
         vm.await { it.solutions.size == 2 }
         vm.toggleMarked(IntersectionSide.LEFT)
         vm.toggleMarked(IntersectionSide.RIGHT)
-        vm.await { it.canSave }
+        // Las dos marcadas: con canSave basta la primera y la hoja se abría con una sola fila (en el runner pasó).
+        vm.await { it.markedCount == 2 && it.canSave }
         vm.openSave()
         vm.save.await { it.open }
 
@@ -251,7 +252,8 @@ class CogoSaveTest {
         vm.await { it.solutions.size == 2 }
         vm.toggleMarked(IntersectionSide.LEFT)
         vm.toggleMarked(IntersectionSide.RIGHT)
-        vm.await { it.canSave }
+        // Las dos marcadas: con canSave basta la primera y la hoja se abría con una sola fila (en el runner pasó).
+        vm.await { it.markedCount == 2 && it.canSave }
         vm.openSave()
         vm.save.await { it.open }
 

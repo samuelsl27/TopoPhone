@@ -45,7 +45,8 @@ class ReceiverWindowRecorderTest {
     @get:Rule
     val folder = TemporaryFolder()
 
-    private var now = 100_000L
+    // El reloj falso lo adelanta el test y lo leen los hilos de la sesión y del registrador.
+    @Volatile private var now = 100_000L
     private val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val recorderScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -148,9 +149,21 @@ class ReceiverWindowRecorderTest {
         session.startNtrip(NtripConfig("caster.es", 2101, "AVL13M", "anonimo", "anonimo", sendGga = false))
         blocks.trySend(rtcm.copyOfRange(0, 3_000))
         runBlocking { withTimeout(10_000) { session.state.first { it.ntrip is NtripState.Streaming } } }
-        now += 1_500
-        blocks.trySend(rtcm.copyOfRange(3_000, 9_000))
-        runBlocking { withTimeout(10_000) { while (recorder.snapshot().rtcmDelta.isNullOrEmpty()) kotlinx.coroutines.delay(20) } }
+        // Hacen falta dos fotos RTCM separadas 1 s del reloj falso y con mensajes nuevos entre medias. Las fotos se hacen en segundo plano
+        // cada 50 ms reales: si la primera llegaba después de adelantar el reloj, las dos caían a la misma hora y la ventana no se
+        // llenaba nunca. Mientras no haya diferencia, se manda otro trozo y se adelanta el reloj otra vez.
+        var offset = 3_000
+        runBlocking {
+            withTimeout(10_000) {
+                while (recorder.snapshot().rtcmDelta.isNullOrEmpty()) {
+                    now += 1_100
+                    val end = minOf(offset + 2_000, rtcm.size)
+                    if (offset < end) blocks.trySend(rtcm.copyOfRange(offset, end))
+                    offset = end
+                    kotlinx.coroutines.delay(150)
+                }
+            }
+        }
 
         recorder.ntripOpen shouldBe true
         recorder.snapshot().rtcmDelta!!.values.sum() longGreaterThan 0L
