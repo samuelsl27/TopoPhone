@@ -6,7 +6,7 @@
       Hecho cuando: el generador escribe los casos en `fixtures/superficies/` y su test de `tools` está en verde.
 - [x] T2. `core:model`: `SurfaceNames.display` y `ElevationRamp`. (RF-1, RF-10)
       Hecho cuando: `SurfaceNamesTest` y `ElevationRampTest` en verde contra los valores de T1.
-- [ ] T3. `core:model`: `SurfaceOutline` (anillos exteriores y huecos) y `SurfaceOutlineCodec`, partido en trozos de ≤ 256 kB. (RF-6)
+- [x] T3. `core:model`: `SurfaceOutline` (anillos exteriores y huecos) y `SurfaceOutlineCodec`, partido en trozos de ≤ 256 kB. (RF-6)
       Hecho cuando: `SurfaceOutlineCodecTest` en verde: ida y vuelta sin pérdida y un contorno que ocupa varios trozos.
 - [ ] T4. `core:survey`: `TinOutline.rings` (aristas de borde, encadenado, exterior y huecos, islas y vértices de dos anillos). (RF-6)
       Hecho cuando: `TinOutlineTest` en verde con los casos de T1 y `TinOutlinePerfTest` con 1.000.000 de triángulos en menos de 2 s en la JVM.
