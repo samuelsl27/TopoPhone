@@ -86,6 +86,11 @@ class SurfacesViewModel @Inject constructor(
         }
     }
 
+    /** Muestra u oculta la superficie en el mapa, sea o no la activa (S061/RF-3). */
+    fun setVisible(surfaceId: String, visible: Boolean) {
+        viewModelScope.launch(io) { surfaces.setVisible(surfaceId, visible) }
+    }
+
     /** Borra la superficie con sus teselas; si era la activa el proyecto queda sin ninguna y los puntos no se tocan (RF-18). */
     fun delete(surfaceId: String) {
         viewModelScope.launch(io) {

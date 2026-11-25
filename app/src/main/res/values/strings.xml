@@ -1574,6 +1574,7 @@
     <string name="surface_summary">%1$d puntos · %2$d triángulos · %3$d huecos</string>
     <string name="surface_size">%1$s × %2$s m · cota de %3$s a %4$s m</string>
     <string name="surface_state_active">Activa</string>
+    <string name="surface_visible">Ver en el mapa</string>
     <string name="surface_state_inactive">Inactiva</string>
     <string name="surface_activate">Activar</string>
     <string name="surface_deactivate">Desactivar</string>

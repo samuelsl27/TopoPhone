@@ -925,6 +925,7 @@ fun ProjectViewRoute(
         surfaces = surfaces,
         surfacesActions = SurfacesActions(
             onActivate = surfacesViewModel::activate, // S042/RF-16
+            onVisible = surfacesViewModel::setVisible, // S061/RF-3
             onDelete = surfacesViewModel::delete, // S042/RF-18
             onOffset = surfacesViewModel::setOffset, // S042/RF-19, RF-20
         ),

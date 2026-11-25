@@ -51,6 +51,7 @@ import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.surface.SurfaceNames
 import es.topophone.data.surface.SurfaceImportFailure
 import java.text.NumberFormat
 
@@ -227,7 +228,12 @@ private fun SurfaceChoices(state: SurfaceImportUiState, actions: SurfaceImportAc
         ) {
             RadioButton(selected = state.selected == index, onClick = null)
             Text(
-                stringResource(R.string.surface_choice, surface.name, surface.pointCount, surface.visibleFaceCount),
+                stringResource(
+                    R.string.surface_choice,
+                    SurfaceNames.display(surface.name, state.fileName), // S061/RF-1
+                    surface.pointCount,
+                    surface.visibleFaceCount,
+                ),
                 modifier = Modifier.padding(start = 12.dp),
             )
         }
