@@ -62,13 +62,12 @@ jobs:
       - name: Trazabilidad RF y tests (S001/RF-26, S001/RF-35)
         run: uv run --project tools tools/trazabilidad/rf_report.py
 
-      # Los tests de app (miles con Robolectric) van en el job app-tests, uno por variante y cada uno en su runner:
-      # todos en el mismo runner lo dejaban sin memoria y perdía la comunicación.
+      # Los tests de app (miles con Robolectric) van en el job app-tests, en su propio runner: todos en el mismo
+      # runner lo dejaban sin memoria y perdía la comunicación. Los tests unitarios de app solo existen en debug.
       - name: Gradle check (tests, Lint, ktlint, reglas de módulos, telemetría, Kover)
         run: >-
           ./gradlew check --stacktrace --continue --no-parallel
           -x :app:testStandardDebugUnitTest
-          -x :app:testStandardReleaseUnitTest
 
       - name: Guardar caché de Robolectric
         if: always() && steps.robolectric-cache.outputs.cache-hit != 'true'
@@ -94,7 +93,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variant: [StandardDebug, StandardRelease]
+        variant: [StandardDebug]
     steps:
       - name: Código (con etiquetas, para la versión)
         uses: actions/checkout@v7

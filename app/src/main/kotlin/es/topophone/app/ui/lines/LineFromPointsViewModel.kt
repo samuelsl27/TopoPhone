@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /** Por qué no se ha creado la línea del asistente (S025/RF-15). */
@@ -101,7 +102,11 @@ class LineFromPointsViewModel @Inject constructor(
     fun start(id: String) {
         if (projectId.value == id) return
         projectId.value = id
-        viewModelScope.launch { own.value = own.value.copy(loaded = true, name = lines.suggestName(id, null)) }
+        viewModelScope.launch {
+            val suggested = lines.suggestName(id, null)
+            // Se aplica sobre el estado de ahora, no sobre el de antes de sugerir: lo escrito mientras tanto no se pierde.
+            own.update { it.copy(loaded = true, name = if (it.nameTouched) it.name else suggested) }
+        }
     }
 
     fun setQuery(text: String) {
@@ -152,7 +157,9 @@ class LineFromPointsViewModel @Inject constructor(
         val id = projectId.value ?: return
         if (own.value.nameTouched) return
         viewModelScope.launch {
-            if (!own.value.nameTouched) own.value = own.value.copy(name = lines.suggestName(id, code))
+            val suggested = lines.suggestName(id, code)
+            // Antes se copiaba el estado leído ANTES de sugerir: un nombre escrito entretanto se perdía y volvía la sugerencia.
+            own.update { if (it.nameTouched) it else it.copy(name = suggested) }
         }
     }
 

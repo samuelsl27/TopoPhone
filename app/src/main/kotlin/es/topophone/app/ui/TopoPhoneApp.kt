@@ -106,6 +106,7 @@ import es.topophone.app.ui.stakeout.StakeoutReportRoute
 import es.topophone.app.ui.status.StatusIndicatorRoute
 import es.topophone.app.ui.surface.SurfaceImportRoute
 import es.topophone.core.model.preferences.ThemeState
+import kotlinx.coroutines.flow.first
 
 /**
  * Estructura de la app: barra inferior con las tres secciones y su contenido (S001/RF-2, S001/RF-3).
@@ -385,7 +386,12 @@ fun TopoPhoneApp(
 
     // S004/RF-9: la notificación del receptor abre Receptor, también con la app ya abierta en otra sección.
     LaunchedEffect(openReceiverRequest) {
-        if (openReceiverRequest > 0) navController.navigateToTopLevel(TopLevelDestination.RECEIVER)
+        if (openReceiverRequest > 0) {
+            // En frío, el NavHost (dentro del Scaffold) puede no tener aún su grafo y navigate() fallaría con IllegalStateException:
+            // la primera entrada de la pila llega cuando ya lo tiene.
+            navController.currentBackStackEntryFlow.first()
+            navController.navigateToTopLevel(TopLevelDestination.RECEIVER)
+        }
     }
 
     Scaffold(

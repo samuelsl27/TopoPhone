@@ -605,7 +605,8 @@ class CollectorViewModelAdvancedTest {
         (2..14).forEach { sendEpoch(it, lat = walking(it)) }
         await(vm) { it.auto.saved >= 3 }
 
-        val saved = runBlocking { points.points(projectId).first() }.sortedBy { it.name }
+        // El contador sube al empezar a guardar; el tercer punto llega a Room un poco después (en el runner se leían 2).
+        val saved = runBlocking { withTimeout(10_000) { points.points(projectId).first { it.size >= 3 } } }.sortedBy { it.name }
         saved shouldHaveAtLeastSize 3
         for ((previous, next) in saved.zipWithNext()) {
             val dn = checkNotNull(next.coordinates.northing) - checkNotNull(previous.coordinates.northing)

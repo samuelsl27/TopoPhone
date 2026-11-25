@@ -155,6 +155,9 @@ class CollectorViewModelTest {
     private fun await(vm: CollectorViewModel, predicate: (CollectorUiState) -> Boolean): CollectorUiState =
         runBlocking { withTimeout(10_000) { vm.state.first(predicate) } }
 
+    /** S013/RF-16: la medida en curso se anota aparte del estado del recolector y llega un poco después: se espera, no se lee al momento. */
+    private fun awaitInProgress(expected: Boolean) = runBlocking { withTimeout(10_000) { inProgress.active.first { it == expected } } }
+
     private fun connect() {
         session.connect(StreamTransport("reach-RS3", PipedInputStream(toApp, 64 * 1024), ByteArrayOutputStream()))
     }
@@ -401,11 +404,11 @@ class CollectorViewModelTest {
         vm.measure()
         sendEpoch(2)
         await(vm) { it.progress != null }
-        inProgress.active.value shouldBe true
+        awaitInProgress(true)
 
         vm.cancel()
         await(vm) { !it.measuring }
-        inProgress.active.value shouldBe false
+        awaitInProgress(false)
     }
 
     @Test
@@ -416,11 +419,11 @@ class CollectorViewModelTest {
         sendEpoch(2, status = 5)
         sendEpoch(3, status = 5)
         await(vm) { it.pending != null && !it.measuring }
-        inProgress.active.value shouldBe true
+        awaitInProgress(true)
 
         vm.discardPending()
         await(vm) { it.pending == null }
-        inProgress.active.value shouldBe false
+        awaitInProgress(false)
     }
 
     @Test
