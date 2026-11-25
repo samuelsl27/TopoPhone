@@ -53,7 +53,28 @@ data class SurfaceEntity(
     @ColumnInfo(name = "step_y") val stepY: Double? = null,
     @ColumnInfo(name = "data_cells") val dataCells: Long? = null,
     @ColumnInfo(name = "nodata_cells") val noDataCells: Long? = null,
+    /** Se dibuja en el mapa (S061/RF-3), independiente de cuál sea la activa. */
+    @ColumnInfo(defaultValue = "0") val visible: Boolean = false,
 )
+
+/**
+ * Un bloque del contorno de una superficie TIN (S061, plan «Room v41»): [data] es un bloque de `SurfaceOutlineCodec`, de hasta
+ * 256 kB, y [part] su orden. Es un dato derivado de las teselas: no viaja en las copias de seguridad ni en los paquetes y se
+ * vuelve a calcular si falta. Se borra con su superficie.
+ */
+@Entity(
+    tableName = "surface_outlines",
+    primaryKeys = ["surface_id", "part"],
+    foreignKeys = [
+        ForeignKey(entity = SurfaceEntity::class, parentColumns = ["id"], childColumns = ["surface_id"], onDelete = ForeignKey.CASCADE),
+    ],
+)
+data class SurfaceOutlineEntity(@ColumnInfo(name = "surface_id") val surfaceId: String, val part: Int, val data: ByteArray) {
+    override fun equals(other: Any?): Boolean =
+        other is SurfaceOutlineEntity && surfaceId == other.surfaceId && part == other.part && data.contentEquals(other.data)
+
+    override fun hashCode(): Int = 31 * (31 * surfaceId.hashCode() + part) + data.contentHashCode()
+}
 
 /**
  * Un bloque de 128 × 128 celdas de un ráster de cotas, en la columna [tileColumn] y la fila [tileRow] de la cuadrícula de bloques
@@ -216,4 +237,16 @@ interface SurfaceDao {
 
     @Query("UPDATE projects SET vertical_offset_m = :offsetM WHERE id = :projectId")
     suspend fun setVerticalOffset(projectId: String, offsetM: Double)
+
+    @Query("UPDATE surfaces SET visible = :visible WHERE id = :surfaceId")
+    suspend fun setVisible(surfaceId: String, visible: Boolean)
+
+    @Query("SELECT data FROM surface_outlines WHERE surface_id = :surfaceId ORDER BY part")
+    suspend fun outlineParts(surfaceId: String): List<ByteArray>
+
+    @Insert
+    suspend fun insertOutline(parts: List<SurfaceOutlineEntity>)
+
+    @Query("DELETE FROM surface_outlines WHERE surface_id = :surfaceId")
+    suspend fun deleteOutline(surfaceId: String)
 }

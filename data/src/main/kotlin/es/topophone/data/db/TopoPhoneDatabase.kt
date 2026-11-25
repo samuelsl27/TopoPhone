@@ -80,6 +80,7 @@ import es.topophone.data.slope.SlopeRuleEntity
 import es.topophone.data.surface.RasterTileEntity
 import es.topophone.data.surface.SurfaceDao
 import es.topophone.data.surface.SurfaceEntity
+import es.topophone.data.surface.SurfaceOutlineEntity
 import es.topophone.data.surface.SurfaceTileEntity
 import es.topophone.data.wms.ProjectWmsLayerEntity
 import es.topophone.data.wms.WmsDao
@@ -144,12 +145,15 @@ import es.topophone.data.wms.WmsServiceEntity
  *   igual) y los SC favoritos y recientes (`favorite_crs` y `recent_crs`). Migración de Room.
  * - v40 (S039): las localizaciones de cada proyecto (`localizations` y `localization_pairs`), la de cada punto GNSS (`points.localization_id`, que
  *   admite NULL) y los SC guardados con una localización (`localized_crs`). Solo añade tablas y una columna: migración de Room.
+ * - v41 (S061): si cada superficie se ve en el mapa (`surfaces.visible`, 0 por defecto; [SurfacesV41] deja visible la activa) y
+ *   el contorno de las superficies TIN (`surface_outlines`, un dato derivado que no viaja en las copias). Migración de Room.
  */
 @Database(
     entities = [
         ProjectEntity::class, ProjectFolderEntity::class, NtripProfileEntity::class, MapViewportEntity::class, PointEntity::class,
         PointHistoryEntity::class, PointNmeaEntity::class, CadDrawingEntity::class, CadLayerEntity::class, CadChunkEntity::class,
-        SurfaceEntity::class, SurfaceTileEntity::class, AntennaProfileEntity::class, SavedPoleEntity::class, ReceiverGearEntity::class,
+        SurfaceEntity::class, SurfaceTileEntity::class, SurfaceOutlineEntity::class, AntennaProfileEntity::class, SavedPoleEntity::class,
+        ReceiverGearEntity::class,
         CadChunkAttributesEntity::class, AlignmentEntity::class, RasterTileEntity::class, BaseShiftEntity::class,
         PointPhotoEntity::class, PhotoEventEntity::class, SectionTemplateEntity::class, SectionProfileEntity::class,
         SuperelevationRowEntity::class, SlopeRuleEntity::class, LinearSurveyEntity::class, LinearSurveyPointEntity::class,
@@ -203,6 +207,7 @@ import es.topophone.data.wms.WmsServiceEntity
         AutoMigration(from = 37, to = 38),
         AutoMigration(from = 38, to = 39),
         AutoMigration(from = 39, to = 40),
+        AutoMigration(from = 40, to = 41, spec = TopoPhoneDatabase.SurfacesV41::class),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -261,7 +266,7 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 40
+        const val VERSION = 41
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =
@@ -286,6 +291,16 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
     class PointsV8 : AutoMigrationSpec {
         override fun onPostMigrate(db: SupportSQLiteDatabase) {
             db.execSQL("UPDATE points SET tilt_mode = 'VERTICAL', tilt_verified = 0 WHERE origin = 'MEASURED'")
+        }
+    }
+
+    /** v40 → v41 (S061): las superficies que eran la activa de su proyecto quedan visibles en el mapa; las demás, ocultas. */
+    class SurfacesV41 : AutoMigrationSpec {
+        override fun onPostMigrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "UPDATE surfaces SET visible = 1 " +
+                    "WHERE id IN (SELECT active_surface_id FROM projects WHERE active_surface_id IS NOT NULL)",
+            )
         }
     }
 

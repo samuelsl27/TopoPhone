@@ -14,7 +14,7 @@
       Hecho cuando: `SurfaceViewSelectorTest` en verde a los dos lados de 20.000 triángulos y con la suma por encima de 60.000.
 - [x] T6. `core:survey`: `SurfaceViewSelector` para ráster (celdas de la vista por aritmética, recuadro densificado o la imagen de celdas con su color y transparente sin dato). (RF-8, RF-9, RF-10)
       Hecho cuando: `SurfaceViewSelectorRasterTest` en verde a los dos lados de 1.000.000 de celdas y con celdas sin dato.
-- [ ] T7. `data`: Room v41 (`surfaces.visible`, `surface_outlines`), su DAO, `AutoMigration(40, 41)` con la `AutoMigrationSpec` y el esquema 41 en `data/schemas/`. (RNF-T6, RF-3, RF-5)
+- [x] T7. `data`: Room v41 (`surfaces.visible`, `surface_outlines`), su DAO, `AutoMigration(40, 41)` con la `AutoMigrationSpec` y el esquema 41 en `data/schemas/`. (RNF-T6, RF-3, RF-5)
       Hecho cuando: `TopoPhoneDatabaseTest` 40 → 41 en verde: la superficie activa queda visible, las demás ocultas, y nada más cambia.
 - [ ] T8. `data`: `SurfaceRepository` con el nombre por defecto al leer, `setVisible`, `outline` (calcula y guarda el que falta), `tilesIn` y `heightAt` de cualquier superficie. (RF-2, RF-3, RF-6, RF-16, RF-18)
       Hecho cuando: `SurfaceRepositoryNameTest`, `SurfaceOutlineRepositoryTest` y `SurfaceHeightAtTest` en verde (TIN y ráster, ≤ 1 mm frente a `ActiveSurface`).
