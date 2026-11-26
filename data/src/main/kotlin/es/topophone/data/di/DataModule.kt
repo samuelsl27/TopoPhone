@@ -123,6 +123,7 @@ import es.topophone.data.surface.RoomSurfaceRepository
 import es.topophone.data.surface.SurfaceGuides
 import es.topophone.data.surface.SurfaceImporter
 import es.topophone.data.surface.SurfaceRepository
+import es.topophone.data.surface.SurfaceStakeStore
 import es.topophone.data.wms.ProjectLayersRepository
 import es.topophone.data.wms.RoomProjectLayersRepository
 import es.topophone.data.wms.RoomWmsLibraryRepository
@@ -352,6 +353,10 @@ object DatabaseModule {
     /** La misma, vista como quien da la superficie activa a los replanteos y al recolector (S042). */
     @Provides
     fun provideSurfaceGuides(provider: ActiveSurfaceProvider): SurfaceGuides = provider
+
+    /** Dejar activa y visible la superficie que se replantea (S062/RF-6). */
+    @Provides
+    fun provideSurfaceStakeStore(repository: SurfaceRepository): SurfaceStakeStore = SurfaceStakeStore.of(repository)
 
     @Provides
     fun provideSurfaceImporter(repository: SurfaceRepository): SurfaceImporter = SurfaceImporter(repository)

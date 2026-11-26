@@ -14,9 +14,11 @@ import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.EntryForm
+import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.HeadingChoice
 import es.topophone.core.model.point.HeightKind
 import es.topophone.core.model.point.NaturalOrder
+import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointSearch
 import es.topophone.core.model.point.PointSummary
 import es.topophone.core.model.point.StakeMode
@@ -40,6 +42,7 @@ import es.topophone.data.point.PointRepository
 import es.topophone.data.point.StakeoutPreferences
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.surface.SurfaceGuides
+import es.topophone.data.surface.SurfaceStakeStore
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
@@ -99,6 +102,10 @@ data class StakeoutUiState(
     val canChooseSource: Boolean = false,
     val surfaceRemoved: Boolean = false,
     val admitted: AdmittedSolutions = AdmittedSolutions.FIX_ONLY,
+    /** Se replantea la superficie solo en cota, sin punto de diseño (S062/RF-7). */
+    val surfaceOnly: Boolean = false,
+    /** El replanteo de la superficie se cerró porque dejó de ser la activa; la pantalla lo dice (S062/RF-22). */
+    val surfaceStakeEnded: Boolean = false,
 )
 
 /**
@@ -123,6 +130,7 @@ class StakeoutViewModel @Inject constructor(
     private val surfaces: SurfaceGuides = SurfaceGuides.NONE,
     private val baseShift: ActiveBaseShift = ActiveBaseShift.NONE,
     private val localization: ActiveLocalization = ActiveLocalization.NONE,
+    private val surfaceStakes: SurfaceStakeStore = SurfaceStakeStore.NONE,
 ) : ViewModel() {
     private val controller = StakeoutController(alerts, log)
 
@@ -147,6 +155,12 @@ class StakeoutViewModel @Inject constructor(
 
     /** La superficie con la que se replanteaba ya no está activa (S042/RF-27). */
     private val surfaceRemoved = MutableStateFlow(false)
+
+    /** La superficie que se replantea solo en cota, o null (S062/RF-6, RF-7). */
+    private val surfaceOnlyId = MutableStateFlow<String?>(null)
+
+    /** El replanteo de la superficie se cerró porque dejó de ser la activa (S062/RF-22). */
+    private val surfaceEnded = MutableStateFlow(false)
 
     @Volatile private var project: Project? = null
 
@@ -182,14 +196,20 @@ class StakeoutViewModel @Inject constructor(
     )
 
     /** Lo de la superficie que cambia con el panel abierto (agrupado para el `combine`). */
-    private data class SurfaceLive(val guide: SurfaceGuide?, val choice: ElevationSource?, val removed: Boolean)
+    private data class SurfaceLive(
+        val guide: SurfaceGuide?,
+        val choice: ElevationSource?,
+        val removed: Boolean,
+        val onlyId: String?,
+        val ended: Boolean,
+    )
 
     private val coreState = combine(
         projectFlow,
         target,
         ordered,
         combine(stakeoutPreferences.settings, controller.state, inProgress.active, notFound, elevationOverride, ::Live),
-        combine(surfaceGuide, sourceChoice, surfaceRemoved, ::SurfaceLive),
+        combine(surfaceGuide, sourceChoice, surfaceRemoved, surfaceOnlyId, surfaceEnded, ::SurfaceLive),
     ) { project, target, list, live, surface ->
         val index = target?.let { t -> list.indexOfFirst { it.id == t.id } } ?: -1
         val elevation = live.elevationOverride ?: target?.coordinates?.height
@@ -223,6 +243,8 @@ class StakeoutViewModel @Inject constructor(
             elevationSource = resolution.source,
             canChooseSource = resolution.canChoose,
             surfaceRemoved = surface.removed,
+            surfaceOnly = surface.onlyId != null,
+            surfaceStakeEnded = surface.ended,
         )
     }
 
@@ -236,6 +258,12 @@ class StakeoutViewModel @Inject constructor(
             // S042/RF-27: si la superficie con la que se replanteaba deja de estar activa, se avisa y se sigue con la cota del punto.
             var previous: SurfaceGuide? = null
             surfaceGuide.collect { guide ->
+                // S062/RF-22: la superficie que se replanteaba deja de ser la activa (desactivada, borrada u otra): se cierra.
+                val only = surfaceOnlyId.value
+                if (only != null && previous?.surface?.id == only && guide?.surface?.id != only) {
+                    close()
+                    surfaceEnded.value = true
+                }
                 if (previous != null && guide == null && resolution(previous).source == ElevationSource.SURFACE) surfaceRemoved.value = true
                 if (guide != null) surfaceRemoved.value = false
                 previous = guide
@@ -296,6 +324,7 @@ class StakeoutViewModel @Inject constructor(
         notFound.value = false
         elevationOverride.value = null
         fromDrawing = true
+        surfaceOnlyId.value = null
         sourceChoice.value = null
         surfaceRemoved.value = false
         targetId.value = null
@@ -319,9 +348,46 @@ class StakeoutViewModel @Inject constructor(
         log.info(LogCategory.POINTS, "Replanteo abierto") // S014/RF-5
     }
 
+    /**
+     * Abre el replanteo de la superficie [surfaceId] solo en cota (S062/RF-6, RF-7): la deja activa y visible si no lo era y la
+     * replantea sin punto de diseño, contra su cota con el desplazamiento vertical del proyecto.
+     */
+    fun openSurface(projectId: String, surfaceId: String) {
+        this.projectId.value = projectId
+        searchText.value = ""
+        controller.reset()
+        notFound.value = false
+        elevationOverride.value = null
+        fromDrawing = true // el objetivo no es un punto del proyecto: la lista de puntos no lo toca
+        sourceChoice.value = ElevationSource.SURFACE
+        surfaceRemoved.value = false
+        surfaceEnded.value = false
+        targetId.value = null
+        target.value = null
+        surfaceOnlyId.value = surfaceId
+        viewModelScope.launch {
+            val surface = surfaceStakes.prepare(projectId, surfaceId) ?: return@launch
+            if (surfaceOnlyId.value != surfaceId) return@launch // se cerró o se abrió otro mientras tanto
+            target.value = StakeTarget(
+                id = "surface:$surfaceId",
+                name = surface.name,
+                description = "",
+                coordinates = PointCoordinates(GeodeticPosition(0.0, 0.0, null), null, null, null),
+                source = StakeSource.Surface(surface.name),
+            )
+        }
+        log.info(LogCategory.POINTS, "Replanteo de superficie abierto") // S014/RF-5
+    }
+
+    /** La pantalla ya dijo que el replanteo de la superficie se cerró (S062/RF-22). */
+    fun dismissSurfaceEnded() {
+        surfaceEnded.value = false
+    }
+
     /** Cierra el replanteo y empieza de cero (S018/RF-3). */
     fun close() {
         fromDrawing = false
+        surfaceOnlyId.value = null
         targetId.value = null
         target.value = null
         notFound.value = false
@@ -347,6 +413,7 @@ class StakeoutViewModel @Inject constructor(
 
     private fun goTo(pointId: String) {
         fromDrawing = false
+        surfaceOnlyId.value = null
         controller.reset()
         notFound.value = false
         elevationOverride.value = null // S019/RF-3: la cota escrita no pasa al punto siguiente
@@ -432,10 +499,11 @@ class StakeoutViewModel @Inject constructor(
             calculator.get(),
             elevationOverride.value,
             surface = guide,
-            elevationSource = resolution(guide).source,
+            elevationSource = if (surfaceOnlyId.value != null) ElevationSource.SURFACE else resolution(guide).source,
             profile = profile,
             shift = activeShift.value?.vector, // S020/RF-7
             localization = activeLocalization.value?.params, // S039/RF-17
+            surfaceOnly = surfaceOnlyId.value != null, // S062/RF-7
         )
     }
 }

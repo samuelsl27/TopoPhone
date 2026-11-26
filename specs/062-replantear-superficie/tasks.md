@@ -10,7 +10,7 @@
       Hecho cuando: `StakeoutReportCsvSurfaceTest` en verde y los demás dorados del informe no cambian.
 - [x] T4. `app`: `StakeoutController` con `surfaceOnly`: el objetivo es la punta, sin zonas ni avisos horizontales, el nivel con el desplazamiento y fuera de la superficie. (RF-7 a RF-9, RF-13, RF-15)
       Hecho cuando: `SurfaceOnlyControllerTest` en verde y los tests de `StakeoutController` siguen en verde.
-- [ ] T5. `app`: `StakeoutViewModel.openSurface`: activar y mostrar la superficie, el objetivo, el `StakeSaveInfo`, y el cierre cuando la superficie deja de ser la activa. (RF-6, RF-22)
+- [x] T5. `app`: `StakeoutViewModel.openSurface`: activar y mostrar la superficie, el objetivo, el `StakeSaveInfo`, y el cierre cuando la superficie deja de ser la activa. (RF-6, RF-22)
       Hecho cuando: `SurfaceStakeOpenTest` en verde.
 - [ ] T6. `app`: el recolector con origen superficie: SUP1, SUP2…, el bloqueo «Fuera de la superficie», lo guardado con la cota en la posición medida y la confirmación. (RF-14, RF-16 a RF-19)
       Hecho cuando: `SurfaceStakeCollectorTest` en verde (≤ 1 mm frente al plano).
