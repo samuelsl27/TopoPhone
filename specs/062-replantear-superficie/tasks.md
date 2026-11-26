@@ -4,7 +4,7 @@
 
 - [x] T1. `core:model` y `core:survey`: `StakeSource.Surface`, `StakeoutNames.nextSurface` y `StakeoutDiff.surfaceRef`. (RF-16 a RF-18)
       Hecho cuando: `StakeoutNamesSurfaceTest` y `SurfaceRefTest` en verde (desmonte, terraplén, en cota, sin tolerancia horizontal).
-- [ ] T2. `data`: Room v42 (`points.stake_surface_only`), `AutoMigration(41, 42)`, el esquema 42 y el paso de `PointEntity` a `StakeSource.Surface` y al revés. (RF-17, RNF-T6)
+- [x] T2. `data`: Room v42 (`points.stake_surface_only`), `AutoMigration(41, 42)`, el esquema 42 y el paso de `PointEntity` a `StakeSource.Surface` y al revés. (RF-17, RNF-T6)
       Hecho cuando: `Migration41To42Test` y el test de ida y vuelta de un punto de origen superficie (también en una copia) en verde.
 - [ ] T3. `core:formats`: `StakeoutReportCsv` con las filas de origen superficie y los dorados regenerados. (RF-21)
       Hecho cuando: `StakeoutReportCsvSurfaceTest` en verde y los demás dorados del informe no cambian.

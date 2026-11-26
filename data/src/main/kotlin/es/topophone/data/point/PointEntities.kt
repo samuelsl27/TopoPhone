@@ -221,6 +221,9 @@ data class PointEntity(
     // foránea: la línea puede borrarse y el punto los conserva, RF-16); NULL en los demás.
     @ColumnInfo(name = "stake_line_id") val stakeLineId: String? = null,
     @ColumnInfo(name = "stake_line_name") val stakeLineName: String? = null,
+    // S062/RF-17: 1 si se replanteó la superficie solo en cota, sin punto de diseño (el nombre de la superficie va en
+    // `stake_design_name`); NULL en los demás.
+    @ColumnInfo(name = "stake_surface_only") val stakeSurfaceOnly: Boolean? = null,
     /** El codigo con que se guardo el punto, por valor (S024/RF-10, plan D3); NULL si no lleva. [codeColor] es 0xRRGGBB. */
     val code: String? = null,
     @ColumnInfo(name = "code_description") val codeDescription: String? = null,
@@ -435,6 +438,7 @@ internal fun Point.toEntity(): PointEntity {
         stakeAxis = (staked?.source as? StakeSource.Alignment)?.alignmentName,
         stakeLineId = (staked?.source as? StakeSource.ProjectLine)?.lineId,
         stakeLineName = (staked?.source as? StakeSource.ProjectLine)?.lineName,
+        stakeSurfaceOnly = true.takeIf { staked?.source is StakeSource.Surface },
         stakeThickness = staked?.thicknessM,
         stakeDChainage = staked?.dChainageM,
         stakeElevSource = staked?.elevationSource?.name,
@@ -566,6 +570,7 @@ private fun PointEntity.slopeInfo(): SlopeStakeInfo? {
 
 /** El dibujo, la capa y el tipo del elemento replanteado; el punto del proyecto si no vino de un dibujo (S041/RF-28). */
 private fun PointEntity.cadSource(): StakeSource {
+    if (stakeSurfaceOnly == true) return StakeSource.Surface(stakeDesignName.orEmpty()) // S062/RF-17
     stakeLineId?.let { return StakeSource.ProjectLine(it, stakeLineName.orEmpty()) } // S027/RF-12
     stakeAxis?.let { return StakeSource.Alignment(it) } // S054/RF-10
     val drawing = stakeCadDrawing ?: return StakeSource.ProjectPoint

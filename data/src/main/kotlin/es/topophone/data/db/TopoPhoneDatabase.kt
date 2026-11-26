@@ -147,6 +147,8 @@ import es.topophone.data.wms.WmsServiceEntity
  *   admite NULL) y los SC guardados con una localización (`localized_crs`). Solo añade tablas y una columna: migración de Room.
  * - v41 (S061): si cada superficie se ve en el mapa (`surfaces.visible`, 0 por defecto; [SurfacesV41] deja visible la activa) y
  *   el contorno de las superficies TIN (`surface_outlines`, un dato derivado que no viaja en las copias). Migración de Room.
+ * - v42 (S062): si un punto replanteado lo fue contra la superficie solo en cota (`points.stake_surface_only`, que admite NULL).
+ *   Migración de Room.
  */
 @Database(
     entities = [
@@ -208,6 +210,7 @@ import es.topophone.data.wms.WmsServiceEntity
         AutoMigration(from = 38, to = 39),
         AutoMigration(from = 39, to = 40),
         AutoMigration(from = 40, to = 41, spec = TopoPhoneDatabase.SurfacesV41::class),
+        AutoMigration(from = 41, to = 42),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -266,7 +269,7 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 41
+        const val VERSION = 42
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =
