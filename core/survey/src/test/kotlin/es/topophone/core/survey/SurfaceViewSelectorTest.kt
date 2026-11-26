@@ -59,9 +59,9 @@ class SurfaceViewSelectorTest {
 
         val mesh = SurfaceViewSelector.tin(cells.map { it.tile }, half, ramp).shouldBeInstanceOf<TinView.Mesh>()
 
-        // En la vista caen 100 columnas de celdas (20.000 triángulos, que no pasan del límite); con la vista ampliada 49,75 m
-        // a la derecha se dibujan 125 columnas.
-        mesh.triangles.count shouldBe 25_000
+        // En la vista caen 100 columnas de celdas (20.000 triángulos, que no pasan del límite); con la vista ampliada 19,9 m
+        // a la derecha se dibujan 110 columnas.
+        mesh.triangles.count shouldBe 22_000
     }
 
     @Test
@@ -78,15 +78,15 @@ class SurfaceViewSelectorTest {
     }
 
     @Test
-    fun `S061 RF-6 con la suma del indice por encima de 60000 no se lee ningun bloque`() {
-        val index = listOf(TileBox(viewOf(10, 10), 40_000), TileBox(viewOf(10, 10), 30_000))
+    fun `S061 RF-6 con la suma del indice por encima de 120000 no se lee ningun bloque`() {
+        val index = listOf(TileBox(viewOf(10, 10), 70_000), TileBox(viewOf(10, 10), 60_000))
 
         SurfaceViewSelector.tilesToRead(index, viewOf(10, 10)).shouldBeNull()
     }
 
     @Test
     fun `S061 RF-7 se leen solo las teselas que cortan la vista ampliada`() {
-        val near = TileBox(SurfaceExtent(e0 + 21.0, e0 + 30.0, n0, n0 + 20.0), 500) // a 1 m: dentro del 25 % de 20 m
+        val near = TileBox(SurfaceExtent(e0 + 21.0, e0 + 30.0, n0, n0 + 20.0), 500) // a 1 m: dentro del 10 % de 20 m
         val far = TileBox(SurfaceExtent(e0 + 100.0, e0 + 120.0, n0, n0 + 20.0), 500)
         val inside = TileBox(viewOf(5, 5), 500)
 

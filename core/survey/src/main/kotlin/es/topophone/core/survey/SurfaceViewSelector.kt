@@ -31,7 +31,7 @@ sealed interface TinView {
 /**
  * Decide qué se dibuja de una superficie según lo que corta la vista del mapa (S061, plan A3).
  *
- * 1. [tilesToRead] suma los triángulos de las teselas del índice que cortan la vista ampliada un 25 %: si pasan de
+ * 1. [tilesToRead] suma los triángulos de las teselas del índice que cortan la vista ampliada un 10 %: si pasan de
  *    [MAX_INDEX_TRIANGLES] se dibuja solo el contorno sin leer ningún bloque.
  * 2. [tin] quita los triángulos repetidos entre teselas, cuenta los que cortan la vista sin ampliar y, con más de
  *    [MAX_MESH_TRIANGLES], vuelve al contorno; si no, entrega los que cortan la vista ampliada con el color de su cota media.
@@ -41,10 +41,10 @@ object SurfaceViewSelector {
     const val MAX_MESH_TRIANGLES = 20_000
 
     /** La suma del índice a partir de la cual no se leen bloques. */
-    const val MAX_INDEX_TRIANGLES = 60_000
+    const val MAX_INDEX_TRIANGLES = 120_000
 
     /** Lo que se amplía la vista por cada lado para cargar, en fracción de su ancho y su alto. */
-    const val VIEW_MARGIN = 0.25
+    const val VIEW_MARGIN = 0.1
 
     fun enlarge(view: SurfaceExtent, margin: Double = VIEW_MARGIN): SurfaceExtent {
         val de = (view.maxEasting - view.minEasting) * margin

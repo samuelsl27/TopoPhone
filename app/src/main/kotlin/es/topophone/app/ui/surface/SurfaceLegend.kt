@@ -50,7 +50,7 @@ fun SurfaceLegend(ramp: ElevationRamp, unit: LinearUnit, modifier: Modifier = Mo
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(max, style = MaterialTheme.typography.labelMedium)
-        Box(Modifier.padding(vertical = 4.dp).width(16.dp).height(120.dp).background(Brush.verticalGradient(colors)))
+        Box(Modifier.padding(vertical = 4.dp).width(16.dp).height(96.dp).background(Brush.verticalGradient(colors)))
         Text(min, style = MaterialTheme.typography.labelMedium)
     }
 }

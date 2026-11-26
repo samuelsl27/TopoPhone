@@ -457,6 +457,9 @@ class ProjectViewModel @Inject constructor(
 /** Lo que la cámara del mapa espera quieta antes de recargar el dibujo importado (S040/RF-24). */
 private const val DESIGN_DEBOUNCE_MS = 150L
 
+/** S061/RF-11: la leyenda va arriba a la izquierda, por debajo de donde salen los avisos sin conexión. */
+private val LEGEND_TOP = 64.dp
+
 @Composable
 fun ProjectViewRoute(
     projectId: String,
@@ -1258,7 +1261,7 @@ fun ProjectViewScreen(
             val legendRamp = surfaceScene?.ramp
             val legendUnit = state.project?.linearUnit
             if (legendRamp != null && legendUnit != null) {
-                SurfaceLegend(legendRamp, legendUnit, Modifier.align(Alignment.CenterStart).padding(12.dp))
+                SurfaceLegend(legendRamp, legendUnit, Modifier.align(Alignment.TopStart).padding(start = 12.dp, top = LEGEND_TOP))
             }
             Column(
                 modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),

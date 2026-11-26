@@ -40,6 +40,11 @@ class SurfaceGeoJsonTest {
     }
 
     @Test
+    fun `S061 RF-12 el relleno va debajo de las aristas y el contorno encima de todo`() {
+        SurfaceGeoJson.LAYERS_BOTTOM_UP shouldBe listOf(SurfaceLayerKind.FILL, SurfaceLayerKind.EDGES, SurfaceLayerKind.OUTLINE)
+    }
+
+    @Test
     fun `S061 RF-6 sin nada que dibujar las fuentes quedan vacias`() {
         SurfaceGeoJson.mesh(emptyList()).features()!!.size shouldBe 0
         SurfaceGeoJson.outlines(emptyList()).features()!!.size shouldBe 0

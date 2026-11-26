@@ -48,6 +48,9 @@ class SurfaceScene(
     val colored: Boolean get() = meshes.any { it.count > 0 } || images.isNotEmpty()
 }
 
+/** Las capas de las superficies en el mapa (S061/RF-12). Las imágenes de los rásteres van aparte, debajo de todas. */
+enum class SurfaceLayerKind { FILL, EDGES, OUTLINE }
+
 /** El GeoJSON de la malla y del contorno de una [SurfaceScene] para las fuentes del mapa (S061, plan A5). */
 object SurfaceGeoJson {
     /** Propiedad con el color `#RRGGBB` de un triángulo. */
@@ -55,6 +58,12 @@ object SurfaceGeoJson {
 
     /** Propiedad que marca el contorno de la superficie activa. */
     const val ACTIVE = "active"
+
+    /**
+     * El orden de las capas, de abajo arriba: el relleno, las aristas encima y el contorno encima de todo. Todas van justo encima
+     * del ancla de las capas WMS, y por tanto encima del mapa base y de las WMS y debajo de líneas, dibujos y puntos (S061/RF-12).
+     */
+    val LAYERS_BOTTOM_UP = listOf(SurfaceLayerKind.FILL, SurfaceLayerKind.EDGES, SurfaceLayerKind.OUTLINE)
 
     fun mesh(meshes: List<SurfaceMeshLayer>): FeatureCollection = FeatureCollection.fromFeatures(
         meshes.flatMap { mesh ->

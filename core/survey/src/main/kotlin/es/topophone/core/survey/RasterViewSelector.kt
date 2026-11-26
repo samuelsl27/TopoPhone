@@ -26,7 +26,7 @@ sealed interface RasterView {
 /**
  * Decide qué se dibuja de un ráster según las celdas que caen en la vista (S061, plan A4). Las celdas se cuentan con la aritmética
  * de la malla, sin leer nada; con más de [MAX_CELLS] se dibuja el recuadro y si no, una imagen de las celdas de la vista ampliada
- * un 25 % ([SurfaceViewSelector.VIEW_MARGIN]).
+ * un 10 % ([SurfaceViewSelector.VIEW_MARGIN]).
  */
 object RasterViewSelector {
     const val MAX_CELLS = 1_000_000L

@@ -13,6 +13,7 @@ import android.os.Looper
 import es.topophone.app.ui.alignment.AlignmentScene
 import es.topophone.app.ui.cad.DesignScene
 import es.topophone.app.ui.surface.SurfaceGeoJson
+import es.topophone.app.ui.surface.SurfaceLayerKind
 import es.topophone.app.ui.surface.SurfaceScene
 import es.topophone.core.formats.wms.WmsRequests
 import es.topophone.core.geodesy.AccuracyCircle
@@ -483,34 +484,32 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         surfaceImageIds.clear()
         style.addSource(GeoJsonSource(SURFACE_MESH_SOURCE))
         style.addSource(GeoJsonSource(SURFACE_OUTLINE_SOURCE))
-        style.addLayerAbove(
-            LineLayer(SURFACE_OUTLINE_LAYER, SURFACE_OUTLINE_SOURCE).withProperties(
-                PropertyFactory.lineColor(SURFACE_OUTLINE_COLOR),
-                PropertyFactory.lineWidth(
-                    Expression.switchCase(
-                        Expression.get(SurfaceGeoJson.ACTIVE),
-                        Expression.literal(SURFACE_ACTIVE_OUTLINE_DP),
-                        Expression.literal(SURFACE_OUTLINE_DP),
-                    ),
+        // S061/RF-12: cada capa se pone justo encima del ancla, así que se añaden de la de arriba a la de abajo.
+        SurfaceGeoJson.LAYERS_BOTTOM_UP.asReversed().forEach { kind -> style.addLayerAbove(surfaceLayer(kind), WMS_ANCHOR_LAYER) }
+    }
+
+    private fun surfaceLayer(kind: SurfaceLayerKind) = when (kind) {
+        // RF-10: semitransparente para ver el mapa base
+        SurfaceLayerKind.FILL -> FillLayer(SURFACE_FILL_LAYER, SURFACE_MESH_SOURCE).withProperties(
+            PropertyFactory.fillColor(Expression.toColor(Expression.get(SurfaceGeoJson.COLOR))),
+            PropertyFactory.fillOpacity(SURFACE_FILL_OPACITY),
+        )
+        SurfaceLayerKind.EDGES -> LineLayer(SURFACE_EDGES_LAYER, SURFACE_MESH_SOURCE).withProperties(
+            PropertyFactory.lineColor(SURFACE_EDGE_COLOR),
+            PropertyFactory.lineWidth(SURFACE_EDGE_DP),
+            PropertyFactory.lineOpacity(SURFACE_EDGE_OPACITY),
+        )
+        // RF-13: la activa, más gruesa
+        SurfaceLayerKind.OUTLINE -> LineLayer(SURFACE_OUTLINE_LAYER, SURFACE_OUTLINE_SOURCE).withProperties(
+            PropertyFactory.lineColor(SURFACE_OUTLINE_COLOR),
+            PropertyFactory.lineWidth(
+                Expression.switchCase(
+                    Expression.get(SurfaceGeoJson.ACTIVE),
+                    Expression.literal(SURFACE_ACTIVE_OUTLINE_DP),
+                    Expression.literal(SURFACE_OUTLINE_DP),
                 ),
             ),
-            WMS_ANCHOR_LAYER,
-        ) // RF-13: la activa, más gruesa
-        style.addLayerAbove(
-            LineLayer(SURFACE_EDGES_LAYER, SURFACE_MESH_SOURCE).withProperties(
-                PropertyFactory.lineColor(SURFACE_EDGE_COLOR),
-                PropertyFactory.lineWidth(SURFACE_EDGE_DP),
-                PropertyFactory.lineOpacity(SURFACE_EDGE_OPACITY),
-            ),
-            WMS_ANCHOR_LAYER,
         )
-        style.addLayerAbove(
-            FillLayer(SURFACE_FILL_LAYER, SURFACE_MESH_SOURCE).withProperties(
-                PropertyFactory.fillColor(Expression.toColor(Expression.get(SurfaceGeoJson.COLOR))),
-                PropertyFactory.fillOpacity(SURFACE_FILL_OPACITY),
-            ),
-            WMS_ANCHOR_LAYER,
-        ) // RF-10: semitransparente para ver el mapa base
     }
 
     /** La escena de las superficies en las fuentes del estilo; las imágenes de rásteres se añaden, se cambian o se quitan (S061, A5). */

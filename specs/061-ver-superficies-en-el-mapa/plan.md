@@ -60,8 +60,8 @@ Cabecera con el número de formato y el de anillos; por anillo, si es exterior o
 
 ### A3. Qué se dibuja de un TIN (RF-6, RF-7, RF-10)
 Al pararse la cámara (150 ms sin movimiento, como S040 A10), para cada superficie TIN visible:
-1. La vista se pasa al SC del proyecto como recuadro, ampliada un 25 %.
-2. Con el índice de `surface_tiles` (recuadro y `triangle_count`, sin leer bloques) se suman los triángulos de las teselas que cortan la vista. Si la suma pasa de 60.000, se dibuja **solo el contorno** sin leer ningún bloque (una tesela puede salirse de la vista, así que la suma es una cota superior).
+1. La vista se pasa al SC del proyecto como recuadro, ampliada un 10 % por lado.
+2. Con el índice de `surface_tiles` (recuadro y `triangle_count`, sin leer bloques) se suman los triángulos de las teselas que cortan la vista. Si la suma pasa de 120.000, se dibuja **solo el contorno** sin leer ningún bloque (una tesela puede salirse de la vista, así que la suma es una cota superior).
 3. Si no, se leen esas teselas, se quitan los triángulos repetidos entre teselas y se cuentan los que cortan la vista **sin ampliar**. Con más de 20.000, solo el contorno (RF-6); con 20.000 o menos, la malla (RF-7).
 4. Cada triángulo de la malla lleva como color `ElevationRamp.argb(cota media de sus tres vértices)`.
 5. Los vértices se pasan a latitud y longitud con el mismo cálculo que el resto de la app (`ProjectPositionCalculator`), en `Dispatchers.Default` (RNF-T13).
@@ -145,3 +145,17 @@ El interruptor y el botón de 56 dp; la leyenda lleva las cifras, no solo los co
 ## Pendiente para otras specs
 - S062 añade el botón «Replantear» a la ficha y a la tarjeta de A7, y usa `setVisible` al replantear una superficie oculta.
 - La base de datos pasa de la v40 a la v41; S062 tomará la siguiente si la necesita.
+
+## Cambios al implementar (S061)
+- Umbrales (T16): con la vista ampliada un 25 % (2,25 veces el área) y el corte del índice en 60.000, una vista con 20.000 triángulos acababa casi siempre en «solo contorno», en contra de RF-7. La vista se amplía un 10 % por lado (1,44 veces: como mucho unos 29.000 triángulos dibujados) y el corte del índice, que es solo una cota superior para no leer bloques, pasa a 120.000.
+- La parte del ráster va en `RasterViewSelector`, aparte de `SurfaceViewSelector`, porque trabaja en el SC del ráster (T6).
+- La cota de una superficie que no es la activa va en `SurfaceProbe` (`data`) y no en `SurfaceRepository`: un ráster necesita el SC, el sistema de alturas y el terreno del proyecto, que el repositorio no conoce (T8). El ráster pide sus bloques por una fuente que no puede esperar a la base: se pregunta, se leen los que faltaron y se vuelve a preguntar.
+- El contorno de una superficie importada antes de S061 sale de unir sus teselas con `TileMerger` (vértices por sus coordenadas exactas y triángulos sin repetir) antes de `TinOutline` (T8).
+- `TinOutline` dirige cada arista de borde con el interior a la izquierda y, en un vértice compartido por dos anillos, toma el giro más a la izquierda (no a la derecha, como decía A2 antes de T1). Con un millón de triángulos tarda unos 155 ms en la JVM; ordena un `LongArray` de aristas (unos 24 MB) en lugar de usar un mapa.
+- `RasterElevation.rasterPosition` expone los pasos 1 y 2 de la cota (del proyecto al SC del ráster) para saber qué celdas caen en la vista; la imagen y el recuadro vuelven al mapa por `SurfaceProjector`, como `RasterFootprint` al importar (T12).
+- `MapCamera` lleva el recuadro visible (`bounds`) para contar los triángulos «dentro de la vista» con la pantalla real (T12).
+- «Ir a la superficie» usa `MapController.fitBounds`, que cuenta como un gesto del usuario: el seguimiento del rover y el del replanteo se paran igual que al mover el mapa a mano (T14).
+- La tarjeta del toque (T15) solo se muestra si no hay un eje ni un elemento de dibujo bajo el dedo; los puntos y las líneas ya no llegan como toque del mapa.
+- Arreglo aparte (0784a5df): `LibraryResources.current` quedaba en null si `BundledLibraryResources` se inicializaba primero; los tests de la biblioteca de SC fallaban según el orden.
+- Leyenda (T13, T16): arriba a la izquierda, 64 dp por debajo del borde para dejar sitio a los avisos sin conexión; a media altura tapaba la barra de escala en la demo.
+- Demo (T16) en el emulador: un LandXML de cerca de 1.000.000 de triángulos sin nombre sale con el nombre del fichero, «Ir a la superficie» lo encuadra con su contorno y el toque da su cota; una superficie sintética de 7.168 triángulos sale con la malla coloreada, el hueco y la leyenda, y al ocultar la otra la rampa se recalcula. El doble toque de adb no acerca el mapa, así que la malla de la grande se ve solo en el móvil.
