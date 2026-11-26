@@ -8,7 +8,7 @@
       Hecho cuando: `Migration41To42Test` y el test de ida y vuelta de un punto de origen superficie (también en una copia) en verde.
 - [x] T3. `core:formats`: `StakeoutReportCsv` con las filas de origen superficie y los dorados regenerados. (RF-21)
       Hecho cuando: `StakeoutReportCsvSurfaceTest` en verde y los demás dorados del informe no cambian.
-- [ ] T4. `app`: `StakeoutController` con `surfaceOnly`: el objetivo es la punta, sin zonas ni avisos horizontales, el nivel con el desplazamiento y fuera de la superficie. (RF-7 a RF-9, RF-13, RF-15)
+- [x] T4. `app`: `StakeoutController` con `surfaceOnly`: el objetivo es la punta, sin zonas ni avisos horizontales, el nivel con el desplazamiento y fuera de la superficie. (RF-7 a RF-9, RF-13, RF-15)
       Hecho cuando: `SurfaceOnlyControllerTest` en verde y los tests de `StakeoutController` siguen en verde.
 - [ ] T5. `app`: `StakeoutViewModel.openSurface`: activar y mostrar la superficie, el objetivo, el `StakeSaveInfo`, y el cierre cuando la superficie deja de ser la activa. (RF-6, RF-22)
       Hecho cuando: `SurfaceStakeOpenTest` en verde.

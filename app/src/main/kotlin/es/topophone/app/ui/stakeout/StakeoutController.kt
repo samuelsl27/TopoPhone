@@ -106,6 +106,11 @@ class StakeContext(
      * superficie activa en lugar de dejarlo sin nivel vertical (S027/RF-10). Solo vale sin cota escrita a mano.
      */
     val surfaceWhereNoHeight: Boolean = false,
+    /**
+     * Se replantea la superficie solo en cota (S062/RF-7 a RF-9): el objetivo es la propia punta con la cota de [surface] más el
+     * desplazamiento, sin guía en planta, sin zonas y sin avisos de llegada; el nivel vertical es el de siempre.
+     */
+    val surfaceOnly: Boolean = false,
 ) {
     /** La cota de diseño que se replantea: la escrita, o la altura del punto de diseño (S019/RF-1, RF-2). */
     val elevationM: Double? get() = designElevationM ?: target.coordinates.height
@@ -159,6 +164,8 @@ data class GuidanceUi(
     val objective: PlanePoint? = null,
     /** La cota de la superficie bajo la punta si se replantea contra ella; null si no (S042/RF-24, RF-26). */
     val surface: SurfaceUi? = null,
+    /** Replanteo de la superficie solo en cota: la placa no lleva flecha, distancia ni desplazamientos (S062/RF-7). */
+    val surfaceOnly: Boolean = false,
 )
 
 sealed interface GuidanceState {
@@ -242,7 +249,9 @@ class StakeoutController(
         val ownHeight = if (lineObjective != null) lineObjective.heightM else context.target.coordinates.height
         val noOwnHeight = context.designElevationM == null && ownHeight == null
         val surfaceGuide = context.surface.takeIf {
-            context.elevationSource == ElevationSource.SURFACE || (context.surfaceWhereNoHeight && noOwnHeight)
+            context.surfaceOnly ||
+                context.elevationSource == ElevationSource.SURFACE ||
+                (context.surfaceWhereNoHeight && noOwnHeight)
         }
         val surfaceHeight = surfaceGuide?.let {
             if (tipEast != null &&
@@ -258,7 +267,9 @@ class StakeoutController(
         } else {
             context.designElevationM ?: ownHeight
         }
-        val design = if (lineObjective != null) {
+        val design = if (context.surfaceOnly) {
+            tipCoordinates.copy(height = elevation) // S062/RF-7: sin objetivo en planta
+        } else if (lineObjective != null) {
             context.target.coordinates.copy(
                 ground = tip.ground,
                 easting = lineObjective.point.easting,
@@ -283,10 +294,11 @@ class StakeoutController(
         val guidance = terrain.guidance(StakeoutGeometry.guidance(design, tipCoordinates, (userHeading as? HeadingResult.Available)?.rad))
 
         val tolerance = context.settings.validToleranceM
-        val step = StakeoutZones.next(zone, guidance.distanceM, tolerance)
-        val zoneChanged = step.zone != zone
-        zone = step.zone
-        step.alert?.let { alert ->
+        // S062/RF-7: sin planta no hay zonas ni avisos de llegada; solo el nivel vertical.
+        val step = if (context.surfaceOnly) null else StakeoutZones.next(zone, guidance.distanceM, tolerance)
+        val zoneChanged = step != null && step.zone != zone
+        if (step != null) zone = step.zone
+        step?.alert?.let { alert ->
             when (alert) {
                 StakeAlert.APPROACH -> alerts.stakeoutApproach()
                 StakeAlert.ARRIVED -> alerts.stakeoutArrived()
@@ -334,6 +346,7 @@ class StakeoutController(
             line = lineObjective?.let(terrain::lineObjective),
             objective = lineObjective?.point,
             surface = if (surfaceGuide != null && surfaceHeight != null) SurfaceUi(surfaceHeight, surfaceGuide.verticalOffsetM) else null,
+            surfaceOnly = context.surfaceOnly,
         )
         val becameOn = !wasOn
         wasOn = true
