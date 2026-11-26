@@ -80,6 +80,15 @@ object StakeoutNames {
         return "${clean}_${n}$SUFFIX"
     }
 
+    private const val SURFACE_PREFIX = "SUP"
+
+    /** El nombre libre del próximo punto replanteado contra la superficie: `SUP` con el primer número libre (S062/RF-16). */
+    fun nextSurface(taken: Set<String>): String {
+        var n = 1
+        while ("$SURFACE_PREFIX$n" in taken) n++
+        return "$SURFACE_PREFIX$n"
+    }
+
     private val NUMBERED = Regex("""_stkd(\d*)$""")
 
     /**

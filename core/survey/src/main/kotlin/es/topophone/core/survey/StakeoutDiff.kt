@@ -1,6 +1,7 @@
 package es.topophone.core.survey
 
 import es.topophone.core.model.point.PointCoordinates
+import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutRef
 import kotlin.math.abs
 
@@ -44,6 +45,37 @@ object StakeoutDiff {
             toleranceHM = toleranceHM,
             toleranceVM = toleranceVM,
             withinTolerance = within,
+        )
+    }
+
+    /**
+     * Un punto replanteado contra la superficie solo en cota (S062/RF-17, RF-18): el diseño es la posición medida [measured] con la
+     * cota de diseño [designElevationM] (la de la superficie en esa posición más el desplazamiento), sin diferencias en planta; la
+     * diferencia de cota es medido menos diseño y cumple si su valor absoluto cabe en [toleranceVM]. No hay tolerancia horizontal.
+     * [pointId] es el del propio punto: cada medida es su propio diseño.
+     */
+    fun surfaceRef(
+        pointId: String,
+        surfaceName: String,
+        measured: PointCoordinates,
+        designElevationM: Double,
+        toleranceVM: Double,
+    ): StakeoutRef {
+        val measuredHeight = measured.height
+        val dHeight = measuredHeight?.let { it - designElevationM }
+        return StakeoutRef(
+            designId = pointId,
+            designName = surfaceName,
+            design = measured.copy(height = designElevationM),
+            dEastM = 0.0,
+            dNorthM = 0.0,
+            dHorizontalM = 0.0,
+            dHeightM = dHeight,
+            designElevationM = designElevationM,
+            toleranceHM = null,
+            toleranceVM = toleranceVM,
+            withinTolerance = dHeight?.let { abs(it) <= toleranceVM },
+            source = StakeSource.Surface(surfaceName),
         )
     }
 

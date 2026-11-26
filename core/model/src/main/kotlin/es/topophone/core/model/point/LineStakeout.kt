@@ -39,6 +39,12 @@ sealed interface StakeSource {
      * borrado de la línea (RF-16). El código y los atributos van en el punto, no aquí.
      */
     data class ProjectLine(val lineId: String, val lineName: String) : StakeSource
+
+    /**
+     * La superficie activa, replanteada solo en cota y sin punto de diseño (S062/RF-16 a RF-18): se guarda su nombre, copiado,
+     * para que el punto sobreviva al borrado de la superficie.
+     */
+    data class Surface(val surfaceName: String) : StakeSource
 }
 
 /**

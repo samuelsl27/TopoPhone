@@ -224,6 +224,9 @@ data class StakeoutRef(
     /** El punto de diseño es un objetivo de una línea del proyecto (S027/RF-12). */
     val fromProjectLine: Boolean get() = source is StakeSource.ProjectLine
 
+    /** Se replanteó la superficie solo en cota, sin punto de diseño ni diferencias en planta (S062/RF-17). */
+    val fromSurfaceOnly: Boolean get() = source is StakeSource.Surface
+
     /** Replanteado antes de S019, sin tolerancias ni veredicto guardados (S019/RF-26). */
     val notEvaluated: Boolean get() = withinTolerance == null
 
