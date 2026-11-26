@@ -58,7 +58,7 @@ class SurfaceStakeToolsTest {
     }
 
     @Test
-    fun `S062 RF-3 RF-4 con activa se replantea esa y sin activa se abre la lista para elegir`() {
+    fun `S062 RF-4 con activa se replantea esa y sin activa se abre la lista para elegir`() {
         val calls = mutableListOf<String>()
 
         SurfaceStakeTools.open("s1", onStake = { calls += "stake:$it" }, onChoose = { calls += "choose" })

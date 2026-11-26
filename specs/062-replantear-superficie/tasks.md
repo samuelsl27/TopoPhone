@@ -20,7 +20,7 @@
       Hecho cuando: `SurfaceStakeEntryTest` y `SurfaceStakeFollowTest` en verde.
 - [x] T9. `app`: «Replantear superficie» en «Herramientas» de Objetos: con la activa, sin activa (la ficha para elegir) y desactivada sin superficies. (RF-3 a RF-5)
       Hecho cuando: `SurfaceStakeToolsTest` en verde y el test de S059 de «Herramientas» actualizado.
-- [ ] T10. `app`: la ficha del punto replanteado contra la superficie. (RF-20)
+- [x] T10. `app`: la ficha del punto replanteado contra la superficie. (RF-20)
       Hecho cuando: `SurfaceStakeRefTextTest` en verde.
-- [ ] T11. Demo con el receptor virtual sobre una superficie sintética y un ráster; «Cambios al implementar» en `plan.md` y S062 a `implementada` en la hoja de ruta. (Criterios de finalización)
+- [x] T11. Demo con el receptor virtual sobre una superficie sintética y un ráster; «Cambios al implementar» en `plan.md` y S062 a `implementada` en la hoja de ruta. (Criterios de finalización)
       Hecho cuando: `./gradlew check` en verde, el informe de trazabilidad con los 23 RF de S062 cubiertos y la demo hecha.

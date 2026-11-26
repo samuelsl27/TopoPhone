@@ -104,3 +104,12 @@ stake_tol_v = 0.030, stake_tol_h = NULL, stake_within = 0
 | RF-21 | A4 | `StakeoutReportCsvSurfaceTest` |
 | RF-22 | A2 | `SurfaceStakeOpenTest` |
 | RF-23 | A2 | `SurfaceStakePillsTest` |
+
+## Cambios al implementar (S062)
+- El mapa (RF-12) sigue al jalón con la escala por defecto del seguimiento de S060 (20 m de lado corto visible, en torno a 1:300) en lugar de 1:500: a esa escala la malla de S061 se ve, y no hace falta otra regla de cámara. `StakeoutMarkers` no da destino en el replanteo de la superficie, para que el mapa nunca vaya a las coordenadas de relleno del objetivo.
+- Abrir el replanteo necesita dejar la superficie activa y visible: `SurfaceStakeStore` (`data`) lo hace con el repositorio, porque Hilt no puede dar un parámetro anulable al `StakeoutViewModel` (T5).
+- El bloqueo de RF-14 es un `MeasureBlocker.OUTSIDE_SURFACE` sin acción (`ReasonAction.NONE`): solo se resuelve volviendo a la superficie. Si la medida termina fuera (el bloqueo va una época por detrás), no se guarda y sale `CollectorError.OUTSIDE_SURFACE` (T6).
+- El resumen del informe no cuenta los SUP en las desviaciones horizontales (no tienen planta) y los ordena por su nombre (T3).
+- La placa y las pastillas van en `SurfaceStakePanel`, que reutiliza la hoja de campo, el nivel y los diálogos numéricos de S060; el desplazamiento se escribe con `SurfacesViewModel.setOffset` de S042 (T7, T8).
+- `GroupMenu` admite filas desactivadas con su motivo (RF-5), y «Herramientas» pasa a seis filas (T9).
+- Demo (T11) en el emulador con el receptor virtual sobre una superficie sintética: «Replantear» desde la ficha, placa con desmonte y cotas, el mapa sobre la malla, «Medir SUP1» (bloqueado hasta elegir el modo de inclinación, como cualquier medida) y la ficha de SUP1 con la superficie, la cota, la diferencia y solo la tolerancia vertical.

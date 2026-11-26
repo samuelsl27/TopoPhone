@@ -1562,6 +1562,7 @@
     <string name="surface_summary">%1$d points · %2$d triangles · %3$d holes</string>
     <string name="surface_size">%1$s × %2$s m · elevation from %3$s to %4$s m</string>
     <string name="surface_visible">Show on map</string>
+    <string name="point_stakeout_tolerance_v">Vertical tolerance</string>
     <string name="option_surface_stake">Stake out surface</string>
     <string name="option_surface_stake_a11y">Stake out the active surface by elevation only</string>
     <string name="option_surface_stake_desc">Cut or fill where the pole is</string>

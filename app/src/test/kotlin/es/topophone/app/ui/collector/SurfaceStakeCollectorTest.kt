@@ -231,7 +231,7 @@ class SurfaceStakeCollectorTest {
     }
 
     @Test
-    fun `S062 RF-16 RF-19 los puntos se llaman SUP1 y SUP2 y se sigue en el replanteo`() {
+    fun `S062 RF-19 tras guardar SUP1 se propone SUP2 y se sigue en el replanteo`() {
         val vm = viewModel()
         receiving(vm)
         stakeSurface(vm, guide(offset = 0.3))

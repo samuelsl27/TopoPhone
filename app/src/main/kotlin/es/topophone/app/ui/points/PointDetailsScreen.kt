@@ -768,8 +768,10 @@ private fun StakeoutCard(project: Project, ref: StakeoutRef) {
         val text = length(valueM)
         return if (valueM > 0.0 && !text.startsWith("-")) "+$text" else text
     }
+    // S062/RF-20: replanteada la superficie solo en cota no hay punto de diseño ni planta; la superficie sale más abajo (S042/RF-30).
+    val surfaceOnly = ref.fromSurfaceOnly
     DetailsCard(stringResource(R.string.point_stakeout_title), POINT_STAKEOUT_INFO_TAG) {
-        CoordinateRow(stringResource(R.string.point_stakeout_design), ref.designName, "point_stakeout_design")
+        if (!surfaceOnly) CoordinateRow(stringResource(R.string.point_stakeout_design), ref.designName, "point_stakeout_design")
         // S041/RF-29: de qué elemento, capa y dibujo viene, el modo, el PK y el desplazamiento lateral.
         (ref.source as? StakeSource.CadElement)?.let { source ->
             CoordinateRow(stringResource(R.string.point_stakeout_drawing), source.drawingName, "point_stakeout_drawing")
@@ -798,25 +800,31 @@ private fun StakeoutCard(project: Project, ref: StakeoutRef) {
         val designE = ref.design.easting
         val designN = ref.design.northing
         val designShown = if (designE != null && designN != null) terrain.coordinates(designE, designN) else null
-        TerrainMark(terrain, "point_stakeout_terrain")
-        (designShown?.easting ?: designE)?.let {
+        if (!surfaceOnly) TerrainMark(terrain, "point_stakeout_terrain")
+        (designShown?.easting ?: designE)?.takeIf { !surfaceOnly }?.let {
             CoordinateRow(stringResource(R.string.point_stakeout_design_easting), length(it), "point_stakeout_design_e")
         }
-        (designShown?.northing ?: designN)?.let {
+        (designShown?.northing ?: designN)?.takeIf { !surfaceOnly }?.let {
             CoordinateRow(stringResource(R.string.point_stakeout_design_northing), length(it), "point_stakeout_design_n")
         }
-        CoordinateRow(
-            stringResource(R.string.point_stakeout_design_height, heightTitle(project.heightSystem)),
-            ref.design.height?.let(::length) ?: stringResource(R.string.point_stakeout_no_height),
-            "point_stakeout_design_h",
-        )
-        CoordinateRow(stringResource(R.string.point_stakeout_diff_north), signed(terrain.distance(ref.dNorthM)), "point_stakeout_diff_n")
-        CoordinateRow(stringResource(R.string.point_stakeout_diff_east), signed(terrain.distance(ref.dEastM)), "point_stakeout_diff_e")
-        CoordinateRow(
-            stringResource(R.string.point_stakeout_diff_distance),
-            length(terrain.distance(ref.dHorizontalM)),
-            "point_stakeout_diff_d",
-        )
+        if (!surfaceOnly) {
+            CoordinateRow(
+                stringResource(R.string.point_stakeout_design_height, heightTitle(project.heightSystem)),
+                ref.design.height?.let(::length) ?: stringResource(R.string.point_stakeout_no_height),
+                "point_stakeout_design_h",
+            )
+            CoordinateRow(
+                stringResource(R.string.point_stakeout_diff_north),
+                signed(terrain.distance(ref.dNorthM)),
+                "point_stakeout_diff_n",
+            )
+            CoordinateRow(stringResource(R.string.point_stakeout_diff_east), signed(terrain.distance(ref.dEastM)), "point_stakeout_diff_e")
+            CoordinateRow(
+                stringResource(R.string.point_stakeout_diff_distance),
+                length(terrain.distance(ref.dHorizontalM)),
+                "point_stakeout_diff_d",
+            )
+        }
         ref.dLateralM?.let {
             CoordinateRow(stringResource(R.string.point_stakeout_diff_lateral), signed(terrain.distance(it)), "point_stakeout_diff_lateral")
         }
@@ -860,17 +868,25 @@ private fun StakeoutCard(project: Project, ref: StakeoutRef) {
         )
         val horizontal = ref.toleranceHM
         val vertical = ref.toleranceVM
-        CoordinateRow(
-            stringResource(R.string.point_stakeout_tolerances),
-            if (horizontal != null &&
-                vertical != null
-            ) {
-                "${length(horizontal)} / ${length(vertical)}"
-            } else {
-                stringResource(R.string.stakeout_not_evaluated)
-            },
-            "point_stakeout_tolerances",
-        )
+        if (surfaceOnly) {
+            CoordinateRow(
+                stringResource(R.string.point_stakeout_tolerance_v),
+                vertical?.let(::length) ?: stringResource(R.string.stakeout_not_evaluated),
+                "point_stakeout_tolerances",
+            ) // S062/RF-18: solo la vertical
+        } else {
+            CoordinateRow(
+                stringResource(R.string.point_stakeout_tolerances),
+                if (horizontal != null &&
+                    vertical != null
+                ) {
+                    "${length(horizontal)} / ${length(vertical)}"
+                } else {
+                    stringResource(R.string.stakeout_not_evaluated)
+                },
+                "point_stakeout_tolerances",
+            )
+        }
         CoordinateRow(stringResource(R.string.point_stakeout_within), ref.withinText(), "point_stakeout_within")
     }
 }
