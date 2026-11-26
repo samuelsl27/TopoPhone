@@ -70,6 +70,13 @@ class FakeMapController : MapController {
     private val gestures = MutableSharedFlow<Unit>(extraBufferCapacity = 8)
     override val userGestures: Flow<Unit> = gestures
 
+    val fitted = mutableListOf<GeoBox>()
+
+    override fun fitBounds(box: GeoBox) {
+        fitted += box
+        gestures.tryEmit(Unit)
+    }
+
     /** El usuario mueve el mapa con el dedo. */
     fun gesture() {
         gestures.tryEmit(Unit)

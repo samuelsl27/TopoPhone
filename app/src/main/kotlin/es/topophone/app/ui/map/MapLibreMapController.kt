@@ -282,6 +282,18 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         GeoBox(bounds.latitudeSouth, bounds.longitudeWest, bounds.latitudeNorth, bounds.longitudeEast)
     }.getOrNull()
 
+    override fun fitBounds(box: GeoBox) {
+        gestures.tryEmit(Unit) // S061/RF-15: como mover el mapa a mano
+        val bounds = LatLngBounds.from(box.north, box.east, box.south, box.west)
+        appliedInsetPx = bottomInsetPx
+        easing = true
+        map.easeCamera(
+            CameraUpdateFactory.newLatLngBounds(bounds, FIT_PADDING_PX, FIT_PADDING_PX, FIT_PADDING_PX, FIT_PADDING_PX + bottomInsetPx),
+            MOVE_MS,
+            easeDone,
+        )
+    }
+
     override fun showSpain() {
         val spain = LatLngBounds.from(CameraPolicy.SPAIN_NORTH, CameraPolicy.SPAIN_EAST, CameraPolicy.SPAIN_SOUTH, CameraPolicy.SPAIN_WEST)
         val p = SPAIN_PADDING_PX
@@ -1324,6 +1336,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val PRESS_STROKE_DP = 3f
         const val PRESS_FILL_OPACITY = 0.3f
         const val WMS_ANCHOR_LAYER = "topophone-wms-anchor"
+        const val FIT_PADDING_PX = 48
         const val SURFACE_MESH_SOURCE = "topophone-surface-mesh"
         const val SURFACE_OUTLINE_SOURCE = "topophone-surface-outline"
         const val SURFACE_FILL_LAYER = "topophone-surface-fill"

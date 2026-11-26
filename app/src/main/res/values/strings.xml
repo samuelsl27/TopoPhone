@@ -1575,6 +1575,8 @@
     <string name="surface_size">%1$s × %2$s m · cota de %3$s a %4$s m</string>
     <string name="surface_state_active">Activa</string>
     <string name="surface_visible">Ver en el mapa</string>
+    <string name="surface_go_to">Ir a la superficie</string>
+    <string name="surface_legend_description">Colores por cota, de %1$s a %2$s</string>
     <string name="surface_state_inactive">Inactiva</string>
     <string name="surface_activate">Activar</string>
     <string name="surface_deactivate">Desactivar</string>

@@ -64,6 +64,8 @@ fun surfaceKindTag(surfaceId: String) = "surface_kind_$surfaceId"
 
 fun surfaceVisibleTag(surfaceId: String) = "surface_visible_$surfaceId"
 
+fun surfaceGoToTag(surfaceId: String) = "surface_goto_$surfaceId"
+
 /**
  * Acciones del panel «Superficies» (S042/RF-16, RF-18 a RF-20, S061/RF-3). [onOffset] da false si lo escrito no es un número.
  */
@@ -72,6 +74,8 @@ class SurfacesActions(
     val onVisible: (surfaceId: String, visible: Boolean) -> Unit = { _, _ -> },
     val onDelete: (surfaceId: String) -> Unit = {},
     val onOffset: (text: String) -> Boolean = { true },
+    /** «Ir a la superficie»: la muestra, cierra la ficha y encuadra el mapa en ella (S061/RF-14). */
+    val onGoTo: (surface: Surface) -> Unit = {},
 )
 
 /**
@@ -190,6 +194,10 @@ private fun SurfaceSection(surface: Surface, active: Boolean, actions: SurfacesA
         Text(stringResource(R.string.surface_visible), modifier = Modifier.weight(1f))
         Switch(checked = surface.visible, onCheckedChange = null)
     }
+    OutlinedButton(
+        onClick = { actions.onGoTo(surface) },
+        modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(surfaceGoToTag(surface.id)),
+    ) { Text(stringResource(R.string.surface_go_to)) } // S061/RF-14
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
         if (active) {
             OutlinedButton(

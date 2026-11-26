@@ -170,6 +170,8 @@ import es.topophone.app.ui.stakeout.StakeoutPanel
 import es.topophone.app.ui.stakeout.StakeoutUiState
 import es.topophone.app.ui.stakeout.StakeoutViewModel
 import es.topophone.app.ui.surface.SURFACES_BUTTON_TAG
+import es.topophone.app.ui.surface.SurfaceGoTo
+import es.topophone.app.ui.surface.SurfaceLegend
 import es.topophone.app.ui.surface.SurfaceMapViewModel
 import es.topophone.app.ui.surface.SurfaceScene
 import es.topophone.app.ui.surface.SurfacesActions
@@ -1244,6 +1246,12 @@ fun ProjectViewScreen(
                         .testTag(OFFLINE_MAX_DETAIL_TAG),
                 )
             } // S037/RF-21
+            // S061/RF-11: la leyenda de los colores por cota, mientras haya una superficie coloreada en la vista.
+            val legendRamp = surfaceScene?.ramp
+            val legendUnit = state.project?.linearUnit
+            if (legendRamp != null && legendUnit != null) {
+                SurfaceLegend(legendRamp, legendUnit, Modifier.align(Alignment.CenterStart).padding(12.dp))
+            }
             Column(
                 modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -1529,7 +1537,22 @@ fun ProjectViewScreen(
     }
     if (offlineOpen) offlineSheet({ controller?.visibleBounds() }) { offlineOpen = false } // S037/RF-1
     if (drawingsOpen) DrawingsSheet(drawings, drawingsActions) { drawingsOpen = false }
-    if (surfacesOpen) SurfacesSheet(surfaces, surfacesActions) { surfacesOpen = false }
+    if (surfacesOpen) {
+        // S061/RF-14, RF-15: «Ir a la superficie» la muestra, cierra la ficha y encuadra el mapa, que deja de seguir al jalón.
+        val crs = state.project?.crs
+        val actions = SurfacesActions(
+            onActivate = surfacesActions.onActivate,
+            onVisible = surfacesActions.onVisible,
+            onDelete = surfacesActions.onDelete,
+            onOffset = surfacesActions.onOffset,
+            onGoTo = { surface ->
+                if (!surface.visible) surfacesActions.onVisible(surface.id, true)
+                surfacesOpen = false
+                crs?.let { SurfaceGoTo.bounds(it, surface.extent) }?.let { controller?.fitBounds(it) }
+            },
+        )
+        SurfacesSheet(surfaces, actions) { surfacesOpen = false }
+    }
     if (alignmentsOpen) {
         AlignmentsSheet(
             alignments,

@@ -67,6 +67,12 @@ interface MapController {
     /** España entera, con Canarias (S009/RF-21). */
     fun showSpain()
 
+    /**
+     * Encuadra el mapa en [box] y lo cuenta como un gesto del usuario: el mapa deja de seguir al jalón, como si se hubiera movido a
+     * mano (S061/RF-14, RF-15).
+     */
+    fun fitBounds(box: GeoBox)
+
     /** Lo que se ve ahora en el mapa, en grados, o null si el mapa aún no se ha dibujado: es el encuadre que se puede descargar (S037/RF-2). */
     fun visibleBounds(): GeoBox?
 

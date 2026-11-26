@@ -1562,6 +1562,8 @@
     <string name="surface_summary">%1$d points · %2$d triangles · %3$d holes</string>
     <string name="surface_size">%1$s × %2$s m · elevation from %3$s to %4$s m</string>
     <string name="surface_visible">Show on map</string>
+    <string name="surface_go_to">Go to surface</string>
+    <string name="surface_legend_description">Colours by elevation, from %1$s to %2$s</string>
     <string name="surface_state_active">Active</string>
     <string name="surface_state_inactive">Inactive</string>
     <string name="surface_activate">Activate</string>

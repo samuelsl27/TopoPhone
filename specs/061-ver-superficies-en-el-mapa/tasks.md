@@ -26,9 +26,9 @@
       Hecho cuando: el test del controlador falso en verde y el mapa del emulador muestra las capas en su orden.
 - [x] T12. `app`: `SurfaceSceneBuilder` al pararse la cámara, con la rampa común de las visibles. (RF-6 a RF-10)
       Hecho cuando: `SurfaceSceneBuilderTest` en verde: contorno de lejos, malla de cerca, ráster y rampa común de dos superficies.
-- [ ] T13. `app`: `SurfaceLegend` sobre el mapa. (RF-11)
+- [x] T13. `app`: `SurfaceLegend` sobre el mapa. (RF-11)
       Hecho cuando: `SurfaceLegendTest` en verde con las cifras en metros y en pies y la descripción de TalkBack.
-- [ ] T14. `app`: «Ir a la superficie» en la ficha. (RF-14, RF-15)
+- [x] T14. `app`: «Ir a la superficie» en la ficha. (RF-14, RF-15)
       Hecho cuando: `GoToSurfaceTest` en verde: se hace visible, se encuadra con margen y deja de seguir al jalón.
 - [ ] T15. `app`: tocar una superficie: `SurfaceTapResolver` y la tarjeta, después de puntos, líneas y dibujos. (RF-16 a RF-18)
       Hecho cuando: `SurfaceTapTest` en verde: una superficie, dos solapadas, un hueco y un toque fuera de todas.
