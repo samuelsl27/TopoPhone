@@ -62,12 +62,15 @@ data class StakeoutReport(val rows: List<StakeoutReportRow>, val summary: Stakeo
 
         private val ROW_ORDER: Comparator<StakeoutReportRow> = Comparator
             .comparing<StakeoutReportRow, String>({ it.ref.designName }, NaturalOrder)
+            // S062/RF-21: los replanteos de la superficie van por su nombre (SUP1, SUP2…): cada uno es su propio diseño.
+            .thenComparing({ if (it.ref.fromSurfaceOnly) it.point.name else "" }, NaturalOrder)
             .thenComparing({ it.ref.designId }, Comparator.naturalOrder())
             .thenComparingInt { it.number }
             .thenComparingLong { it.point.createdAtMs }
 
         private fun summarize(lasts: List<StakeoutReportRow>): StakeoutSummary {
-            val horizontal = lasts.map { it.ref.dHorizontalM }
+            // S062/RF-17: un replanteo de la superficie no tiene planta y no cuenta en las desviaciones horizontales.
+            val horizontal = lasts.filterNot { it.ref.fromSurfaceOnly }.map { it.ref.dHorizontalM }
             val vertical = lasts.mapNotNull { row -> row.ref.dHeightM?.let { abs(it) } }
             return StakeoutSummary(
                 designPoints = lasts.size,

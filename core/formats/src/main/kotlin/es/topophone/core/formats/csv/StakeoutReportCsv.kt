@@ -121,22 +121,26 @@ object StakeoutReportCsv {
         fun degrees(value: Double) = CsvExport.number(value, CsvExport.DEGREE_DECIMALS, decimal)
         fun flag(value: Boolean?) = value?.toString().orEmpty()
         val ref = row.ref
+        // S062/RF-21: un replanteo de la superficie no tiene planta: sin número de replanteo ni columnas de planta del diseño.
+        val surfaceOnly = ref.fromSurfaceOnly
+        fun plan(text: String) = if (surfaceOnly) "" else text
         val design = ref.design
         val measured = row.point.coordinates
         val measurement = row.point.measurement
         val position = if (project.crs.isUtm) {
-            listOf(length(design.easting), length(design.northing)) to listOf(length(measured.easting), length(measured.northing))
+            listOf(plan(length(design.easting)), plan(length(design.northing))) to
+                listOf(length(measured.easting), length(measured.northing))
         } else {
-            listOf(degrees(design.ground.latitudeDeg), degrees(design.ground.longitudeDeg)) to
+            listOf(plan(degrees(design.ground.latitudeDeg)), plan(degrees(design.ground.longitudeDeg))) to
                 listOf(degrees(measured.ground.latitudeDeg), degrees(measured.ground.longitudeDeg))
         }
-        return listOf(ref.designName, row.number.toString(), row.point.name, row.point.description) +
+        return listOf(ref.designName, plan(row.number.toString()), row.point.name, row.point.description) +
             position.first + length(ref.designElevationM) +
             position.second + length(measured.height) +
             listOf(
-                length(ref.dNorthM),
-                length(ref.dEastM),
-                length(ref.dHorizontalM),
+                plan(length(ref.dNorthM)),
+                plan(length(ref.dEastM)),
+                plan(length(ref.dHorizontalM)),
                 length(ref.dHeightM),
                 length(ref.toleranceHM),
                 length(ref.toleranceVM),
