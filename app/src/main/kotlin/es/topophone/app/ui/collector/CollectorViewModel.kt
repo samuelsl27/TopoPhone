@@ -139,10 +139,14 @@ enum class MeasureBlocker {
 
     /** Algún atributo del código elegido tiene un valor no válido (S024/RF-9). */
     ATTRIBUTES,
+
+    /** Se replantea la superficie y la punta está fuera de ella: no hay cota que replantear (S062/RF-14). */
+    OUTSIDE_SURFACE,
 }
 
 /** Por qué una medida se ha cancelado sola (S010/RF-12; al cambiar el modo de inclinación, S016/RF-28). */
-enum class CollectorError { NO_DATA, OUTSIDE_CRS_AREA, TILT_MODE_CHANGED }
+/** [OUTSIDE_SURFACE]: la medida contra la superficie terminó fuera de ella y no se guardó (S062/RF-14). */
+enum class CollectorError { NO_DATA, OUTSIDE_CRS_AREA, TILT_MODE_CHANGED, OUTSIDE_SURFACE }
 
 /**
  * La cota de la superficie activa bajo la punta mientras se recolecta, sin replantear (S042/RF-33): [height] es su cota, fuera de la
@@ -583,7 +587,7 @@ class CollectorViewModel @Inject constructor(
         state.copy(
             live = live,
             blocker =
-            state.blocker ?: gearBlocker(gearState) ?: positionBlocker(snapshot, project, state.poleHeightText)
+            state.blocker ?: gearBlocker(gearState) ?: positionBlocker(snapshot, project, state.poleHeightText) ?: surfaceBlocker()
                 ?: tiltBlocker(tiltState, epochTilt) ?: MeasureBlocker.ATTRIBUTES.takeIf {
                 !codeUi.valid && !CollectorLineRules.appendsToActive(codeUi.selected, line) // S025/RF-8b
             },
@@ -704,7 +708,9 @@ class CollectorViewModel @Inject constructor(
      * `<capa>_<n>_stkd` con un elemento de un dibujo (S041/RF-27), `<eje>_<n>_stkd` con un PK de un eje (S054/RF-10) y `<diseño>_stkd` con
      * un punto del proyecto (S018/RF-27). Un vértice de una línea del proyecto es como un punto: `<vértice>_stkd` (S027/RF-11).
      */
-    private fun stakeName(target: StakeTarget, taken: Set<String>): String = if (target.source !is StakeSource.ProjectPoint &&
+    private fun stakeName(target: StakeTarget, taken: Set<String>): String = if (target.source is StakeSource.Surface) {
+        StakeoutNames.nextSurface(taken) // S062/RF-16: SUP1, SUP2…
+    } else if (target.source !is StakeSource.ProjectPoint &&
         !target.namePerTarget
     ) {
         StakeoutNames.nextForLayer(
@@ -713,6 +719,18 @@ class CollectorViewModel @Inject constructor(
         )
     } else {
         StakeoutNames.next(target.name, taken)
+    }
+
+    /**
+     * El punto replanteado contra la superficie solo en cota con la medida en [measured] (S062/RF-17, RF-18): la cota de la
+     * superficie en la posición medida con el desplazamiento, y lo de la superficie (S042/RF-28). Null si está fuera de ella.
+     */
+    private fun surfaceStakeRef(target: StakeTarget, pointId: String, measured: PointCoordinates): StakeoutRef? {
+        val info = stakeSaveInfo ?: return null
+        val surface = SurfaceStake.of(info.copy(elevationSource = ElevationSource.SURFACE), measured) ?: return null
+        val elevation = surface.elevationOr(null) ?: return null
+        val name = (target.source as StakeSource.Surface).surfaceName
+        return surface.applyTo(StakeoutDiff.surfaceRef(pointId, name, measured, elevation, info.toleranceVM))
     }
 
     /** La descripción se conserva para el siguiente punto (S010/RF-4). */
@@ -1266,7 +1284,18 @@ class CollectorViewModel @Inject constructor(
         val shown = PointLocalization.coordinates(measurement.coordinates, localizationAtSave)
         // S018/RF-28: el diseño por valor y lo que se desvió lo medido (medido menos diseño). S019/RF-13, RF-14: contra la cota
         // usada, con las tolerancias vigentes y si cumple.
-        val staked = stake?.let { target ->
+        // S062/RF-17: contra la superficie solo en cota, la cota de diseño es la de la superficie en la posición medida; si la
+        // medida acabó fuera de ella (el bloqueo va una época por detrás), no se guarda: nunca un SUP sin cota de la superficie.
+        val pointId = UUID.randomUUID().toString()
+        val surfaceTarget = stake?.takeIf { it.source is StakeSource.Surface }
+        val surfaceRef = surfaceTarget?.let { surfaceStakeRef(it, pointId, shown) }
+        if (surfaceTarget != null && surfaceRef == null) {
+            log.warning(LogCategory.POINTS, "No se guardó el replanteo de la superficie: la punta estaba fuera de ella")
+            run.value = Run(error = CollectorError.OUTSIDE_SURFACE)
+            photos.discardStaged()
+            return
+        }
+        val staked = surfaceRef ?: stake?.let { target ->
             val info = stakeSaveInfo
             val provider = stakeObjective
             val objective = provider?.current()
@@ -1317,7 +1346,7 @@ class CollectorViewModel @Inject constructor(
             if (staked != null && surface != null) surface.applyTo(staked) else staked
         }
         val unlocalizedPoint = Point.measured(
-            id = UUID.randomUUID().toString(),
+            id = pointId,
             projectId = projectId,
             name = name,
             description = form.value.description.trim(),
@@ -1472,6 +1501,11 @@ class CollectorViewModel @Inject constructor(
     }
 
     private fun parseSeconds(text: String): Int? = DurationText.parse(text, CollectorSettings.AVERAGING_SECONDS)
+
+    /** S062/RF-14: replanteando la superficie, con la punta fuera de ella no se mide. */
+    private fun surfaceBlocker(): MeasureBlocker? = MeasureBlocker.OUTSIDE_SURFACE.takeIf {
+        stake?.source is StakeSource.Surface && surfaceReading.value?.height == SurfaceHeight.Outside
+    }
 
     /** S046/RF-28: sin jalón o con un perfil que no permite medir con el jalón activo. */
     private fun gearBlocker(equipment: ActiveGear): MeasureBlocker? = if (equipment.usable) null else MeasureBlocker.NO_GEAR

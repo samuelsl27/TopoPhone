@@ -1575,6 +1575,13 @@
     <string name="surface_size">%1$s × %2$s m · cota de %3$s a %4$s m</string>
     <string name="surface_state_active">Activa</string>
     <string name="surface_visible">Ver en el mapa</string>
+    <string name="surface_stake_ended">La superficie dejó de ser la activa y se ha cerrado su replanteo. Los puntos ya medidos se conservan.</string>
+    <string name="surface_stake_title">Replantear la superficie %1$s</string>
+    <string name="surface_stake_offset">Desplazamiento: %1$s</string>
+    <string name="surface_stake_design">Cota de diseño: %1$s</string>
+    <string name="surface_stake_tip">Cota de la punta: %1$s</string>
+    <string name="field_pill_offset">Desplazamiento</string>
+    <string name="collector_outside_surface">La medida terminó fuera de la superficie: no se ha guardado el punto.</string>
     <string name="surface_go_to">Ir a la superficie</string>
     <string name="surface_legend_description">Colores por cota, de %1$s a %2$s</string>
     <string name="surface_state_inactive">Inactiva</string>

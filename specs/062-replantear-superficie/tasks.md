@@ -12,7 +12,7 @@
       Hecho cuando: `SurfaceOnlyControllerTest` en verde y los tests de `StakeoutController` siguen en verde.
 - [x] T5. `app`: `StakeoutViewModel.openSurface`: activar y mostrar la superficie, el objetivo, el `StakeSaveInfo`, y el cierre cuando la superficie deja de ser la activa. (RF-6, RF-22)
       Hecho cuando: `SurfaceStakeOpenTest` en verde.
-- [ ] T6. `app`: el recolector con origen superficie: SUP1, SUP2…, el bloqueo «Fuera de la superficie», lo guardado con la cota en la posición medida y la confirmación. (RF-14, RF-16 a RF-19)
+- [x] T6. `app`: el recolector con origen superficie: SUP1, SUP2…, el bloqueo «Fuera de la superficie», lo guardado con la cota en la posición medida y la confirmación. (RF-14, RF-16 a RF-19)
       Hecho cuando: `SurfaceStakeCollectorTest` en verde (≤ 1 mm frente al plano).
 - [ ] T7. `app`: `SurfaceStakePlate` en la hoja de campo y las pastillas «Jalón», «Tolerancia V» y «Desplazamiento». (RF-7 a RF-11, RF-23)
       Hecho cuando: `SurfaceStakePlateTest` y `SurfaceStakePillsTest` en verde.

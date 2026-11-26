@@ -168,6 +168,7 @@ private fun Slot(collector: CollectorUiState, actions: CollectorActions, result:
                 ReasonAction.OPEN_GEAR -> actions.onOpenGear()
                 // El jalón y el tiempo del recolector se cambian en su pantalla; aquí se lleva a la hoja expandida (S060/RF-16).
                 ReasonAction.EDIT_POLE, ReasonAction.EDIT_TIME, ReasonAction.EXPAND -> onExpand()
+                ReasonAction.NONE -> Unit
             }
         }
         notice != null -> CollectorNoticeLine(notice)

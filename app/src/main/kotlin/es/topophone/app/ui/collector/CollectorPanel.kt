@@ -307,6 +307,8 @@ internal fun Messages(state: CollectorUiState, actions: CollectorActions) {
             color = MaterialTheme.colorScheme.error,
             modifier = Modifier.testTag(COLLECTOR_TILT_CHANGED_TAG),
         ) // S016/RF-28
+        CollectorError.OUTSIDE_SURFACE ->
+            Text(stringResource(R.string.collector_outside_surface), color = MaterialTheme.colorScheme.error) // S062/RF-14
         null -> Unit
     }
     state.savedName?.let { Text(stringResource(R.string.collector_saved, it), style = MaterialTheme.typography.bodyLarge) }

@@ -104,6 +104,7 @@ fun CollectorFolded(
                     ReasonAction.EDIT_POLE -> dialog = PillDialog.POLE
                     ReasonAction.EDIT_TIME -> dialog = PillDialog.TIME
                     ReasonAction.EXPAND -> onExpand()
+                    ReasonAction.NONE -> Unit
                 }
             }
             notice != null -> CollectorNoticeLine(notice)

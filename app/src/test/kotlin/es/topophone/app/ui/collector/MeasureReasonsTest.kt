@@ -46,6 +46,7 @@ class MeasureReasonsTest {
             MeasureBlocker.AUTO_INTERVAL_TOO_SHORT to ReasonAction.EDIT_TIME, // S017/RF-18
             MeasureBlocker.INVALID_AUTO_INTERVAL to ReasonAction.EDIT_TIME,
             MeasureBlocker.INVALID_AUTO_DISTANCE to ReasonAction.EDIT_TIME,
+            MeasureBlocker.OUTSIDE_SURFACE to ReasonAction.NONE, // S062/RF-14: solo se resuelve volviendo a la superficie
         )
 
         MeasureBlocker.entries.forEach { blocker ->

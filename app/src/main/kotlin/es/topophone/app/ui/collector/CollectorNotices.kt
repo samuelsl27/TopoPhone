@@ -80,6 +80,7 @@ fun CollectorNoticeLine(notice: CollectorNotice?, modifier: Modifier = Modifier)
             CollectorError.NO_DATA -> stringResource(R.string.collector_no_data) to COLLECTOR_ERROR_TAG
             CollectorError.OUTSIDE_CRS_AREA -> stringResource(R.string.project_outside_crs) to COLLECTOR_ERROR_TAG
             CollectorError.TILT_MODE_CHANGED -> stringResource(R.string.collector_tilt_mode_changed) to COLLECTOR_TILT_CHANGED_TAG
+            CollectorError.OUTSIDE_SURFACE -> stringResource(R.string.collector_outside_surface) to COLLECTOR_ERROR_TAG // S062/RF-14
         }
         CollectorNotice.SolutionLost -> stringResource(R.string.collector_solution_lost) to COLLECTOR_SOLUTION_LOST_TAG
         is CollectorNotice.TiltLost ->

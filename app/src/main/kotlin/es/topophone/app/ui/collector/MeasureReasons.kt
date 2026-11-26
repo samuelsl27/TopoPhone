@@ -20,7 +20,7 @@ import es.topophone.core.designsystem.component.MinTouchTarget
 const val COLLECTOR_REASON_ACTION_TAG = "collector_reason_action"
 
 /** Lo que resuelve un motivo de bloqueo con un toque (S060/RF-16). */
-enum class ReasonAction { OPEN_RECEIVER, OPEN_PROJECT_CRS, OPEN_TILT, OPEN_GEAR, EDIT_POLE, EDIT_TIME, EXPAND }
+enum class ReasonAction { OPEN_RECEIVER, OPEN_PROJECT_CRS, OPEN_TILT, OPEN_GEAR, EDIT_POLE, EDIT_TIME, EXPAND, NONE }
 
 /** Por qué «Medir» no se puede pulsar: una frase y la acción que lo arregla (S060/RF-16). */
 data class MeasureReason(val blocker: MeasureBlocker, @StringRes val textRes: Int, @StringRes val actionRes: Int, val action: ReasonAction)
@@ -69,6 +69,8 @@ object MeasureReasons {
             reason(blocker, R.string.field_reason_auto_interval, R.string.field_action_time, ReasonAction.EDIT_TIME)
         MeasureBlocker.INVALID_AUTO_DISTANCE ->
             reason(blocker, R.string.field_reason_auto_distance, R.string.field_action_time, ReasonAction.EDIT_TIME)
+        // S062/RF-14: lo único que lo resuelve es volver a la superficie: no hay acción.
+        MeasureBlocker.OUTSIDE_SURFACE -> reason(blocker, R.string.stakeout_level_outside_surface, 0, ReasonAction.NONE)
     }
 
     private fun reason(blocker: MeasureBlocker, @StringRes text: Int, @StringRes action: Int, kind: ReasonAction) =
@@ -93,9 +95,11 @@ fun MeasureReasonLine(reason: MeasureReason?, modifier: Modifier = Modifier, onA
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.weight(1f).testTag(COLLECTOR_BLOCKER_TAG),
         )
-        TextButton(
-            onClick = { onAction(reason.action) },
-            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(COLLECTOR_REASON_ACTION_TAG),
-        ) { Text(stringResource(reason.actionRes)) }
+        if (reason.action != ReasonAction.NONE) {
+            TextButton(
+                onClick = { onAction(reason.action) },
+                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(COLLECTOR_REASON_ACTION_TAG),
+            ) { Text(stringResource(reason.actionRes)) }
+        }
     }
 }
