@@ -30,7 +30,7 @@
       Hecho cuando: `SurfaceLegendTest` en verde con las cifras en metros y en pies y la descripción de TalkBack.
 - [x] T14. `app`: «Ir a la superficie» en la ficha. (RF-14, RF-15)
       Hecho cuando: `GoToSurfaceTest` en verde: se hace visible, se encuadra con margen y deja de seguir al jalón.
-- [ ] T15. `app`: tocar una superficie: `SurfaceTapResolver` y la tarjeta, después de puntos, líneas y dibujos. (RF-16 a RF-18)
+- [x] T15. `app`: tocar una superficie: `SurfaceTapResolver` y la tarjeta, después de puntos, líneas y dibujos. (RF-16 a RF-18)
       Hecho cuando: `SurfaceTapTest` en verde: una superficie, dos solapadas, un hueco y un toque fuera de todas.
 - [ ] T16. Rendimiento y demo: `SurfaceScenePerfTest` (escena de 20.000 triángulos en menos de 1 s) y demo en el emulador con un LandXML de cerca de 1.000.000 de triángulos sin nombre de superficie y un ráster; «Cambios al implementar» en `plan.md` y S061 a `implementada` en la hoja de ruta. (RNF, criterios de finalización)
       Hecho cuando: `./gradlew check` en verde, el informe de trazabilidad con los 18 RF de S061 cubiertos y la demo hecha.

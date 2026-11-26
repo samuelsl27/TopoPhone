@@ -4,9 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.di.IoDispatcher
+import es.topophone.app.ui.map.MapTap
 import es.topophone.core.geodesy.GeoBox
+import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.surface.Surface
+import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.project.ProjectRepository
+import es.topophone.data.surface.RasterProjectContext
+import es.topophone.data.surface.SurfaceProbe
 import es.topophone.data.surface.SurfaceRepository
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -14,12 +19,15 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 /**
  * Lo que el mapa dibuja de las superficies del proyecto (S061/RF-6 a RF-13): con la cámara quieta, las superficies marcadas como
@@ -61,6 +69,42 @@ class SurfaceMapViewModel @Inject constructor(
     /** Las superficies del proyecto [id]. */
     fun start(id: String) {
         projectId.value = id
+    }
+
+    private val tapResolver = SurfaceTapResolver(SurfaceProbe(surfaces))
+    private val tap = MutableStateFlow<SurfaceTapUi?>(null)
+
+    /** La tarjeta del último toque sobre superficies visibles, o null (S061/RF-16 a RF-18). */
+    val tapped: StateFlow<SurfaceTapUi?> = tap.asStateFlow()
+
+    /** Un toque del mapa sin punto ni línea debajo: las superficies visibles que hay allí y su cota; un toque fuera cierra la tarjeta. */
+    fun onTap(mapTap: MapTap) {
+        viewModelScope.launch(io) { tap.value = resolve(mapTap) }
+    }
+
+    fun dismissTap() {
+        tap.value = null
+    }
+
+    private suspend fun resolve(mapTap: MapTap): SurfaceTapUi? {
+        val id = projectId.value ?: return null
+        val project = projects.project(id) ?: return null
+        val (east, north) = if (!project.crs.isProjected) {
+            mapTap.longitudeDeg to mapTap.latitudeDeg
+        } else {
+            val position = ProjectPositionCalculator().fromGround(
+                GeodeticPosition(mapTap.latitudeDeg, mapTap.longitudeDeg, null),
+                project.crs,
+            )
+            (position.easting ?: return null) to (position.northing ?: return null)
+        }
+        return tapResolver.resolve(
+            surfaces.surfaces(id).first(),
+            surfaces.activeSurfaceId(id).first(),
+            east,
+            north,
+            RasterProjectContext(project.crs, project.heightSystem, project.terrain),
+        )
     }
 
     /** La zona que se ve con la cámara quieta; null si el mapa aún no se ha dibujado. */

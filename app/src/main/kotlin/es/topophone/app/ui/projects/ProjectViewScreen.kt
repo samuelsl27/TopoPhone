@@ -174,6 +174,8 @@ import es.topophone.app.ui.surface.SurfaceGoTo
 import es.topophone.app.ui.surface.SurfaceLegend
 import es.topophone.app.ui.surface.SurfaceMapViewModel
 import es.topophone.app.ui.surface.SurfaceScene
+import es.topophone.app.ui.surface.SurfaceTapSheet
+import es.topophone.app.ui.surface.SurfaceTapUi
 import es.topophone.app.ui.surface.SurfacesActions
 import es.topophone.app.ui.surface.SurfacesSheet
 import es.topophone.app.ui.surface.SurfacesUiState
@@ -600,6 +602,7 @@ fun ProjectViewRoute(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val design by designViewModel.scene.collectAsStateWithLifecycle()
     val surfaceScene by surfaceMapViewModel.scene.collectAsStateWithLifecycle()
+    val surfaceTap by surfaceMapViewModel.tapped.collectAsStateWithLifecycle()
     val drawings by designViewModel.drawings.collectAsStateWithLifecycle()
     val surfaces by surfacesViewModel.state.collectAsStateWithLifecycle()
     val designSelection by designViewModel.selected.collectAsStateWithLifecycle()
@@ -677,9 +680,12 @@ fun ProjectViewRoute(
         designSelection = designSelection,
         onMapTap = {
             designViewModel.onTap(it)
+            surfaceMapViewModel.onTap(it) // S061/RF-16
             alignmentMapViewModel.onTap(it) // S049/RF-18
         },
         onDismissDesignSelection = designViewModel::dismissSelection,
+        surfaceTap = surfaceTap,
+        onDismissSurfaceTap = surfaceMapViewModel::dismissTap,
         alignments = alignmentsState,
         alignmentsActions = AlignmentsActions(
             onActivate = alignmentsViewModel::activate, // S049/RF-14
@@ -1139,6 +1145,8 @@ fun ProjectViewScreen(
     designSelection: DesignSelection? = null,
     onMapTap: (MapTap) -> Unit = {},
     onDismissDesignSelection: () -> Unit = {},
+    surfaceTap: SurfaceTapUi? = null,
+    onDismissSurfaceTap: () -> Unit = {},
     /** Convertir la línea tocada en un eje, y cómo va (S049/RF-6, RF-7). */
     /** Los ejes del proyecto con el activo, para el panel «Ejes» (S049/RF-14, RF-15, RF-19). */
     alignments: AlignmentsUiState = AlignmentsUiState(),
@@ -1661,6 +1669,9 @@ fun ProjectViewScreen(
             onInformation = { designInfoOpen = true },
             terrain = rememberTerrainView(project),
         )
+    } else if (surfaceTap != null && project != null) {
+        // S061/RF-16 a RF-18: sin eje ni elemento de dibujo bajo el dedo, las superficies visibles que hay allí.
+        SurfaceTapSheet(surfaceTap, project.linearUnit, onDismissSurfaceTap)
     }
     if (designInfoOpen && designSelection != null && project != null) {
         DesignGeometryDialog(
