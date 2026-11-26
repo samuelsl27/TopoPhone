@@ -66,6 +66,8 @@ fun surfaceVisibleTag(surfaceId: String) = "surface_visible_$surfaceId"
 
 fun surfaceGoToTag(surfaceId: String) = "surface_goto_$surfaceId"
 
+fun surfaceStakeTag(surfaceId: String) = "surface_stake_$surfaceId"
+
 /**
  * Acciones del panel «Superficies» (S042/RF-16, RF-18 a RF-20, S061/RF-3). [onOffset] da false si lo escrito no es un número.
  */
@@ -76,6 +78,8 @@ class SurfacesActions(
     val onOffset: (text: String) -> Boolean = { true },
     /** «Ir a la superficie»: la muestra, cierra la ficha y encuadra el mapa en ella (S061/RF-14). */
     val onGoTo: (surface: Surface) -> Unit = {},
+    /** «Replantear»: la superficie solo en cota (S062/RF-1). */
+    val onStake: (surface: Surface) -> Unit = {},
 )
 
 /**
@@ -198,6 +202,10 @@ private fun SurfaceSection(surface: Surface, active: Boolean, actions: SurfacesA
         onClick = { actions.onGoTo(surface) },
         modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(surfaceGoToTag(surface.id)),
     ) { Text(stringResource(R.string.surface_go_to)) } // S061/RF-14
+    Button(
+        onClick = { actions.onStake(surface) },
+        modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(surfaceStakeTag(surface.id)),
+    ) { Text(stringResource(R.string.design_element_stakeout)) } // S062/RF-1
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
         if (active) {
             OutlinedButton(

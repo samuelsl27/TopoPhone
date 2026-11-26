@@ -104,6 +104,8 @@ import kotlinx.serialization.Serializable
     val stakeoutLineId: String? = null,
     /** Abre una hoja de la vista al llegar: superficies, ejes o capas, desde «Activo en este proyecto» (S059/RF-20). */
     val openPanel: String? = null,
+    /** Abre el replanteo de esta superficie solo en cota (S062/RF-1 a RF-4). */
+    val stakeoutSurfaceId: String? = null,
 )
 
 /** Datos de un proyecto (S009/RF-5). */

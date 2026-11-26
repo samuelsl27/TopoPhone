@@ -56,6 +56,7 @@ class ObjectListMenusTest {
         onCogo = call("cogo"),
         onBaseShift = call("base_shift"),
         onLocalization = call("localization"),
+        onSurfaceStake = call("surface_stake"), // S062/RF-3
         onStakeoutReport = call("stakeout_report"),
         onOpenTrash = call("point_trash"),
     )
@@ -81,7 +82,7 @@ class ObjectListMenusTest {
             compose.chooseOption(option)
             calls.last() shouldBe option.key
         }
-        calls.size shouldBe 19
+        calls.size shouldBe 20 // S062/RF-3: «Replantear superficie» en Herramientas
     }
 
     @Test

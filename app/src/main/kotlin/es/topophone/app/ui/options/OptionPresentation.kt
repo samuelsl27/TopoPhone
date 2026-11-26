@@ -86,6 +86,12 @@ fun ProjectOption.presentation(): OptionPresentation = when (this) {
         R.string.option_localization_a11y,
         R.string.option_localization_desc,
     )
+    ProjectOption.SURFACE_STAKE -> OptionPresentation(
+        R.drawable.ic_surface,
+        R.string.option_surface_stake,
+        R.string.option_surface_stake_a11y,
+        R.string.option_surface_stake_desc,
+    )
     ProjectOption.STAKEOUT_REPORT ->
         OptionPresentation(R.drawable.ic_opt_report, R.string.option_stakeout_report, R.string.option_stakeout_report_a11y)
     ProjectOption.POINT_TRASH ->

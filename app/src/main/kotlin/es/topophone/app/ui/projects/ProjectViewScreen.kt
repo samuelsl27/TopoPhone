@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -169,6 +170,8 @@ import es.topophone.app.ui.stakeout.StakeoutMarkers
 import es.topophone.app.ui.stakeout.StakeoutPanel
 import es.topophone.app.ui.stakeout.StakeoutUiState
 import es.topophone.app.ui.stakeout.StakeoutViewModel
+import es.topophone.app.ui.stakeout.SurfaceStakeActions
+import es.topophone.app.ui.stakeout.SurfaceStakePanel
 import es.topophone.app.ui.surface.SURFACES_BUTTON_TAG
 import es.topophone.app.ui.surface.SurfaceGoTo
 import es.topophone.app.ui.surface.SurfaceLegend
@@ -470,6 +473,7 @@ fun ProjectViewRoute(
     stakeoutQuery: String = "",
     stakeoutLineId: String? = null,
     openPanel: ProjectPanel? = null,
+    stakeoutSurfaceId: String? = null,
     viewModel: ProjectViewModel = hiltViewModel(),
     collectorViewModel: CollectorViewModel = hiltViewModel(),
     stakeoutViewModel: StakeoutViewModel = hiltViewModel(),
@@ -573,6 +577,43 @@ fun ProjectViewRoute(
             lineRequestHandled = true
             startProjectLine(stakeoutLineId)
         }
+    }
+    // S062/RF-1 a RF-4: el replanteo de una superficie solo en cota, en el hueco del replanteo de un punto.
+    val startSurfaceStake: (String) -> Unit = { surfaceId ->
+        designViewModel.dismissSelection()
+        axisSurveyOpen = false
+        longitudinalOpen = false
+        crossOpen = false
+        axisOpen = false
+        axisStakeoutViewModel.close()
+        analysisOpen = false
+        axisAnalysisViewModel.close()
+        slopeOpen = false
+        slopeStakeViewModel.close()
+        lineOpen = false
+        lineStakeoutViewModel.close()
+        stakeoutViewModel.openSurface(projectId, surfaceId)
+        stakeoutOpen = true
+    }
+    var surfaceRequestHandled by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(stakeoutSurfaceId) {
+        if (stakeoutSurfaceId != null && !surfaceRequestHandled) {
+            surfaceRequestHandled = true
+            startSurfaceStake(stakeoutSurfaceId)
+        }
+    }
+    // S062/RF-22: si la superficie deja de ser la activa, el replanteo se cierra y se dice.
+    LaunchedEffect(stakeout.surfaceStakeEnded) { if (stakeout.surfaceStakeEnded) stakeoutOpen = false }
+    if (stakeout.surfaceStakeEnded) {
+        AlertDialog(
+            onDismissRequest = stakeoutViewModel::dismissSurfaceEnded,
+            text = { Text(stringResource(R.string.surface_stake_ended)) },
+            confirmButton = {
+                TextButton(onClick = stakeoutViewModel::dismissSurfaceEnded, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                    Text(stringResource(R.string.field_apply))
+                }
+            },
+        )
     }
     // El recolector mide y guarda el punto replanteado con el punto de diseño de ahora (S018/A5, S041/RF-27, S054/RF-10).
     val activeTarget = when {
@@ -689,6 +730,7 @@ fun ProjectViewRoute(
         onDismissDesignSelection = designViewModel::dismissSelection,
         surfaceTap = surfaceTap,
         onDismissSurfaceTap = surfaceMapViewModel::dismissTap,
+        onStakeSurface = startSurfaceStake, // S062/RF-1, RF-2
         alignments = alignmentsState,
         alignmentsActions = AlignmentsActions(
             onActivate = alignmentsViewModel::activate, // S049/RF-14
@@ -1150,6 +1192,7 @@ fun ProjectViewScreen(
     onDismissDesignSelection: () -> Unit = {},
     surfaceTap: SurfaceTapUi? = null,
     onDismissSurfaceTap: () -> Unit = {},
+    onStakeSurface: (String) -> Unit = {},
     /** Convertir la línea tocada en un eje, y cómo va (S049/RF-6, RF-7). */
     /** Los ejes del proyecto con el activo, para el panel «Ejes» (S049/RF-14, RF-15, RF-19). */
     alignments: AlignmentsUiState = AlignmentsUiState(),
@@ -1342,6 +1385,18 @@ fun ProjectViewScreen(
                 }
                 when {
                     project == null -> Unit
+                    // S062/RF-7: el replanteo de la superficie solo en cota tiene su propia placa y sus pastillas.
+                    stakeout != null && stakeout.surfaceOnly -> SurfaceStakePanel(
+                        stakeout,
+                        SurfaceStakeActions(
+                            onClose = stakeoutActions.onClose,
+                            onToleranceV = stakeoutActions.onToleranceV,
+                            onOffset = { text -> !stakeout.measuring && surfacesActions.onOffset(text) }, // RF-11, RF-23
+                        ),
+                        collector = collector,
+                        collectorActions = collectorActions,
+                        stats = collectorStats,
+                    )
                     stakeout != null -> StakeoutPanel(
                         stakeout,
                         stakeoutActions,
@@ -1556,6 +1611,10 @@ fun ProjectViewScreen(
             onVisible = surfacesActions.onVisible,
             onDelete = surfacesActions.onDelete,
             onOffset = surfacesActions.onOffset,
+            onStake = { surface ->
+                surfacesOpen = false
+                onStakeSurface(surface.id) // S062/RF-1
+            },
             onGoTo = { surface ->
                 if (!surface.visible) surfacesActions.onVisible(surface.id, true)
                 surfacesOpen = false
@@ -1674,7 +1733,10 @@ fun ProjectViewScreen(
         )
     } else if (surfaceTap != null && project != null) {
         // S061/RF-16 a RF-18: sin eje ni elemento de dibujo bajo el dedo, las superficies visibles que hay allí.
-        SurfaceTapSheet(surfaceTap, project.linearUnit, onDismissSurfaceTap)
+        SurfaceTapSheet(surfaceTap, project.linearUnit, onDismissSurfaceTap) { surfaceId ->
+            onDismissSurfaceTap()
+            onStakeSurface(surfaceId) // S062/RF-2
+        }
     }
     if (designInfoOpen && designSelection != null && project != null) {
         DesignGeometryDialog(

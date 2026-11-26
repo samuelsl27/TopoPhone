@@ -25,7 +25,13 @@ fun optionTag(option: ProjectOption) = "option_${option.key}"
  * fila lleva para TalkBack el verbo y el objeto completos (RF-8). Pulsar fuera o «Atrás» lo cierra sin hacer nada (RF-9).
  */
 @Composable
-fun GroupMenu(group: OptionGroup, onSelect: (ProjectOption) -> Unit, onDismiss: () -> Unit) {
+fun GroupMenu(
+    group: OptionGroup,
+    onSelect: (ProjectOption) -> Unit,
+    onDismiss: () -> Unit,
+    /** Las filas que no se pueden usar ahora, con el motivo en lugar de su descripción (S062/RF-5). */
+    disabled: Map<ProjectOption, Int> = emptyMap(),
+) {
     DropdownMenu(expanded = true, onDismissRequest = onDismiss) {
         ProjectOptions.of(group).forEach { option ->
             val presentation = option.presentation()
@@ -34,7 +40,7 @@ fun GroupMenu(group: OptionGroup, onSelect: (ProjectOption) -> Unit, onDismiss: 
                 text = {
                     Column {
                         Text(stringResource(presentation.label), style = MaterialTheme.typography.bodyLarge)
-                        presentation.description?.let {
+                        (disabled[option] ?: presentation.description)?.let {
                             Text(
                                 stringResource(it),
                                 style = MaterialTheme.typography.bodySmall,
@@ -48,6 +54,7 @@ fun GroupMenu(group: OptionGroup, onSelect: (ProjectOption) -> Unit, onDismiss: 
                     onDismiss()
                     onSelect(option)
                 },
+                enabled = option !in disabled,
                 modifier = Modifier
                     .heightIn(min = MinTouchTarget)
                     .semantics { contentDescription = accessibility }

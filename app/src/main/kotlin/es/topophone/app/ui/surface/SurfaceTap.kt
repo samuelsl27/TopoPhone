@@ -2,9 +2,12 @@ package es.topophone.app.ui.surface
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.uiLocale
+import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.surface.Surface
@@ -30,6 +34,8 @@ import es.topophone.data.surface.SurfaceProbe
 const val SURFACE_TAP_SHEET_TAG = "surface_tap_sheet"
 
 fun surfaceTapRowTag(surfaceId: String) = "surface_tap_$surfaceId"
+
+fun surfaceTapStakeTag(surfaceId: String) = "surface_tap_stake_$surfaceId"
 
 /** Una superficie bajo el toque: su nombre, su tipo, si es la activa y su cota allí, o null si cae en un hueco o sin dato (S061/RF-16 a RF-18). */
 data class SurfaceTapRow(val surfaceId: String, val name: String, val kind: SurfaceKind, val active: Boolean, val heightM: Double?)
@@ -64,7 +70,7 @@ class SurfaceTapResolver(private val probe: SurfaceProbe) {
 /** La tarjeta de un toque sobre una o varias superficies visibles (S061/RF-16 a RF-18). La cota va en las unidades del proyecto. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SurfaceTapSheet(ui: SurfaceTapUi, unit: LinearUnit, onDismiss: () -> Unit) {
+fun SurfaceTapSheet(ui: SurfaceTapUi, unit: LinearUnit, onDismiss: () -> Unit, onStake: (surfaceId: String) -> Unit = {}) {
     val locale = uiLocale()
     val symbol = unitSymbol(unit)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
@@ -89,6 +95,10 @@ fun SurfaceTapSheet(ui: SurfaceTapUi, unit: LinearUnit, onDismiss: () -> Unit) {
                     } else {
                         Text(stringResource(R.string.stakeout_level_outside_surface)) // RF-18
                     }
+                    Button(
+                        onClick = { onStake(row.surfaceId) },
+                        modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(surfaceTapStakeTag(row.surfaceId)),
+                    ) { Text(stringResource(R.string.design_element_stakeout)) } // S062/RF-2
                 }
             }
         }

@@ -12,6 +12,11 @@ object StakeoutMarkers {
      */
     fun of(state: StakeoutUiState?): StakeoutMarker? {
         val target = state?.target ?: return null
+        // S062/RF-12: el replanteo de la superficie no tiene destino: solo la punta, y el mapa la sigue con la escala por defecto.
+        if (state.surfaceOnly) {
+            val tip = ((state.guidance as? GuidanceState.On)?.ui?.tip)?.let { GeoPoint(it.latitudeDeg, it.longitudeDeg) }
+            return StakeoutMarker(design = null, tip = tip, line = false)
+        }
         val ground = target.coordinates.ground
         val design = GeoPoint(ground.latitudeDeg, ground.longitudeDeg)
         val ui = (state.guidance as? GuidanceState.On)?.ui ?: return StakeoutMarker(design, tip = null, line = false)

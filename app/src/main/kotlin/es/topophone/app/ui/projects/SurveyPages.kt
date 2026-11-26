@@ -105,6 +105,7 @@ sealed interface SurveyPage {
         val stakeoutQuery: String = "",
         val stakeoutLineId: String? = null,
         val openPanel: ProjectPanel? = null,
+        val stakeoutSurfaceId: String? = null,
     ) : SurveyPage
 
     /** Datos de un proyecto (S009/RF-5). */
@@ -220,6 +221,8 @@ class SurveyNavigation(
     val onEditProjectTerrain: (String) -> Unit = {},
     /** La vista del proyecto con una de sus hojas abierta (S059/RF-20). */
     val onOpenProjectPanel: (projectId: String, panel: ProjectPanel) -> Unit = { _, _ -> },
+    /** La vista del proyecto con el replanteo de esta superficie abierto (S062/RF-3). */
+    val onStakeSurface: (projectId: String, surfaceId: String) -> Unit = { _, _ -> },
     val onOpenProjectInfo: (String) -> Unit = {},
     /** Los códigos de la biblioteca que lleva el proyecto, solo de consulta (S023/RF-20). */
     val onOpenProjectCodes: (String) -> Unit = {},

@@ -14,11 +14,11 @@
       Hecho cuando: `SurfaceStakeOpenTest` en verde.
 - [x] T6. `app`: el recolector con origen superficie: SUP1, SUP2…, el bloqueo «Fuera de la superficie», lo guardado con la cota en la posición medida y la confirmación. (RF-14, RF-16 a RF-19)
       Hecho cuando: `SurfaceStakeCollectorTest` en verde (≤ 1 mm frente al plano).
-- [ ] T7. `app`: `SurfaceStakePlate` en la hoja de campo y las pastillas «Jalón», «Tolerancia V» y «Desplazamiento». (RF-7 a RF-11, RF-23)
+- [x] T7. `app`: `SurfaceStakePlate` en la hoja de campo y las pastillas «Jalón», «Tolerancia V» y «Desplazamiento». (RF-7 a RF-11, RF-23)
       Hecho cuando: `SurfaceStakePlateTest` y `SurfaceStakePillsTest` en verde.
-- [ ] T8. `app`: `ProjectViewDestination.stakeoutSurfaceId`, «Replantear» en la ficha de Superficies y en la tarjeta del toque, y el mapa que sigue al jalón a 1:500. (RF-1, RF-2, RF-12)
+- [x] T8. `app`: `ProjectViewDestination.stakeoutSurfaceId`, «Replantear» en la ficha de Superficies y en la tarjeta del toque, y el mapa que sigue al jalón a 1:500. (RF-1, RF-2, RF-12)
       Hecho cuando: `SurfaceStakeEntryTest` y `SurfaceStakeFollowTest` en verde.
-- [ ] T9. `app`: «Replantear superficie» en «Herramientas» de Objetos: con la activa, sin activa (la ficha para elegir) y desactivada sin superficies. (RF-3 a RF-5)
+- [x] T9. `app`: «Replantear superficie» en «Herramientas» de Objetos: con la activa, sin activa (la ficha para elegir) y desactivada sin superficies. (RF-3 a RF-5)
       Hecho cuando: `SurfaceStakeToolsTest` en verde y el test de S059 de «Herramientas» actualizado.
 - [ ] T10. `app`: la ficha del punto replanteado contra la superficie. (RF-20)
       Hecho cuando: `SurfaceStakeRefTextTest` en verde.

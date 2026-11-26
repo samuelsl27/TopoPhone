@@ -206,7 +206,7 @@ fun StakeoutPanel(
 
 /** Una línea con si el último punto replanteado cumple la tolerancia, en la fila extra de la hoja plegada (S018/RF-29; S060/RF-22). */
 @Composable
-private fun ResultLine(ref: StakeoutRef) {
+internal fun ResultLine(ref: StakeoutRef) {
     Text(
         ref.withinText(),
         color = when (ref.withinTolerance) {

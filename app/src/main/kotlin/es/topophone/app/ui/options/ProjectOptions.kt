@@ -29,6 +29,7 @@ enum class ProjectOption(val group: OptionGroup, val key: String) {
     COGO(OptionGroup.TOOLS, "cogo"),
     BASE_SHIFT(OptionGroup.TOOLS, "base_shift"),
     LOCALIZATION(OptionGroup.TOOLS, "localization"),
+    SURFACE_STAKE(OptionGroup.TOOLS, "surface_stake"), // S062/RF-3
 
     STAKEOUT_REPORT(OptionGroup.MORE, "stakeout_report"),
     POINT_TRASH(OptionGroup.MORE, "point_trash"),

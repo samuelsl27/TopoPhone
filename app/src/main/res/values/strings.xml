@@ -1575,6 +1575,10 @@
     <string name="surface_size">%1$s × %2$s m · cota de %3$s a %4$s m</string>
     <string name="surface_state_active">Activa</string>
     <string name="surface_visible">Ver en el mapa</string>
+    <string name="option_surface_stake">Replantear superficie</string>
+    <string name="option_surface_stake_a11y">Replantear la superficie activa solo en cota</string>
+    <string name="option_surface_stake_desc">Desmonte o terraplén donde está el jalón</string>
+    <string name="surface_stake_none">Este proyecto no tiene superficies</string>
     <string name="surface_stake_ended">La superficie dejó de ser la activa y se ha cerrado su replanteo. Los puntos ya medidos se conservan.</string>
     <string name="surface_stake_title">Replantear la superficie %1$s</string>
     <string name="surface_stake_offset">Desplazamiento: %1$s</string>

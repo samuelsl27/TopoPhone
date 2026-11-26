@@ -34,13 +34,14 @@ class ProjectOptionsTest {
     }
 
     @Test
-    fun `S059 RF-4 Herramientas lleva cinco filas en su orden`() {
+    fun `S059 RF-4 S062 RF-3 Herramientas lleva seis filas en su orden`() {
         ProjectOptions.of(OptionGroup.TOOLS) shouldBe listOf(
             ProjectOption.LINE_FROM_POINTS,
             ProjectOption.THREE_POINT_ANGLE,
             ProjectOption.COGO,
             ProjectOption.BASE_SHIFT,
             ProjectOption.LOCALIZATION,
+            ProjectOption.SURFACE_STAKE,
         )
     }
 
@@ -55,9 +56,9 @@ class ProjectOptionsTest {
     }
 
     @Test
-    fun `S059 RF-7 estan las 21 opciones de hoy, cada una en un solo grupo y con nombre unico`() {
-        ProjectOption.entries shouldHaveSize 21
-        ProjectOption.entries.map { it.key }.toSet() shouldHaveSize 21
-        OptionGroup.entries.sumOf { ProjectOptions.of(it).size } shouldBe 21
+    fun `S059 RF-7 estan las 22 opciones de hoy (21 y la de S062), cada una en un solo grupo y con nombre unico`() {
+        ProjectOption.entries shouldHaveSize 22
+        ProjectOption.entries.map { it.key }.toSet() shouldHaveSize 22
+        OptionGroup.entries.sumOf { ProjectOptions.of(it).size } shouldBe 22
     }
 }

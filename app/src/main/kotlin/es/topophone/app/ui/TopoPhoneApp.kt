@@ -157,6 +157,7 @@ fun TopoPhoneApp(
                     stakeoutQuery = page.stakeoutQuery,
                     stakeoutLineId = page.stakeoutLineId,
                     openPanel = page.openPanel,
+                    stakeoutSurfaceId = page.stakeoutSurfaceId,
                     viewModel = hiltViewModel(owner),
                 )
                 is SurveyPage.Info -> ProjectInfoRoute(page.projectId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
@@ -476,6 +477,9 @@ private fun AppNavHost(
                 onOpenProjectPanel = { id, panel ->
                     navController.navigate(ProjectViewDestination(id, openPanel = panel.name))
                 },
+                onStakeSurface = { id, surfaceId ->
+                    navController.navigate(ProjectViewDestination(id, stakeoutSurfaceId = surfaceId)) // S062/RF-3
+                },
                 onOpenProjectInfo = { id -> navController.navigate(ProjectInfoDestination(id)) }, // S009/RF-5
                 onOpenProjectCodes = { id -> navController.navigate(ProjectCodesDestination(id)) }, // S023/RF-20
                 onNewProjectCode = { id -> navController.navigate(ProjectCodeEditorDestination(id)) }, // S024/RF-5
@@ -582,7 +586,14 @@ private fun AppNavHost(
             composable<ProjectViewDestination> { entry ->
                 val args = entry.toRoute<ProjectViewDestination>()
                 val panel = args.openPanel?.let { name -> ProjectPanel.entries.firstOrNull { it.name == name } }
-                val page = SurveyPage.View(args.projectId, args.stakeoutPointId, args.stakeoutQuery, args.stakeoutLineId, panel)
+                val page = SurveyPage.View(
+                    args.projectId,
+                    args.stakeoutPointId,
+                    args.stakeoutQuery,
+                    args.stakeoutLineId,
+                    panel,
+                    args.stakeoutSurfaceId,
+                )
                 surveySection(page, uiState.themeState, actions.onToggleSun, surveyNavigation, entry)
             }
             composable<ProjectInfoDestination> { entry ->

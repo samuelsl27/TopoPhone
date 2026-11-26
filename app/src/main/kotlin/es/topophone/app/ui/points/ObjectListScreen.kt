@@ -73,8 +73,11 @@ import es.topophone.app.ui.options.GroupMenu
 import es.topophone.app.ui.options.OptionGroup
 import es.topophone.app.ui.options.ProjectOption
 import es.topophone.app.ui.projects.ConfirmDialog
+import es.topophone.app.ui.projects.ProjectPanel
 import es.topophone.app.ui.projects.SurveyNavigation
 import es.topophone.app.ui.raster.rememberImportRasterLauncher
+import es.topophone.app.ui.surface.SurfaceStakeTools
+import es.topophone.app.ui.surface.SurfacesViewModel
 import es.topophone.app.ui.surface.rememberImportSurfaceLauncher
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.codes.CodeKey
@@ -210,6 +213,8 @@ class ObjectListActions(
     val onBaseShift: () -> Unit = {},
     /** La pantalla de localización (S039/RF-1). */
     val onLocalization: () -> Unit = {},
+    /** «Replantear superficie»: la activa, o la lista de superficies para elegir una (S062/RF-3, RF-4). */
+    val onSurfaceStake: () -> Unit = {},
     /** El asistente «Línea desde puntos» (S025/RF-12). */
     val onLineFromPoints: () -> Unit = {},
     /** El ángulo entre tres puntos (S026/RF-13). */
@@ -414,8 +419,13 @@ fun ObjectListRoute(
     onToggleSun: () -> Unit,
     navigation: SurveyNavigation,
     viewModel: ObjectListViewModel = hiltViewModel(),
+    surfacesViewModel: SurfacesViewModel = hiltViewModel(),
 ) {
-    LaunchedEffect(projectId) { viewModel.start(projectId) }
+    LaunchedEffect(projectId) {
+        viewModel.start(projectId)
+        surfacesViewModel.start(projectId) // S062/RF-3 a RF-5
+    }
+    val surfaces by surfacesViewModel.state.collectAsStateWithLifecycle()
     val importPoints = rememberImportPointsLauncher(navigation.onImportPoints) // S028/RF-1
     val importDxf = rememberImportDxfLauncher(navigation.onImportDxf) // S040/RF-1
     val importSurface = rememberImportSurfaceLauncher(navigation.onImportSurface) // S042/RF-1
@@ -442,6 +452,13 @@ fun ObjectListRoute(
             onImportRaster = { importRaster(projectId) },
             onBaseShift = { navigation.onBaseShift(projectId) }, // S020/RF-1
             onLocalization = { navigation.onLocalization(projectId) }, // S039/RF-1
+            onSurfaceStake = {
+                SurfaceStakeTools.open(
+                    surfaces.activeId,
+                    onStake = { navigation.onStakeSurface(projectId, it) },
+                    onChoose = { navigation.onOpenProjectPanel(projectId, ProjectPanel.SURFACES) },
+                )
+            }, // S062/RF-3, RF-4
             onLineFromPoints = { navigation.onLineFromPoints(projectId) }, // S025/RF-12
             onThreePointAngle = { navigation.onThreePointAngle(projectId) }, // S026/RF-13
             onCogo = { navigation.onCogo(projectId) }, // S038/RF-1
@@ -523,6 +540,8 @@ fun ObjectListScreen(
     state: ObjectListUiState,
     actions: ObjectListActions,
     onBack: () -> Unit,
+    /** El proyecto tiene alguna superficie: si no, «Replantear superficie» está desactivada (S062/RF-5). */
+    hasSurfaces: Boolean = true,
 ) {
     SectionScaffold(
         title = stringResource(R.string.objects_title),
@@ -541,7 +560,8 @@ fun ObjectListScreen(
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
             // S059/RF-1: los menús de importar, exportar y herramientas, a un toque bajo la barra superior.
-            GroupBar(menu = { group, dismiss -> GroupMenu(group, onSelect = actions::run, onDismiss = dismiss) })
+            val disabled = if (hasSurfaces) emptyMap() else mapOf(ProjectOption.SURFACE_STAKE to R.string.surface_stake_none)
+            GroupBar(menu = { group, dismiss -> GroupMenu(group, onSelect = actions::run, onDismiss = dismiss, disabled = disabled) })
             // S059/RF-11, RF-12, RF-13: dos pestañas con su número de elementos; abre en «Puntos» y recuerda la elegida al girar y al restaurar.
             var tab by rememberSaveable { mutableStateOf(ObjectTab.POINTS) }
             ObjectTabs(tab, { tab = it }, pointCount = state.total, lineCount = state.lines.size)
@@ -648,6 +668,7 @@ internal fun ObjectListActions.run(option: ProjectOption) = when (option) {
     ProjectOption.COGO -> onCogo()
     ProjectOption.BASE_SHIFT -> onBaseShift()
     ProjectOption.LOCALIZATION -> onLocalization()
+    ProjectOption.SURFACE_STAKE -> onSurfaceStake()
     ProjectOption.STAKEOUT_REPORT -> onStakeoutReport()
     ProjectOption.POINT_TRASH -> onOpenTrash()
 }
